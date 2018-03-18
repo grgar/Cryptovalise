@@ -10,7 +10,7 @@ import kotlinx.android.synthetic.main.activity_currency_detail.*
 import kotlinx.android.synthetic.main.currency_detail.view.*
 
 /**
- * A fragment representing a single Currency detail screen.
+ * A fragment representing a single Coin detail screen.
  * This fragment is either contained in a [CurrencyListActivity]
  * in two-pane mode (on tablets) or a [CurrencyDetailActivity]
  * on handsets.

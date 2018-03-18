@@ -1,15 +1,24 @@
 package com.georgegarside.cryptovalise
 
+import android.content.Context
 import android.content.Intent
+import android.database.Cursor
+import android.net.Uri
 import android.os.Bundle
 import android.support.design.widget.Snackbar
+import android.support.v4.app.LoaderManager
+import android.support.v4.content.CursorLoader
+import android.support.v4.content.Loader
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CursorAdapter
 import android.widget.TextView
 import com.georgegarside.cryptovalise.dummy.DummyContent
+import com.georgegarside.cryptovalise.model.CoinsContentProvider
+import com.georgegarside.cryptovalise.model.DBOpenHelper
 import kotlinx.android.synthetic.main.activity_currency_list.*
 import kotlinx.android.synthetic.main.currency_list.*
 import kotlinx.android.synthetic.main.currency_list_content.view.*
@@ -25,36 +34,93 @@ import kotlinx.android.synthetic.main.currency_list_content.view.*
 class CurrencyListActivity : AppCompatActivity() {
 	
 	/**
-	 * Whether or not the activity is in two-pane mode, i.e. running on a tablet
-	 * device.
+	 * Is screen showing both master and detail containers (true on tablet-scale containers)
 	 */
-	private var mTwoPane: Boolean = false
+	private var isMasterDetail = false
+	
+	private val coinsUri = Uri.withAppendedPath(CoinsContentProvider.base, "coin")
 	
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_currency_list)
 		
-		setSupportActionBar(toolbar)
 		toolbar.title = title
+		setSupportActionBar(toolbar)
 		
-		fab.setOnClickListener { view ->
-			Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+		fab.setOnClickListener {
+			//startActivity(Intent(this, LoginActivity::class.java))
+			Snackbar.make(it, "Replace with your own action", Snackbar.LENGTH_LONG)
 					.setAction("Action", null).show()
 		}
 		
-		if (currency_detail_container != null) {
-			// The detail container view will be present only in the
-			// large-screen layouts (res/values-w900dp).
-			// If this view is present, then the
-			// activity should be in two-pane mode.
-			mTwoPane = true
+		// Larger than res/values-w900dp, detail is shown beside master
+		if (currencyDetail != null) {
+			isMasterDetail = true
 		}
 		
-		setupRecyclerView(currency_list)
+		val table = DBOpenHelper.findTable("coin")
+		
+		val cursor = contentResolver.query(coinsUri, table?.columns,
+				null, null, null, null)
+		
+		val adapter = CurrencyRecyclerViewAdapter(this, cursor, isMasterDetail)
+		currencyList.adapter = adapter
+		
+		supportLoaderManager.initLoader(0, null, CurrencyLoader(this, adapter.cursorAdapter))
 	}
 	
-	private fun setupRecyclerView(recyclerView: RecyclerView) {
-		recyclerView.adapter = SimpleItemRecyclerViewAdapter(this, DummyContent.ITEMS, mTwoPane)
+	class CurrencyRecyclerViewAdapter(private val context: Context,
+	                                  private val cursor: Cursor,
+	                                  private val isMasterDetail: Boolean) :
+			RecyclerView.Adapter<CurrencyRecyclerViewAdapter.ViewHolder>() {
+		
+		// TODO: IllegalArgumentException column _id does not exist
+		val cursorAdapter = object : CursorAdapter(context, cursor, 0) {
+			// No implementation since view management is performed with ViewHolder
+			override fun newView(context: Context, cursor: Cursor, parent: ViewGroup): View = TODO("Implement newView")
+			
+			override fun bindView(view: View, context: Context, cursor: Cursor) = TODO("Implement bindView")
+		}
+		
+		inner class ViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
+			private val text1 = view.findViewById<TextView>(android.R.id.text1)!!
+			private val text2 = view.findViewById<TextView>(android.R.id.text2)!!
+			
+			constructor(parent: ViewGroup) : this(LayoutInflater.from(parent.context)
+					.inflate(android.R.layout.simple_list_item_2, parent, false))
+			
+			fun setData(cursor: Cursor) {
+				with(cursor) {
+					text1.text = getString(getColumnIndex("name"))
+					text2.text = getString(getColumnIndex("symbol"))
+				}
+			}
+		}
+		
+		override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
+				ViewHolder(parent)
+		
+		override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+			cursor.moveToPosition(position)
+			holder.setData(cursor)
+		}
+		
+		override fun getItemCount(): Int = cursor.count
+	}
+	
+	inner class CurrencyLoader(private val context: Context,
+	                           private val cursorAdapter: CursorAdapter) : LoaderManager.LoaderCallbacks<Cursor> {
+		override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
+			return CursorLoader(context, coinsUri, null, null, null, null)
+		}
+		
+		override fun onLoadFinished(loader: Loader<Cursor>, data: Cursor?) {
+			cursorAdapter.swapCursor(data)
+		}
+		
+		override fun onLoaderReset(loader: Loader<Cursor>) {
+			cursorAdapter.swapCursor(null)
+		}
 	}
 	
 	class SimpleItemRecyclerViewAdapter(private val mParentActivity: CurrencyListActivity,
@@ -73,9 +139,10 @@ class CurrencyListActivity : AppCompatActivity() {
 							putString(CurrencyDetailFragment.ARG_ITEM_ID, item.id)
 						}
 					}
+					//mParentActivity.fragmentReplace(R.id.currencyDetail, fragment)
 					mParentActivity.supportFragmentManager
 							.beginTransaction()
-							.replace(R.id.currency_detail_container, fragment)
+							.replace(R.id.currencyDetail, fragment)
 							.commit()
 				} else {
 					val intent = Intent(v.context, CurrencyDetailActivity::class.java).apply {

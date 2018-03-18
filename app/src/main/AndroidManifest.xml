@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.georgegarside.cryptovalise">
 
+	<uses-permission android:name="android.permission.INTERNET"/>
+
 	<application
 		android:allowBackup="true"
 		android:icon="@mipmap/ic_launcher"
@@ -27,6 +29,16 @@
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value="com.georgegarside.cryptovalise.CurrencyListActivity"/>
+		</activity>
+
+		<provider
+			android:name=".model.CoinsContentProvider"
+			android:authorities="com.georgegarside.cryptovalise"
+			android:enabled="true"
+			android:exported="false">
+		</provider>
+
+		<activity android:name=".NewsActivity">
 		</activity>
 	</application>
 

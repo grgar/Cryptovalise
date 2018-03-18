@@ -8,7 +8,7 @@ import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_currency_detail.*
 
 /**
- * An activity representing a single Currency detail screen. This
+ * An activity representing a single Coin detail screen. This
  * activity is only used on narrow width devices. On tablet-size devices,
  * item details are presented side-by-side with a list of items
  * in a [CurrencyListActivity].
@@ -48,7 +48,7 @@ class CurrencyDetailActivity : AppCompatActivity() {
 			}
 			
 			supportFragmentManager.beginTransaction()
-					.add(R.id.currency_detail_container, fragment)
+					.add(R.id.currencyDetail, fragment)
 					.commit()
 		}
 	}
