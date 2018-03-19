@@ -67,7 +67,7 @@ class CoinsContentProvider : ContentProvider() {
 	                   sortOrder: String?): Cursor? {
 		// Get table to perform query on
 		return dbTable(uri)?.let {
-			db.query(it.name, it.columns, selection, selectionArgs, null, null, sortOrder)
+			return db.query(it.name, it.columns, selection, selectionArgs, null, null, sortOrder)
 		}
 	}
 	

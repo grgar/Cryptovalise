@@ -5,8 +5,10 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.provider.BaseColumns
 
-class DBOpenHelper(context: Context) : SQLiteOpenHelper(context, "coins.db", null, 1) {
-	class Table(val name: String, vararg val columns: String)
+class DBOpenHelper(private val context: Context) : SQLiteOpenHelper(context, "coins.db", null, 1) {
+	class Table(val name: String, vararg columns: String) {
+		val columns = arrayOf(BaseColumns._ID, *columns)
+	}
 	
 	companion object {
 		val tables = arrayOf(Table("coin", "name", "symbol"))
@@ -23,12 +25,27 @@ class DBOpenHelper(context: Context) : SQLiteOpenHelper(context, "coins.db", nul
 	 * Creates the [db] and populates it with [Table]s defined in [tables]
 	 */
 	override fun onCreate(db: SQLiteDatabase) {
+		// Need to create a table in the database for each defined table
 		tables.forEach {
 			db.execSQL((
+					// Build SQL statement for creating table
 					"CREATE TABLE ${it.name} (" +
+							
+							// ID column is primary key in table
 							"${BaseColumns._ID} INTEGER PRIMARY KEY AUTOINCREMENT, " +
-							it.columns.joinToString(" TEXT, ")
-					).trim(' ', ',') + ")")
+							
+							// All other columns in table
+							it.columns
+									// Remove ID column since it was handled separately
+									.drop(1)
+									// All other columns are text
+									.joinToString(" TEXT, ")
+					
+					)
+					// Remove extraneous characters added by columns join
+					.trim(' ', ',')
+					// End SQL table definitions
+					+ ")")
 		}
 	}
 	
