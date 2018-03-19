@@ -82,16 +82,13 @@ class CurrencyListActivity : AppCompatActivity() {
 		}
 		
 		inner class ViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
-			private val text1 = view.findViewById<TextView>(android.R.id.text1)!!
-			private val text2 = view.findViewById<TextView>(android.R.id.text2)!!
-			
 			constructor(parent: ViewGroup) : this(LayoutInflater.from(parent.context)
-					.inflate(android.R.layout.simple_list_item_2, parent, false))
+					.inflate(R.layout.currency_list_content, parent, false))
 			
 			fun setData(cursor: Cursor) {
 				with(cursor) {
-					text1.text = getString(getColumnIndex("name"))
-					text2.text = getString(getColumnIndex("symbol"))
+					view.id_text.text = getString(getColumnIndex("symbol"))
+					view.content.text = getString(getColumnIndex("name"))
 				}
 			}
 		}
