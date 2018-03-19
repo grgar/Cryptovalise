@@ -74,7 +74,6 @@ class CurrencyListActivity : AppCompatActivity() {
 	                                  private val isMasterDetail: Boolean) :
 			RecyclerView.Adapter<CurrencyRecyclerViewAdapter.ViewHolder>() {
 		
-		// TODO: IllegalArgumentException column _id does not exist
 		val cursorAdapter = object : CursorAdapter(context, cursor, 0) {
 			// No implementation since view management is performed with ViewHolder
 			override fun newView(context: Context, cursor: Cursor, parent: ViewGroup): View = TODO("Implement newView")

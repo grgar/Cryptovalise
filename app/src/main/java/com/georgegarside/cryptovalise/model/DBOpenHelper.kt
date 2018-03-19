@@ -47,6 +47,14 @@ class DBOpenHelper(private val context: Context) : SQLiteOpenHelper(context, "co
 					// End SQL table definitions
 					+ ")")
 		}
+		
+		// Insert starter content
+		findTable("coin")?.let {
+			db.execSQL("""
+				INSERT INTO ${it.name} ('name', 'symbol')
+				VALUES ('Bitcoin', 'btc'), ('Ethereum', 'eth')
+				""")
+		}
 	}
 	
 	/**
