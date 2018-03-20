@@ -13,4 +13,12 @@
 	<string name="error_incorrect_password">This password is incorrect</string>
 	<string name="error_field_required">This field is required</string>
 	<string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
+	<string name="currency_list_icon_description">Currency logo</string>
+	<string name="graph_title">Graph</string>
+	<string name="news_title">News</string>
+	<string name="info_title">Info</string>
+	<string name="currency_list_more_description">More</string>
+	<string name="delta_1h">1h %</string>
+	<string name="delta_7d">7d %</string>
+	<string name="delta_24h">24h %</string>
 </resources>

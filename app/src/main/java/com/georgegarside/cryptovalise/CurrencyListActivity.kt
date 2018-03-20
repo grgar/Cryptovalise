@@ -87,8 +87,8 @@ class CurrencyListActivity : AppCompatActivity() {
 			
 			fun setData(cursor: Cursor) {
 				with(cursor) {
-					view.id_text.text = getString(getColumnIndex("symbol"))
-					view.content.text = getString(getColumnIndex("name"))
+					view.symbol.text = getString(getColumnIndex("symbol"))
+					view.coinName.text = getString(getColumnIndex("name"))
 				}
 			}
 		}
@@ -157,8 +157,8 @@ class CurrencyListActivity : AppCompatActivity() {
 		
 		override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 			val item = mValues[position]
-			holder.mIdView.text = item.id
-			holder.mContentView.text = item.content
+			//holder.mIdView.text = item.id
+			//holder.mContentView.text = item.content
 			
 			with(holder.itemView) {
 				tag = item
@@ -171,8 +171,8 @@ class CurrencyListActivity : AppCompatActivity() {
 		}
 		
 		inner class ViewHolder(mView: View) : RecyclerView.ViewHolder(mView) {
-			val mIdView: TextView = mView.id_text
-			val mContentView: TextView = mView.content
+			//val mIdView: TextView = mView.id_text
+			//val mContentView: TextView = mView.content
 		}
 	}
 }
