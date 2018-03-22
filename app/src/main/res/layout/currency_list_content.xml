@@ -25,7 +25,7 @@
 			android:id="@+id/symbol"
 			android:layout_marginTop="12dp"
 			app:layout_constraintTop_toTopOf="parent"
-			tools:text="btc"
+			tools:text="symbol"
 			app:layout_constraintStart_toStartOf="@+id/coinName"/>
 
 		<TextView
@@ -33,15 +33,15 @@
 			android:layout_height="wrap_content"
 			android:id="@+id/coinName"
 			app:layout_constraintTop_toBottomOf="@+id/symbol"
-			tools:text="Bitcoin"
+			tools:text="Coin Name"
 			android:textSize="30sp"
 			app:layout_constraintStart_toStartOf="parent"
 			android:layout_marginStart="16dp"
 			/>
 
 		<ImageView
-			android:layout_width="64dp"
-			android:layout_height="64dp"
+			android:layout_width="48dp"
+			android:layout_height="48dp"
 			app:srcCompat="@drawable/ic_attach_money_black_24dp"
 			android:id="@+id/icon"
 			app:layout_constraintEnd_toEndOf="parent"

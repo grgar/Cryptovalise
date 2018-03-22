@@ -5,7 +5,6 @@ import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.v4.app.LoaderManager
 import android.support.v4.content.CursorLoader
 import android.support.v4.content.Loader
@@ -15,7 +14,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CursorAdapter
-import android.widget.TextView
 import com.georgegarside.cryptovalise.dummy.DummyContent
 import com.georgegarside.cryptovalise.model.CoinsContentProvider
 import com.georgegarside.cryptovalise.model.DBOpenHelper
@@ -48,9 +46,13 @@ class CurrencyListActivity : AppCompatActivity() {
 		setSupportActionBar(toolbar)
 		
 		fab.setOnClickListener {
-			//startActivity(Intent(this, LoginActivity::class.java))
+			val intent = Intent(this, CurrencyDetailActivity::class.java)
+			intent.putExtra(CurrencyDetailFragment.ARG_ITEM_ID, "1")
+			startActivity(intent)
+/*
 			Snackbar.make(it, "Replace with your own action", Snackbar.LENGTH_LONG)
 					.setAction("Action", null).show()
+*/
 		}
 		
 		// Larger than res/values-w900dp, detail is shown beside master
@@ -63,18 +65,34 @@ class CurrencyListActivity : AppCompatActivity() {
 		val cursor = contentResolver.query(coinsUri, table?.columns,
 				null, null, null, null)
 		
-		val adapter = CurrencyRecyclerViewAdapter(this, cursor, isMasterDetail)
+		val adapter = CurrencyRecyclerViewAdapter(cursor, isMasterDetail)
 		currencyList.adapter = adapter
 		
 		supportLoaderManager.initLoader(0, null, CurrencyLoader(this, adapter.cursorAdapter))
 	}
 	
-	class CurrencyRecyclerViewAdapter(private val context: Context,
-	                                  private val cursor: Cursor,
-	                                  private val isMasterDetail: Boolean) :
+	private val infoClickListener: View.OnClickListener by lazy {
+		View.OnClickListener {
+			if (isMasterDetail) {
+				val fragment = CurrencyDetailFragment().apply {
+					arguments = Bundle().apply {
+						putString(CurrencyDetailFragment.ARG_ITEM_ID, "1")
+					}
+				}
+				supportFragmentManager.beginTransaction()
+						.replace(R.id.currencyDetail, fragment)
+						.commit()
+			} else {
+				startActivity(Intent(this, CurrencyDetailActivity::class.java))
+			}
+		}
+	}
+	
+	inner class CurrencyRecyclerViewAdapter(private val cursor: Cursor,
+	                                        private val isMasterDetail: Boolean) :
 			RecyclerView.Adapter<CurrencyRecyclerViewAdapter.ViewHolder>() {
 		
-		val cursorAdapter = object : CursorAdapter(context, cursor, 0) {
+		val cursorAdapter = object : CursorAdapter(this@CurrencyListActivity, cursor, 0) {
 			// No implementation since view management is performed with ViewHolder
 			override fun newView(context: Context, cursor: Cursor, parent: ViewGroup): View = TODO("Implement newView")
 			
@@ -89,6 +107,7 @@ class CurrencyListActivity : AppCompatActivity() {
 				with(cursor) {
 					view.symbol.text = getString(getColumnIndex("symbol"))
 					view.coinName.text = getString(getColumnIndex("name"))
+					view.buttonInfo.setOnClickListener(infoClickListener)
 				}
 			}
 		}
