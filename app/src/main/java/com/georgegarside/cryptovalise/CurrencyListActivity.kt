@@ -6,9 +6,6 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.support.design.widget.Snackbar
-import android.support.v4.app.LoaderManager
-import android.support.v4.content.CursorLoader
-import android.support.v4.content.Loader
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
@@ -21,6 +18,7 @@ import android.widget.CursorAdapter
 import com.georgegarside.cryptovalise.model.API
 import com.georgegarside.cryptovalise.model.CoinsContentProvider
 import com.georgegarside.cryptovalise.model.DBOpenHelper
+import com.georgegarside.cryptovalise.model.CustomLoader
 import kotlinx.android.synthetic.main.activity_currency_list.*
 import kotlinx.android.synthetic.main.currency_list.currencyList
 import kotlinx.android.synthetic.main.currency_list_content.view.*
@@ -51,8 +49,6 @@ class CurrencyListActivity : AppCompatActivity() {
 		
 		setSupportActionBar(toolbar)
 		
-		//fab?.setOnClickListener(showAddCoinDialog)
-		
 		// Larger than res/values-w900dp, detail is shown beside master
 		if (currencyDetail != null) {
 			isMasterDetail = true
@@ -66,9 +62,13 @@ class CurrencyListActivity : AppCompatActivity() {
 		val adapter = CurrencyRecyclerViewAdapter(cursor, isMasterDetail)
 		currencyList.adapter = adapter
 		
-		supportLoaderManager.initLoader(0, null, CurrencyLoader(this, adapter.cursorAdapter))
+		supportLoaderManager.initLoader(0, null,
+				CustomLoader(this, coinsUri, adapter.cursorAdapter))
 	}
 	
+	/**
+	 * Inflate a menu into the toolbar, and set click listener for menu items
+	 */
 	override fun onCreateOptionsMenu(menu: Menu?): Boolean {
 		menuInflater.inflate(R.menu.toolbar, menu)
 		toolbar.setOnMenuItemClickListener {
@@ -83,12 +83,7 @@ class CurrencyListActivity : AppCompatActivity() {
 		return super.onCreateOptionsMenu(menu)
 	}
 	
-	private val showAddCoinDialog: (View?) -> Unit = { view ->
-		/*val intent = Intent(this, CurrencyDetailActivity::class.java)
-		intent.putExtra(CurrencyDetailFragment.ARG_ITEM_ID, "1")
-		startActivity(intent)
-		Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-				.setAction("Action", null).show()*/
+	private val showAddCoinDialog = { view: View? ->
 		with(AlertDialog.Builder(this)) {
 			setTitle("Choose a coin")
 			async(UI) {
@@ -103,11 +98,10 @@ class CurrencyListActivity : AppCompatActivity() {
 				setNegativeButton("Cancel", { dialog, _ -> dialog.cancel() })
 				show()
 			}
-			//show().listView
 		}
 	}
 	
-	private val infoClickListener: View.OnClickListener by lazy {
+	private val infoClickListener by lazy {
 		View.OnClickListener {
 			if (isMasterDetail) {
 				val fragment = CurrencyDetailFragment().apply {
@@ -157,20 +151,5 @@ class CurrencyListActivity : AppCompatActivity() {
 		}
 		
 		override fun getItemCount(): Int = cursor.count
-	}
-	
-	inner class CurrencyLoader(private val context: Context,
-	                           private val cursorAdapter: CursorAdapter) : LoaderManager.LoaderCallbacks<Cursor> {
-		override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
-			return CursorLoader(context, coinsUri, null, null, null, null)
-		}
-		
-		override fun onLoadFinished(loader: Loader<Cursor>, data: Cursor?) {
-			cursorAdapter.swapCursor(data)
-		}
-		
-		override fun onLoaderReset(loader: Loader<Cursor>) {
-			cursorAdapter.swapCursor(null)
-		}
 	}
 }

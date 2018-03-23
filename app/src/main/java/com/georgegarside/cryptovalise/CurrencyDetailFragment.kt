@@ -9,17 +9,8 @@ import com.georgegarside.cryptovalise.dummy.DummyContent
 import kotlinx.android.synthetic.main.activity_currency_detail.*
 import kotlinx.android.synthetic.main.currency_detail.view.*
 
-/**
- * A fragment representing a single Coin detail screen.
- * This fragment is either contained in a [CurrencyListActivity]
- * in two-pane mode (on tablets) or a [CurrencyDetailActivity]
- * on handsets.
- */
 class CurrencyDetailFragment : Fragment() {
 	
-	/**
-	 * The dummy content this fragment is presenting.
-	 */
 	private var mItem: DummyContent.DummyItem? = null
 	
 	override fun onCreate(savedInstanceState: Bundle?) {
