@@ -10,8 +10,8 @@ import android.view.Menu
 import android.view.View
 import com.georgegarside.cryptovalise.model.API
 import com.georgegarside.cryptovalise.model.CoinsContentProvider
-import com.georgegarside.cryptovalise.model.DBOpenHelper
 import com.georgegarside.cryptovalise.model.CustomLoader
+import com.georgegarside.cryptovalise.model.DBOpenHelper
 import com.georgegarside.cryptovalise.presenter.CurrencyRecyclerViewAdapter
 import kotlinx.android.synthetic.main.activity_currency_list.*
 import kotlinx.android.synthetic.main.currency_list.currencyList
@@ -63,14 +63,16 @@ class CurrencyListActivity : AppCompatActivity() {
 	 * Inflate a menu into the toolbar, and set click listener for menu items
 	 */
 	override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-		menuInflater.inflate(R.menu.toolbar, menu)
-		toolbar.setOnMenuItemClickListener {
-			when (it.itemId) {
-				R.id.add_currency -> {
-					showAddCoinDialog(toolbar.rootView)
-					true
+		if (isMasterDetail) {
+			menuInflater.inflate(R.menu.toolbar, menu)
+			toolbar.setOnMenuItemClickListener {
+				when (it.itemId) {
+					R.id.add_currency -> {
+						showAddCoinDialog(toolbar.rootView)
+						true
+					}
+					else -> false
 				}
-				else -> false
 			}
 		}
 		return super.onCreateOptionsMenu(menu)
