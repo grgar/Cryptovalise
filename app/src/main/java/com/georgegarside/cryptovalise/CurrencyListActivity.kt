@@ -1,24 +1,31 @@
 package com.georgegarside.cryptovalise
 
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v4.app.LoaderManager
 import android.support.v4.content.CursorLoader
 import android.support.v4.content.Loader
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CursorAdapter
+import com.georgegarside.cryptovalise.model.API
 import com.georgegarside.cryptovalise.model.CoinsContentProvider
 import com.georgegarside.cryptovalise.model.DBOpenHelper
 import kotlinx.android.synthetic.main.activity_currency_list.*
 import kotlinx.android.synthetic.main.currency_list.*
 import kotlinx.android.synthetic.main.currency_list_content.view.*
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.async
 
 /**
  * An activity representing a list of Pings. This activity
@@ -44,15 +51,7 @@ class CurrencyListActivity : AppCompatActivity() {
 		toolbar.title = title
 		setSupportActionBar(toolbar)
 		
-		fab.setOnClickListener {
-			val intent = Intent(this, CurrencyDetailActivity::class.java)
-			intent.putExtra(CurrencyDetailFragment.ARG_ITEM_ID, "1")
-			startActivity(intent)
-/*
-			Snackbar.make(it, "Replace with your own action", Snackbar.LENGTH_LONG)
-					.setAction("Action", null).show()
-*/
-		}
+		fab.setOnClickListener(showAddCoinDialog)
 		
 		// Larger than res/values-w900dp, detail is shown beside master
 		if (currencyDetail != null) {
@@ -68,6 +67,30 @@ class CurrencyListActivity : AppCompatActivity() {
 		currencyList.adapter = adapter
 		
 		supportLoaderManager.initLoader(0, null, CurrencyLoader(this, adapter.cursorAdapter))
+	}
+	
+	private val showAddCoinDialog: (View?) -> Unit = { view ->
+		/*val intent = Intent(this, CurrencyDetailActivity::class.java)
+		intent.putExtra(CurrencyDetailFragment.ARG_ITEM_ID, "1")
+		startActivity(intent)
+		Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+				.setAction("Action", null).show()*/
+		with(AlertDialog.Builder(this)) {
+			setTitle("Choose a coin")
+			async(UI) {
+				val coins = API.coins.await()
+				Log.i("gLog", coins.toString())
+				setItems(coins.keys.toTypedArray(), { dialog, which ->
+					if (view != null) {
+						Snackbar.make(view, "Clicked item $which", Snackbar.LENGTH_LONG).show()
+					}
+					dialog.dismiss()
+				})
+				setNegativeButton("Cancel", { dialog, _ -> dialog.cancel() })
+				show()
+			}
+			//show().listView
+		}
 	}
 	
 	private val infoClickListener: View.OnClickListener by lazy {

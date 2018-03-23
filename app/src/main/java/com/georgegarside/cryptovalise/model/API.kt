@@ -5,7 +5,9 @@ import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.Method
 import com.github.kittinunf.fuel.gson.responseObject
 import com.google.gson.internal.LinkedTreeMap
-import java.util.ArrayList
+import kotlinx.coroutines.experimental.Deferred
+import kotlinx.coroutines.experimental.async
+import java.util.*
 
 /**
  * API
@@ -13,7 +15,7 @@ import java.util.ArrayList
  * Created by grgarside on 22/02/2018.
  */
 object API {
-	val coins: Map<String, Coin> = HashMap<String, Coin>()
+	val coins: Deferred<Map<String, Coin>> by lazy { async { getCoins().associate { it.name to it } } }
 	
 	private fun getArrayDeserializer(key: String) {
 		return
@@ -35,12 +37,12 @@ object API {
 		})
 	}
 	
-	fun getCoins(): Array<Coin>? {
+	private fun getCoins(): Array<Coin> {
 		// Perform call to endpoint
 		val result = call<ArrayListInMap>(Method.GET, "coins", null, "data")
 		
 		// Parse response into Coins
-		val coins: Array<Coin>? = result["data"]?.map {
+		return result["data"]?.map {
 			
 			// Extract further data as objects
 			@Suppress("UNCHECKED_CAST") val contents = it["attributes"] as LinkedTreeMap<String, Any>
@@ -54,11 +56,7 @@ object API {
 			// Create coin
 			Coin(id, symbol = attributes["symbol"] as String, name = attributes["currency"] as String)
 			
-		}?.toTypedArray<Coin>()
-		
-		Log.i("gLog", coins?.get(0).toString())
-		return null
-		//return call<Array<Coin>>("coins", null)
+		}?.toTypedArray<Coin>() ?: arrayOf()
 	}
 	
 	data class Coin(val id: Int = 0, val symbol: String = "", val name: String = "", val slug: String = "",
@@ -68,12 +66,3 @@ object API {
 }
 
 private typealias ArrayListInMap = LinkedTreeMap<String, ArrayList<LinkedTreeMap<String, Any>>>
-
-// Data classes
-/*open class Deserializable : ResponseDeserializable<String> {
-	private inline fun <reified T : Any> jsonToType(content: String, isArray: Boolean): T =
-			Gson().fromJson(content, (if (isArray) object : TypeToken<Array<T>>() {}.type else object : TypeToken<T>() {}.type))
-	
-	override fun deserialize(content: String): String? = jsonToType(content)
-}
-*/
