@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
+import com.georgegarside.cryptovalise.model.replace
 import kotlinx.android.synthetic.main.activity_currency_detail.*
 
 /**
@@ -42,9 +43,7 @@ class CurrencyDetailActivity : AppCompatActivity() {
 				}
 			}
 			
-			supportFragmentManager.beginTransaction()
-					.add(R.id.currencyDetail, fragment)
-					.commit()
+			replace(R.id.currencyDetail, fragment)
 		}
 	}
 	

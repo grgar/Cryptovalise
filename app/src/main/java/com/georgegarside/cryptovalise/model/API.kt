@@ -7,7 +7,6 @@ import com.github.kittinunf.fuel.gson.responseObject
 import com.google.gson.internal.LinkedTreeMap
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.async
-import java.util.*
 
 /**
  * API
@@ -64,5 +63,3 @@ object API {
 		data class Price(val usd: Double = 0.0, val btc: Double = 0.0)
 	}
 }
-
-private typealias ArrayListInMap = LinkedTreeMap<String, ArrayList<LinkedTreeMap<String, Any>>>

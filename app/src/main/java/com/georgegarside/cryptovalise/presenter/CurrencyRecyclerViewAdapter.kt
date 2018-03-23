@@ -13,6 +13,7 @@ import com.georgegarside.cryptovalise.CurrencyDetailActivity
 import com.georgegarside.cryptovalise.CurrencyDetailFragment
 import com.georgegarside.cryptovalise.CurrencyListActivity
 import com.georgegarside.cryptovalise.R
+import com.georgegarside.cryptovalise.model.replace
 import kotlinx.android.synthetic.main.currency_list_content.view.*
 
 class CurrencyRecyclerViewAdapter(private val cursor: Cursor,
@@ -58,9 +59,7 @@ class CurrencyRecyclerViewAdapter(private val cursor: Cursor,
 						putString(CurrencyDetailFragment.ARG_ITEM_ID, "1")
 					}
 				}
-				activity.supportFragmentManager.beginTransaction()
-						.replace(R.id.currencyDetail, fragment)
-						.commit()
+				activity.replace(R.id.currencyDetail, fragment)
 			} else {
 				activity.startActivity(Intent(activity, CurrencyDetailActivity::class.java))
 			}
