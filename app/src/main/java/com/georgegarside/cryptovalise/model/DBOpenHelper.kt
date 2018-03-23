@@ -52,7 +52,7 @@ class DBOpenHelper(private val context: Context) : SQLiteOpenHelper(context, "co
 		findTable("coin")?.let {
 			db.execSQL("""
 				INSERT INTO ${it.name} ('name', 'symbol')
-				VALUES ('Bitcoin', 'btc'), ('Ethereum', 'eth')
+				VALUES ('Bitcoin', 'BTC'), ('Ethereum', 'ETH')
 				""")
 		}
 	}

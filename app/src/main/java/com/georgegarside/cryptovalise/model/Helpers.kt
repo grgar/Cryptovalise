@@ -4,6 +4,7 @@ import android.support.annotation.IdRes
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 import com.google.gson.internal.LinkedTreeMap
+import java.text.DecimalFormat
 
 /**
  * Helper method to simplify the transaction process of replacing a [fragment] within the specific [containerViewId]

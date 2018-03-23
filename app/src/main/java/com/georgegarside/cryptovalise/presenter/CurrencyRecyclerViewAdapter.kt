@@ -13,8 +13,11 @@ import com.georgegarside.cryptovalise.CurrencyDetailActivity
 import com.georgegarside.cryptovalise.CurrencyDetailFragment
 import com.georgegarside.cryptovalise.CurrencyListActivity
 import com.georgegarside.cryptovalise.R
+import com.georgegarside.cryptovalise.model.API
 import com.georgegarside.cryptovalise.model.replace
 import kotlinx.android.synthetic.main.currency_list_content.view.*
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
 
 class CurrencyRecyclerViewAdapter(private val cursor: Cursor,
                                   private val activity: CurrencyListActivity,
@@ -34,8 +37,17 @@ class CurrencyRecyclerViewAdapter(private val cursor: Cursor,
 		
 		fun setData(cursor: Cursor) {
 			with(cursor) {
-				view.symbol.text = getString(getColumnIndex("symbol"))
+				val symbol = getString(getColumnIndex("symbol"))
+				view.symbol.text = symbol
 				view.coinName.text = getString(getColumnIndex("name"))
+				launch(UI) {
+					val coins = API.coins.await()
+					
+					API.coins.await()[symbol]?.let {
+						view.priceDollars.text = it.price.usdPrice
+						view.pricePounds.text = it.price.gbpPrice
+					}
+				}
 				view.buttonInfo.setOnClickListener(infoClickListener)
 			}
 		}

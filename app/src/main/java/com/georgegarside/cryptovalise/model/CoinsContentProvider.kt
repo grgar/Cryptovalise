@@ -6,7 +6,6 @@ import android.content.UriMatcher
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
-import android.util.Log
 import com.georgegarside.cryptovalise.BuildConfig
 
 class CoinsContentProvider : ContentProvider() {
@@ -29,12 +28,7 @@ class CoinsContentProvider : ContentProvider() {
 			// Cached result of values since values are immutable
 			val values = Operations.values()
 			
-			fun tableName(ordinal: Int): String {
-				Log.d("gLog", ordinal.toString())
-				Log.d("gLog", values.toString())
-				Log.d("gLog", values[ordinal].toString())
-				return values[ordinal].table
-			}
+			fun tableName(ordinal: Int) = values[ordinal].table
 		}
 	}
 	
