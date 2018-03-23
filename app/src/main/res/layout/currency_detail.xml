@@ -1,9 +1,16 @@
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
-          android:id="@+id/currency_detail"
-          style="?android:attr/textAppearanceLarge"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:padding="16dp"
-          android:textIsSelectable="true"
-          tools:context="com.georgegarside.cryptovalise.CurrencyDetailFragment"/>
+<android.support.constraint.ConstraintLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_height="match_parent"
+	android:layout_width="match_parent">
+
+	<TextView
+		android:id="@+id/currency_detail"
+		style="?android:attr/textAppearanceLarge"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:padding="16dp"
+		android:textIsSelectable="true"
+		tools:context="com.georgegarside.cryptovalise.CurrencyDetailFragment"
+		tools:text="Text content for currency @string/title_currency_detail"/>
+</android.support.constraint.ConstraintLayout>

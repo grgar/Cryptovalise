@@ -1,7 +1,6 @@
 package com.georgegarside.cryptovalise
 
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
@@ -22,10 +21,11 @@ import com.georgegarside.cryptovalise.model.API
 import com.georgegarside.cryptovalise.model.CoinsContentProvider
 import com.georgegarside.cryptovalise.model.DBOpenHelper
 import kotlinx.android.synthetic.main.activity_currency_list.*
-import kotlinx.android.synthetic.main.currency_list.*
+import kotlinx.android.synthetic.main.currency_list.currencyList
 import kotlinx.android.synthetic.main.currency_list_content.view.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
+import kotlinx.android.synthetic.main.activity_currency_list.view.currencyList as currencyActivity
 
 /**
  * An activity representing a list of Pings. This activity
@@ -51,7 +51,7 @@ class CurrencyListActivity : AppCompatActivity() {
 		toolbar.title = title
 		setSupportActionBar(toolbar)
 		
-		fab.setOnClickListener(showAddCoinDialog)
+		//fab?.setOnClickListener(showAddCoinDialog)
 		
 		// Larger than res/values-w900dp, detail is shown beside master
 		if (currencyDetail != null) {

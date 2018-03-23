@@ -24,10 +24,12 @@
 	<FrameLayout
 		android:id="@+id/frameLayout"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
+		android:layout_height="wrap_content"
 		app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-		<include layout="@layout/currency_list"/>
+		<include
+			layout="@layout/currency_list"
+			android:id="@+id/currencyList"/>
 	</FrameLayout>
 
 	<android.support.design.widget.FloatingActionButton
