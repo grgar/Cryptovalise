@@ -21,4 +21,6 @@
 	<string name="delta_1h">1h %</string>
 	<string name="delta_7d">7d %</string>
 	<string name="delta_24h">24h %</string>
+	<string name="toolbar_addcurrency">Add currency</string>
+	<string name="title_activity_currency">Coins</string>
 </resources>

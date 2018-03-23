@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CursorAdapter
@@ -48,7 +49,6 @@ class CurrencyListActivity : AppCompatActivity() {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_currency_list)
 		
-		toolbar.title = title
 		setSupportActionBar(toolbar)
 		
 		//fab?.setOnClickListener(showAddCoinDialog)
@@ -67,6 +67,20 @@ class CurrencyListActivity : AppCompatActivity() {
 		currencyList.adapter = adapter
 		
 		supportLoaderManager.initLoader(0, null, CurrencyLoader(this, adapter.cursorAdapter))
+	}
+	
+	override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+		menuInflater.inflate(R.menu.toolbar, menu)
+		toolbar.setOnMenuItemClickListener {
+			when (it.itemId) {
+				R.id.add_currency -> {
+					showAddCoinDialog(toolbar.rootView)
+					true
+				}
+				else -> false
+			}
+		}
+		return super.onCreateOptionsMenu(menu)
 	}
 	
 	private val showAddCoinDialog: (View?) -> Unit = { view ->

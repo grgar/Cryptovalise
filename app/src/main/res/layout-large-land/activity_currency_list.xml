@@ -18,14 +18,17 @@
 			android:id="@+id/toolbar"
 			android:layout_width="match_parent"
 			android:layout_height="?attr/actionBarSize"
-			app:popupTheme="@style/AppTheme.PopupOverlay"/>
+			app:popupTheme="@style/AppTheme.PopupOverlay"
+			app:title="@string/app_name"
+			app:subtitle="@string/title_activity_currency"
+			/>
 
 	</android.support.design.widget.AppBarLayout>
 
 	<LinearLayout
 		android:orientation="horizontal"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
+		android:layout_height="match_parent"
 		android:baselineAligned="false"
 		app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
