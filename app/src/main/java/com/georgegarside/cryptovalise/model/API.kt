@@ -4,8 +4,8 @@ import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.Method
 import com.github.kittinunf.fuel.gson.responseObject
 import com.google.gson.internal.LinkedTreeMap
+import kotlinx.coroutines.experimental.CoroutineStart
 import kotlinx.coroutines.experimental.async
-import java.text.DecimalFormat
 
 /**
  * API
@@ -19,13 +19,18 @@ object API {
 	
 	data class Coin(val id: Int = 0, val symbol: String = "", val name: String = "", val slug: String = "",
 	                val description: String = "", val price: Price = Price()) {
-		data class Price(val usd: Double = 0.0, val gbp: Double = 0.0, val btc: Double = 0.0) {
-			private val large by lazy { DecimalFormat("@@@@@#") }
-			private val small by lazy { DecimalFormat("0.####") }
-			private fun format(number: Double) = if (number < 10) small.format(number) else large.format(number)
+		
+		data class Price(val usd: Double = 0.0, val btc: Double = 0.0) {
+			private fun format(number: Double) =
+					if (number < 10) String.format("%.4f", number) else String.format("%.2f", number)
+			
 			val usdPrice by lazy { "$ " + format(usd) }
-			val gbpPrice by lazy { "£ " + format(gbp) }
 			val btcPrice by lazy { "BTC " + format(btc) }
+			val gbpPrice = async(start = CoroutineStart.LAZY) {
+				val rate = currencies.await()["GBP"]?.rate
+				val gbp = usd * (rate ?: 0.0)
+				"£ ${format(gbp)}"
+			}
 		}
 	}
 	
