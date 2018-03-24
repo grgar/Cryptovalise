@@ -71,7 +71,7 @@ class CurrencyRecyclerViewAdapter(private val cursor: Cursor,
 						setDeltaColour()
 					}
 					with(view.delta7d) {
-						fadeInText(it.delta.sumHour, view.deltaHeader7d)
+						fadeInText(it.delta.sumWeek, view.deltaHeader7d)
 						setDeltaColour()
 					}
 					

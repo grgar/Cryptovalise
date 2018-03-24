@@ -6,6 +6,7 @@ import com.github.kittinunf.fuel.gson.responseObject
 import com.google.gson.internal.LinkedTreeMap
 import kotlinx.coroutines.experimental.CoroutineStart
 import kotlinx.coroutines.experimental.async
+import java.text.DecimalFormat
 
 /**
  * API
@@ -22,7 +23,10 @@ object API {
 		
 		data class Price(val usd: Double = 0.0, val btc: Double = 0.0) {
 			private fun format(number: Double) =
-					if (number < 10) String.format("%.4f", number) else String.format("%.2f", number)
+					if (number < 10)
+						DecimalFormat("0.####").format(number)
+					else
+						DecimalFormat("#,##0.##").format(number)
 			
 			val usdPrice by lazy { "$ " + format(usd) }
 			val btcPrice by lazy { "BTC " + format(btc) }
@@ -39,7 +43,8 @@ object API {
 				val week: Pair<Double, Double> = Pair(0.0, 0.0)
 		) {
 			companion object {
-				private fun Pair<Double, Any>.percentage() = "${if (this.first < 0) "↑" else "↓"} ${this.first}"
+				private fun Pair<Double, Any>.percentage() =
+						(if (this.first < 0) "↓" else "↑") + (this.first.toString().replace("-", ""))
 			}
 			
 			val sumHour = hour.percentage()
@@ -88,6 +93,11 @@ object API {
 					price = Coin.Price(
 							usd = attributes["price-usd"] as Double,
 							btc = attributes["price-btc"] as Double
+					),
+					delta = Coin.Delta(
+							hour = Pair(attributes["percent-change-1h"] as Double, attributes["point-change-1h"] as Double),
+							day = Pair(attributes["percent-change-24h"] as Double, attributes["point-change-24h"] as Double),
+							week = Pair(attributes["percent-change-7d"] as Double, attributes["point-change-7d"] as Double)
 					)
 			)
 			

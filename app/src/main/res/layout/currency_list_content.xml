@@ -158,7 +158,7 @@
 			>
 
 			<TextView
-				android:layout_width="50dp"
+				android:layout_width="56dp"
 				android:layout_height="wrap_content"
 				android:id="@+id/deltaHeader1h"
 				android:text="@string/delta_1h"
@@ -170,20 +170,8 @@
 				tools:alpha="1"/>
 
 			<TextView
-				android:text="@string/delta_7d"
-				android:layout_width="50dp"
-				android:layout_height="wrap_content"
-				android:id="@+id/deltaHeader7d"
-				android:textAlignment="textEnd"
-				tools:layout_editor_absoluteY="81dp"
-				tools:layout_editor_absoluteX="248dp"
-				android:layout_gravity="end"
-				tools:alpha="1"
-				android:alpha="0"/>
-
-			<TextView
 				android:text="@string/delta_24h"
-				android:layout_width="50dp"
+				android:layout_width="56dp"
 				android:layout_height="wrap_content"
 				android:id="@+id/deltaHeader24h"
 				android:textAlignment="textEnd"
@@ -192,6 +180,18 @@
 				android:layout_gravity="end"
 				android:alpha="0"
 				tools:alpha="1"/>
+
+			<TextView
+				android:text="@string/delta_7d"
+				android:layout_width="56dp"
+				android:layout_height="wrap_content"
+				android:id="@+id/deltaHeader7d"
+				android:textAlignment="textEnd"
+				tools:layout_editor_absoluteY="81dp"
+				tools:layout_editor_absoluteX="248dp"
+				android:layout_gravity="end"
+				tools:alpha="1"
+				android:alpha="0"/>
 
 			<TextView
 				android:layout_width="wrap_content"
