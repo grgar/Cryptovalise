@@ -19,14 +19,6 @@ import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import kotlinx.android.synthetic.main.activity_currency_list.view.currencyList as currencyActivity
 
-/**
- * An activity representing a list of Pings. This activity
- * has different presentations for handset and tablet-size devices. On
- * handsets, the activity presents a list of items, which when touched,
- * lead to a [CurrencyDetailActivity] representing
- * item details. On tablets, the activity presents the list of items and
- * item details side-by-side using two vertical panes.
- */
 class CurrencyListActivity : AppCompatActivity() {
 	
 	/**
@@ -42,10 +34,8 @@ class CurrencyListActivity : AppCompatActivity() {
 		
 		setSupportActionBar(toolbar)
 		
-		// Larger than res/values-w900dp, detail is shown beside master
-		if (currencyDetail != null) {
-			isMasterDetail = true
-		}
+		// On large layout, detail is shown beside master
+		isMasterDetail = currencyDetail != null
 		
 		val table = DBOpenHelper.findTable("coin")
 		
