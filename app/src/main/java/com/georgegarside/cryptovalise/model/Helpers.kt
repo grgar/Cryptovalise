@@ -3,6 +3,7 @@ package com.georgegarside.cryptovalise.model
 import android.support.annotation.IdRes
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
+import android.view.animation.AlphaAnimation
 import com.google.gson.internal.LinkedTreeMap
 import java.text.DecimalFormat
 
@@ -27,3 +28,13 @@ fun FragmentActivity.replace(@IdRes containerViewId: Int, fragment: Fragment) {
  * A [LinkedTreeMap], from [String] to [ArrayList] of [LinkedTreeMap], from [String] to [Any]
  */
 typealias ArrayListInMap = LinkedTreeMap<String, ArrayList<LinkedTreeMap<String, Any>>>
+
+object Animation {
+	public val fadeIn = AlphaAnimation(0.0f, 1.0f)
+	init {
+		with (fadeIn) {
+			duration = 300
+			fillAfter = true
+		}
+	}
+}

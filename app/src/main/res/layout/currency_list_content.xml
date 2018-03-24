@@ -51,26 +51,37 @@
 			android:scaleType="fitXY"
 			android:contentDescription="@string/currency_list_icon_description"/>
 
-		<TextView
+		<LinearLayout
+			android:orientation="vertical"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:id="@+id/priceDollars"
+			android:id="@+id/linearLayout"
 			android:layout_marginTop="8dp"
 			app:layout_constraintTop_toBottomOf="@+id/coinName"
 			app:layout_constraintStart_toStartOf="@+id/coinName"
-			tools:text="$10,000"
-			android:textSize="18sp"/>
+			>
 
-		<TextView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:id="@+id/pricePounds"
-			tools:text="£10,000"
-			app:layout_constraintTop_toBottomOf="@+id/priceDollars"
-			android:textSize="18sp"
-			android:textAlignment="textEnd"
-			app:layout_constraintEnd_toEndOf="@+id/priceDollars"
-			/>
+			<TextView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:id="@+id/priceDollars"
+				tools:text="$10,000"
+				android:textSize="21sp"
+				tools:layout_editor_absoluteY="79dp"
+				tools:layout_editor_absoluteX="16dp"
+				android:textAlignment="textEnd"/>
+
+			<TextView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:id="@+id/pricePounds"
+				tools:text="£10,000"
+				android:textSize="21sp"
+				android:textAlignment="textEnd"
+				tools:layout_editor_absoluteY="104dp"
+				tools:layout_editor_absoluteX="16dp"/>
+
+		</LinearLayout>
 
 		<Button
 			android:text="@string/graph_title"
@@ -78,12 +89,11 @@
 			android:layout_height="wrap_content"
 			android:id="@+id/buttonGraph"
 			style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
-			android:layout_marginTop="8dp"
-			app:layout_constraintTop_toBottomOf="@+id/pricePounds"
 			app:layout_constraintStart_toStartOf="parent"
 			android:layout_marginStart="16dp"
 			app:layout_constraintBottom_toBottomOf="parent"
-			/>
+			app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+			android:layout_marginTop="8dp"/>
 
 		<Button
 			android:text="@string/news_title"
@@ -128,13 +138,14 @@
 			android:layout_height="wrap_content"
 			android:columnCount="3"
 			android:id="@+id/gridLayout"
-			app:layout_constraintStart_toEndOf="@+id/priceDollars"
-			android:layout_marginStart="12dp"
-			app:layout_constraintTop_toTopOf="@+id/priceDollars"
-			app:layout_constraintBottom_toBottomOf="@+id/pricePounds"
+			app:layout_constraintTop_toTopOf="@+id/linearLayout"
+			app:layout_constraintBottom_toBottomOf="@+id/linearLayout"
 			app:layout_constraintEnd_toEndOf="parent"
 			android:layout_marginEnd="8dp"
-			app:layout_constraintHorizontal_bias="0.1">
+			app:layout_constraintStart_toEndOf="@+id/linearLayout"
+			android:layout_marginStart="8dp"
+			app:layout_constraintHorizontal_bias="0.1"
+			>
 
 			<TextView
 				android:layout_width="50dp"
