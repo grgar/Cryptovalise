@@ -5,4 +5,7 @@
 	<color name="colorPrimaryDarkest">#004d40</color>
 	<color name="colorAccent">#00BF9A</color>
 	<color name="colorAccentText">#333</color>
+
+	<color name="deltaUp">#00CC81</color>
+	<color name="deltaDown">#FF0047</color>
 </resources>

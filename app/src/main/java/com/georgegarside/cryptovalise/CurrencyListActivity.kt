@@ -58,22 +58,23 @@ class CurrencyListActivity : AppCompatActivity() {
 			toolbar.setOnMenuItemClickListener {
 				when (it.itemId) {
 					R.id.add_currency -> {
-						showAddCoinDialog(toolbar.rootView)
+						showAddCoinDialog.onClick(toolbar.rootView)
 						true
 					}
 					else -> false
 				}
 			}
+		} else {
+			fab?.setOnClickListener(showAddCoinDialog)
 		}
 		return super.onCreateOptionsMenu(menu)
 	}
 	
-	private val showAddCoinDialog = { view: View? ->
+	private val showAddCoinDialog = View.OnClickListener { view: View? ->
 		with(AlertDialog.Builder(this)) {
 			setTitle("Choose a coin")
 			async(UI) {
 				val coins = API.coins.await()
-				Log.i("gLog", coins.toString())
 				setItems(coins.keys.toTypedArray(), { dialog, which ->
 					if (view != null) {
 						Snackbar.make(view, "Clicked item $which", Snackbar.LENGTH_LONG).show()

@@ -18,7 +18,7 @@ object API {
 	val currencies by lazy { async { getCurrencies().associate { it.code to it } } }
 	
 	data class Coin(val id: Int = 0, val symbol: String = "", val name: String = "", val slug: String = "",
-	                val description: String = "", val price: Price = Price()) {
+	                val description: String = "", val price: Price = Price(), val delta: Delta = Delta()) {
 		
 		data class Price(val usd: Double = 0.0, val btc: Double = 0.0) {
 			private fun format(number: Double) =
@@ -31,6 +31,20 @@ object API {
 				val gbp = usd * (rate ?: 0.0)
 				"£ ${format(gbp)}"
 			}
+		}
+		
+		data class Delta(
+				val hour: Pair<Double, Double> = Pair(0.0, 0.0),
+				val day: Pair<Double, Double> = Pair(0.0, 0.0),
+				val week: Pair<Double, Double> = Pair(0.0, 0.0)
+		) {
+			companion object {
+				private fun Pair<Double, Any>.percentage() = "${if (this.first < 0) "↑" else "↓"} ${this.first}"
+			}
+			
+			val sumHour = hour.percentage()
+			val sumDay = day.percentage()
+			val sumWeek = week.percentage()
 		}
 	}
 	

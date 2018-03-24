@@ -4,17 +4,18 @@ import android.content.Context
 import android.content.Intent
 import android.database.Cursor
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CursorAdapter
+import android.widget.TextView
 import com.georgegarside.cryptovalise.CurrencyDetailActivity
 import com.georgegarside.cryptovalise.CurrencyDetailFragment
 import com.georgegarside.cryptovalise.CurrencyListActivity
 import com.georgegarside.cryptovalise.R
 import com.georgegarside.cryptovalise.model.API
-import com.georgegarside.cryptovalise.model.Animation
 import com.georgegarside.cryptovalise.model.replace
 import kotlinx.android.synthetic.main.currency_list_content.view.*
 import kotlinx.coroutines.experimental.android.UI
@@ -34,26 +35,49 @@ class CurrencyRecyclerViewAdapter(private val cursor: Cursor,
 	
 	inner class ViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
 		constructor(parent: ViewGroup) : this(LayoutInflater.from(parent.context)
+				// Inflate a new view based on the card layout defined in currency list content layout
 				.inflate(R.layout.currency_list_content, parent, false))
 		
 		fun setData(cursor: Cursor) {
-			with(cursor) {
-				// Load basic info from database
-				val symbol = getString(getColumnIndex("symbol"))
-				view.symbol.text = symbol
-				view.coinName.text = getString(getColumnIndex("name"))
-				
-				// Set click listeners
-				view.buttonInfo.setOnClickListener(infoClickListener)
-				
-				// Load latest price info from API
-				launch(UI) {
-					API.coins.await()[symbol]?.let {
-						view.priceDollars.text = it.price.usdPrice
-						view.priceDollars.animation = Animation.fadeIn
-						view.pricePounds.text = it.price.gbpPrice.await()
-						view.pricePounds.animation = Animation.fadeIn
+			view.progressBar.progressAnimate(10)
+			// Load basic info from database
+			val symbol = cursor.getString(cursor.getColumnIndex("symbol"))
+			view.symbol.text = symbol
+			view.coinName.text = cursor.getString(cursor.getColumnIndex("name"))
+			
+			// Set click listeners
+			view.buttonInfo.setOnClickListener(infoClickListener)
+			
+			val deltaUp by lazy { ContextCompat.getColor(activity, R.color.deltaUp) }
+			val deltaDown by lazy { ContextCompat.getColor(activity, R.color.deltaDown) }
+			fun TextView.setDeltaColour() {
+				setTextColor(if (text.startsWith("↓")) deltaDown else deltaUp)
+			}
+			
+			view.progressBar.progressAnimate(20)
+			
+			// Load latest price info from API
+			launch(UI) {
+				API.coins.await()[symbol]?.let {
+					view.priceDollars.fadeInText(it.price.usdPrice)
+					view.progressBar.progressAnimate(50)
+					// Deltas
+					with(view.delta1h) {
+						fadeInText(it.delta.sumHour, view.deltaHeader1h)
+						setDeltaColour()
 					}
+					with(view.delta24h) {
+						fadeInText(it.delta.sumDay, view.deltaHeader24h)
+						setDeltaColour()
+					}
+					with(view.delta7d) {
+						fadeInText(it.delta.sumHour, view.deltaHeader7d)
+						setDeltaColour()
+					}
+					
+					// Pounds
+					view.pricePounds.fadeInText(it.price.gbpPrice.await())
+					view.progressBar.progressAnimate(100)
 				}
 			}
 		}
