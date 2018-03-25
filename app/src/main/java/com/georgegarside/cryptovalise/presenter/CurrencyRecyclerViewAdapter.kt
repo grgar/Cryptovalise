@@ -39,7 +39,6 @@ class CurrencyRecyclerViewAdapter(private val cursor: Cursor,
 				.inflate(R.layout.currency_list_content, parent, false))
 		
 		fun setData(cursor: Cursor) {
-			view.progressBar.progressAnimate(10)
 			// Load basic info from database
 			val symbol = cursor.getString(cursor.getColumnIndex("symbol"))
 			view.symbol.text = symbol
@@ -54,13 +53,13 @@ class CurrencyRecyclerViewAdapter(private val cursor: Cursor,
 				setTextColor(if (text.startsWith("↓")) deltaDown else deltaUp)
 			}
 			
-			view.progressBar.progressAnimate(20)
+			view.progressBar.progressAnimate(10)
 			
 			// Load latest price info from API
 			launch(UI) {
 				API.coins.await()[symbol]?.let {
 					view.priceDollars.fadeInText(it.price.usdPrice)
-					view.progressBar.progressAnimate(50)
+					view.progressBar.progressAnimate(40)
 					// Deltas
 					with(view.delta1h) {
 						fadeInText(it.delta.sumHour, view.deltaHeader1h)
@@ -77,6 +76,12 @@ class CurrencyRecyclerViewAdapter(private val cursor: Cursor,
 					
 					// Pounds
 					view.pricePounds.fadeInText(it.price.gbpPrice.await())
+					view.progressBar.progressAnimate(40)
+					
+					// Logo
+					it.logo.await()?.let { view.icon.setImageBitmap(it) }
+							?: view.icon.setImageResource(R.drawable.ic_attach_money_black_24dp)
+					view.icon.animation = CustomAnimation.fadeIn
 					view.progressBar.progressAnimate(100)
 				}
 			}

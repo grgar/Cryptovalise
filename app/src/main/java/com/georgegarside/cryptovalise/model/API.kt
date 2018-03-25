@@ -1,5 +1,7 @@
 package com.georgegarside.cryptovalise.model
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.Method
 import com.github.kittinunf.fuel.gson.responseObject
@@ -20,6 +22,8 @@ object API {
 	
 	data class Coin(val id: Int = 0, val symbol: String = "", val name: String = "", val slug: String = "",
 	                val description: String = "", val price: Price = Price(), val delta: Delta = Delta()) {
+		
+		val logo = async(start = CoroutineStart.LAZY) { getIcon(id, slug) }
 		
 		data class Price(val usd: Double = 0.0, val btc: Double = 0.0) {
 			private fun format(number: Double) =
@@ -55,13 +59,16 @@ object API {
 	
 	data class Currency(val code: String = "", val name: String = "", val rate: Double = 0.0)
 	
-	private inline fun <reified T : Any> call(method: Method = Method.GET, endpoint: String,
-	                                          data: List<Pair<String, Any?>>? = null): T {
+	private val fuel = FuelManager.instance
+	
+	init {
 		// Set up base configuration
-		val fuel = FuelManager.instance
 		fuel.basePath = "https://coin.fyi/"
 		fuel.baseHeaders = mapOf("X-Requested-With" to "XMLHttpRequest", "Accept" to "application/json, text/plain, */*")
-		
+	}
+	
+	private inline fun <reified T : Any> call(method: Method = Method.GET, endpoint: String,
+	                                          data: List<Pair<String, Any?>>? = null): T {
 		// Perform request
 		fuel.request(Method.GET, endpoint, data).responseObject<T>().third.fold(success = {
 			return it
@@ -72,7 +79,7 @@ object API {
 	
 	private fun getCoins(): Array<Coin> {
 		// Perform call to endpoint
-		val result = call<ArrayListInMap>(Method.GET, "coins")
+		val result = call<ArrayListInMap>(endpoint = "coins")
 		
 		// Parse response into Coins
 		return result["data"]?.map {
@@ -105,12 +112,22 @@ object API {
 	}
 	
 	private fun getCurrencies(): Array<Currency> {
-		return call<ArrayListInMap>(Method.GET, "currencies")["currencies"]?.map {
+		return call<ArrayListInMap>(endpoint = "currencies")["currencies"]?.map {
 			Currency(
 					code = it["code"] as String,
 					name = it["full_name"] as String,
 					rate = it["exchange_rate"] as Double
 			)
 		}?.toTypedArray<Currency>() ?: arrayOf()
+	}
+	
+	private fun download(path: String) = fuel.request(Method.GET, path).response().third
+	
+	private fun getIcon(id: Int, slug: String): Bitmap? {
+		download("uploads/production/coin/icon/$id/$slug.png").fold(success = {
+			return BitmapFactory.decodeByteArray(it, 0, it.size)
+		}, failure = {
+			return null
+		})
 	}
 }
