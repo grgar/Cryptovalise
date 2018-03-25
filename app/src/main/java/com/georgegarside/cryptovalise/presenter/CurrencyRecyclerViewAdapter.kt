@@ -47,44 +47,11 @@ class CurrencyRecyclerViewAdapter(private val cursor: Cursor,
 			// Set click listeners
 			view.buttonInfo.setOnClickListener(infoClickListener)
 			
-			val deltaUp by lazy { ContextCompat.getColor(activity, R.color.deltaUp) }
-			val deltaDown by lazy { ContextCompat.getColor(activity, R.color.deltaDown) }
-			fun TextView.setDeltaColour() {
-				setTextColor(if (text.startsWith("↓")) deltaDown else deltaUp)
-			}
-			
 			view.progressBar.progressAnimate(10)
 			
-			// Load latest price info from API
-			launch(UI) {
-				API.coins.await()[symbol]?.let {
-					view.priceDollars.fadeInText(it.price.usdPrice)
-					view.progressBar.progressAnimate(40)
-					// Deltas
-					with(view.delta1h) {
-						fadeInText(it.delta.sumHour, view.deltaHeader1h)
-						setDeltaColour()
-					}
-					with(view.delta24h) {
-						fadeInText(it.delta.sumDay, view.deltaHeader24h)
-						setDeltaColour()
-					}
-					with(view.delta7d) {
-						fadeInText(it.delta.sumWeek, view.deltaHeader7d)
-						setDeltaColour()
-					}
-					
-					// Pounds
-					view.pricePounds.fadeInText(it.price.gbpPrice.await())
-					view.progressBar.progressAnimate(40)
-					
-					// Logo
-					it.logo.await()?.let { view.icon.setImageBitmap(it) }
-							?: view.icon.setImageResource(R.drawable.ic_attach_money_black_24dp)
-					view.icon.animation = CustomAnimation.fadeIn
-					view.progressBar.progressAnimate(100)
-				}
-			}
+			// These methods are asynchronous and run simultaneously
+			loadPrices(view, symbol)
+			loadLogo(view, symbol)
 		}
 	}
 	
@@ -97,6 +64,46 @@ class CurrencyRecyclerViewAdapter(private val cursor: Cursor,
 	}
 	
 	override fun getItemCount(): Int = cursor.count
+	
+	val deltaUp by lazy { ContextCompat.getColor(activity, R.color.deltaUp) }
+	val deltaDown by lazy { ContextCompat.getColor(activity, R.color.deltaDown) }
+	private fun TextView.setDeltaColour() {
+		setTextColor(if (text.startsWith("↓")) deltaDown else deltaUp)
+	}
+	
+	// Load latest price info from API
+	fun loadPrices(view: View, symbol: String) = launch(UI) {
+		API.coins.await()[symbol]?.let {
+			view.priceDollars.fadeInText(it.price.usdPrice)
+			view.progressBar.progressAnimate(40)
+			// Deltas
+			with(view.delta1h) {
+				fadeInText(it.delta.sumHour, view.deltaHeader1h)
+				setDeltaColour()
+			}
+			with(view.delta24h) {
+				fadeInText(it.delta.sumDay, view.deltaHeader24h)
+				setDeltaColour()
+			}
+			with(view.delta7d) {
+				fadeInText(it.delta.sumWeek, view.deltaHeader7d)
+				setDeltaColour()
+			}
+			
+			// Pounds
+			view.pricePounds.fadeInText(it.price.gbpPrice.await())
+			view.progressBar.progressAnimate(40)
+		}
+	}
+	
+	fun loadLogo(view: View, symbol: String) = launch(UI) {
+		API.coins.await()[symbol]?.let {
+			it.logo.await()?.let { view.icon.setImageBitmap(it) }
+					?: view.icon.setImageResource(R.drawable.ic_attach_money_black_24dp)
+			view.icon.animation = CustomAnimation.fadeIn
+			view.progressBar.progressAnimate(100)
+		}
+	}
 	
 	private val infoClickListener by lazy {
 		View.OnClickListener {

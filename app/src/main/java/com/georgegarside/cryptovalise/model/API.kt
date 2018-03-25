@@ -16,21 +16,34 @@ import java.text.DecimalFormat
  * Created by grgarside on 22/02/2018.
  */
 object API {
-	val coins by lazy { async { getCoins().associate { it.symbol to it } } }
+	private class Storage {
+		val coins = async(start = CoroutineStart.LAZY) { getCoins().associate { it.symbol to it } }
+		
+		val currencies = async(start = CoroutineStart.LAZY) { getCurrencies().associate { it.code to it } }
+	}
 	
-	val currencies by lazy { async { getCurrencies().associate { it.code to it } } }
+	private var storage = Storage()
+	
+	var coins = storage.coins
+		get() = storage.coins
+	
+	var currencies = storage.currencies
+	
+	fun refreshPrices() {
+		storage = Storage()
+	}
 	
 	data class Coin(val id: Int = 0, val symbol: String = "", val name: String = "", val slug: String = "",
-	                val description: String = "", val price: Price = Price(), val delta: Delta = Delta()) {
+	                val description: String = "", var price: Price = Price(), var delta: Delta = Delta()) {
 		
 		val logo = async(start = CoroutineStart.LAZY) { getIcon(id, slug) }
 		
 		data class Price(val usd: Double = 0.0, val btc: Double = 0.0) {
 			private fun format(number: Double) =
 					if (number < 10)
-						DecimalFormat("0.####").format(number)
+						DecimalFormat("0.0000").format(number)
 					else
-						DecimalFormat("#,##0.##").format(number)
+						DecimalFormat("#,##0.00").format(number)
 			
 			val usdPrice by lazy { "$ " + format(usd) }
 			val btcPrice by lazy { "BTC " + format(btc) }
@@ -77,39 +90,31 @@ object API {
 		})
 	}
 	
-	private fun getCoins(): Array<Coin> {
-		// Perform call to endpoint
-		val result = call<ArrayListInMap>(endpoint = "coins")
+	private fun getCoins(): Array<Coin> = call<ArrayListInMap>(endpoint = "coins")["data"]?.map {
+		// Extract further data as objects
+		@Suppress("UNCHECKED_CAST") val attributes = it["attributes"] as LinkedTreeMap<String, Any>
+		@Suppress("UNCHECKED_CAST") val links = attributes["links"] as LinkedTreeMap<String, String>
 		
-		// Parse response into Coins
-		return result["data"]?.map {
-			
-			// Extract further data as objects
-			@Suppress("UNCHECKED_CAST") val attributes = it["attributes"] as LinkedTreeMap<String, Any>
-			@Suppress("UNCHECKED_CAST") val links = attributes["links"] as LinkedTreeMap<String, String>
-			
-			// Attributes which require special handling e.g. casting
-			val id = (it["id"] as String).toInt()
-			
-			// Create coin
-			Coin(id,
-					symbol = attributes["symbol"] as String,
-					name = attributes["currency"] as String,
-					slug = attributes["slug"] as String,
-					description = attributes["description"] as String,
-					price = Coin.Price(
-							usd = attributes["price-usd"] as Double,
-							btc = attributes["price-btc"] as Double
-					),
-					delta = Coin.Delta(
-							hour = Pair(attributes["percent-change-1h"] as Double, attributes["point-change-1h"] as Double),
-							day = Pair(attributes["percent-change-24h"] as Double, attributes["point-change-24h"] as Double),
-							week = Pair(attributes["percent-change-7d"] as Double, attributes["point-change-7d"] as Double)
-					)
-			)
-			
-		}?.toTypedArray<Coin>() ?: arrayOf()
-	}
+		// Attributes which require special handling e.g. casting
+		val id = (it["id"] as String).toInt()
+		
+		// Create coin
+		Coin(id,
+				symbol = attributes["symbol"] as String,
+				name = attributes["currency"] as String,
+				slug = attributes["slug"] as String,
+				description = attributes["description"] as String,
+				price = Coin.Price(
+						usd = attributes["price-usd"] as Double,
+						btc = attributes["price-btc"] as Double
+				),
+				delta = Coin.Delta(
+						hour = Pair(attributes["percent-change-1h"] as Double, attributes["point-change-1h"] as Double),
+						day = Pair(attributes["percent-change-24h"] as Double, attributes["point-change-24h"] as Double),
+						week = Pair(attributes["percent-change-7d"] as Double, attributes["point-change-7d"] as Double)
+				)
+		)
+	}?.toTypedArray<Coin>() ?: arrayOf()
 	
 	private fun getCurrencies(): Array<Currency> {
 		return call<ArrayListInMap>(endpoint = "currencies")["currencies"]?.map {

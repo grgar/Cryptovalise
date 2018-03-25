@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
+import android.support.v7.widget.RecyclerView
 import android.view.Menu
 import android.view.View
 import com.georgegarside.cryptovalise.model.API
@@ -13,11 +13,16 @@ import com.georgegarside.cryptovalise.model.CoinsContentProvider
 import com.georgegarside.cryptovalise.model.CustomLoader
 import com.georgegarside.cryptovalise.model.DBOpenHelper
 import com.georgegarside.cryptovalise.presenter.CurrencyRecyclerViewAdapter
+import com.georgegarside.cryptovalise.presenter.CustomAnimation
+import com.georgegarside.cryptovalise.presenter.progressAnimate
 import kotlinx.android.synthetic.main.activity_currency_list.*
-import kotlinx.android.synthetic.main.currency_list.currencyList
+import kotlinx.android.synthetic.main.currency_list.*
+import kotlinx.android.synthetic.main.currency_list.view.*
+import kotlinx.android.synthetic.main.currency_list_content.view.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
-import kotlinx.android.synthetic.main.activity_currency_list.view.currencyList as currencyActivity
+import kotlinx.coroutines.experimental.launch
+import kotlinx.android.synthetic.main.activity_currency_list.currencyList as currencyListActivity
 
 class CurrencyListActivity : AppCompatActivity() {
 	
@@ -43,10 +48,31 @@ class CurrencyListActivity : AppCompatActivity() {
 				null, null, null, null)
 		
 		val adapter = CurrencyRecyclerViewAdapter(cursor, this, isMasterDetail)
-		currencyList.adapter = adapter
+		currencyList.currencyRecycler.adapter = adapter
 		
 		supportLoaderManager.initLoader(0, null,
 				CustomLoader(this, coinsUri, adapter.cursorAdapter))
+		
+		currencyList.setOnRefreshListener {
+			API.refreshPrices()
+			currencyList.currencyRecycler.childViews().forEach {
+				it.progressBar.progress = 0
+				it.progressBar.animation = CustomAnimation.fadeIn
+				launch(UI) {
+					adapter.loadPrices(it, it.symbol.text.toString()).join()
+					it.progressBar.progressAnimate(100)
+					currencyList.isRefreshing = false
+				}
+			}
+		}
+	}
+	
+	private fun RecyclerView.childViews() = object : Iterator<View> {
+		private var currentIndex = 0
+		
+		override fun hasNext(): Boolean = childCount > currentIndex
+		
+		override fun next(): View = getChildAt(currentIndex++)
 	}
 	
 	/**
