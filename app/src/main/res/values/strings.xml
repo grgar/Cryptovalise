@@ -23,4 +23,6 @@
 	<string name="delta_24h">24h %</string>
 	<string name="toolbar_addcurrency">Add currency</string>
 	<string name="title_activity_currency">Coins</string>
+	<string name="add_coin_title">Choose a coin</string>
+	<string name="add_coins_emptymsg">No more coins are available</string>
 </resources>

@@ -14,5 +14,7 @@
 		android:layout_height="match_parent"
 		app:layoutManager="LinearLayoutManager"
 		tools:context="com.georgegarside.cryptovalise.CurrencyListActivity"
-		tools:listitem="@layout/currency_list_content"/>
+		tools:listitem="@layout/currency_list_content"
+		android:paddingBottom="@dimen/item_padding_huge"
+		android:clipToPadding="false"/>
 </android.support.v4.widget.SwipeRefreshLayout>

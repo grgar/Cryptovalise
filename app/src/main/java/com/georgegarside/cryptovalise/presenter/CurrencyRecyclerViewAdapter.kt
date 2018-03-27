@@ -3,8 +3,12 @@ package com.georgegarside.cryptovalise.presenter
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
+import android.net.Uri
 import android.os.Bundle
+import android.support.v4.app.LoaderManager
 import android.support.v4.content.ContextCompat
+import android.support.v4.content.CursorLoader
+import android.support.v4.content.Loader
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +20,7 @@ import com.georgegarside.cryptovalise.CurrencyDetailFragment
 import com.georgegarside.cryptovalise.CurrencyListActivity
 import com.georgegarside.cryptovalise.R
 import com.georgegarside.cryptovalise.model.API
+import com.georgegarside.cryptovalise.model.DBOpenHelper
 import com.georgegarside.cryptovalise.model.replace
 import kotlinx.android.synthetic.main.currency_list_content.view.*
 import kotlinx.coroutines.experimental.android.UI
@@ -40,9 +45,9 @@ class CurrencyRecyclerViewAdapter(private val cursor: Cursor,
 		
 		fun setData(cursor: Cursor) {
 			// Load basic info from database
-			val symbol = cursor.getString(cursor.getColumnIndex("symbol"))
+			val symbol = cursor.getString(DBOpenHelper.Coin.Symbol.ordinal)
 			view.symbol.text = symbol
-			view.coinName.text = cursor.getString(cursor.getColumnIndex("name"))
+			view.coinName.text = cursor.getString(DBOpenHelper.Coin.Name.ordinal)
 			
 			// Set click listeners
 			view.buttonInfo.setOnClickListener(infoClickListener)
@@ -59,14 +64,14 @@ class CurrencyRecyclerViewAdapter(private val cursor: Cursor,
 			ViewHolder(parent)
 	
 	override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-		cursor.moveToPosition(position)
-		holder.setData(cursor)
+		cursor?.moveToPosition(position)
+		holder.setData(cursor ?: return)
 	}
 	
-	override fun getItemCount(): Int = cursor.count
+	override fun getItemCount(): Int = cursor?.count ?: 0
 	
-	val deltaUp by lazy { ContextCompat.getColor(activity, R.color.deltaUp) }
-	val deltaDown by lazy { ContextCompat.getColor(activity, R.color.deltaDown) }
+	private val deltaUp by lazy { ContextCompat.getColor(activity, R.color.deltaUp) }
+	private val deltaDown by lazy { ContextCompat.getColor(activity, R.color.deltaDown) }
 	private fun TextView.setDeltaColour() {
 		setTextColor(if (text.startsWith("↓")) deltaDown else deltaUp)
 	}

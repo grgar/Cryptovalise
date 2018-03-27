@@ -40,7 +40,10 @@ dependencies {
 	// Google Play Services
 	compile "com.google.android.gms:play-services-auth:11.8.0"
 
-	// Syntactic sugar for asynchronous methods
+	// Reflection
+	compile "org.jetbrains.kotlin:kotlin-reflect:1.2.30"
+
+	// Coroutine dispatchers for Android e.g. UI instead of CommonPool
 	compile "org.jetbrains.kotlinx:kotlinx-coroutines-android:0.22.2"
 
 	// Fuel, REST-based HTTP requests

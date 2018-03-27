@@ -9,8 +9,7 @@ import android.support.v4.content.CursorLoader
 import android.support.v4.content.Loader
 import android.widget.CursorAdapter
 
-class CustomLoader(private val context: Context,
-                   private val uri: Uri,
+class CustomLoader(private val context: Context, private val uri: Uri,
                    private val cursorAdapter: CursorAdapter) : LoaderManager.LoaderCallbacks<Cursor> {
 	
 	override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {

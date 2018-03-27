@@ -1,11 +1,14 @@
 package com.georgegarside.cryptovalise
 
-import android.net.Uri
+import android.content.ContentValues
+import android.database.Cursor
 import android.os.Bundle
 import android.support.design.widget.Snackbar
+import android.support.v4.app.LoaderManager
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.Menu
 import android.view.View
 import com.georgegarside.cryptovalise.model.API
@@ -13,11 +16,8 @@ import com.georgegarside.cryptovalise.model.CoinsContentProvider
 import com.georgegarside.cryptovalise.model.CustomLoader
 import com.georgegarside.cryptovalise.model.DBOpenHelper
 import com.georgegarside.cryptovalise.presenter.CurrencyRecyclerViewAdapter
-import com.georgegarside.cryptovalise.presenter.CustomAnimation
-import com.georgegarside.cryptovalise.presenter.progressAnimate
 import kotlinx.android.synthetic.main.activity_currency_list.*
 import kotlinx.android.synthetic.main.currency_list.*
-import kotlinx.android.synthetic.main.currency_list.view.*
 import kotlinx.android.synthetic.main.currency_list_content.view.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
@@ -31,7 +31,9 @@ class CurrencyListActivity : AppCompatActivity() {
 	 */
 	private var isMasterDetail = false
 	
-	private val coinsUri = Uri.withAppendedPath(CoinsContentProvider.base, "coin")
+	private lateinit var loader: LoaderManager.LoaderCallbacks<Cursor>
+	
+	private lateinit var adapter: CurrencyRecyclerViewAdapter
 	
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -42,25 +44,26 @@ class CurrencyListActivity : AppCompatActivity() {
 		// On large layout, detail is shown beside master
 		isMasterDetail = currencyDetail != null
 		
-		val table = DBOpenHelper.findTable("coin")
-		
-		val cursor = contentResolver.query(coinsUri, table?.columns,
+		val cursor = contentResolver.query(CoinsContentProvider.Operation.ALL.uri, DBOpenHelper.Coin.columns,
 				null, null, null, null)
 		
-		val adapter = CurrencyRecyclerViewAdapter(cursor, this, isMasterDetail)
-		currencyList.currencyRecycler.adapter = adapter
+		Log.i("gLog", "Cursor done")
 		
-		supportLoaderManager.initLoader(0, null,
-				CustomLoader(this, coinsUri, adapter.cursorAdapter))
+		adapter = CurrencyRecyclerViewAdapter(cursor, this, isMasterDetail)
+		currencyRecycler.adapter = adapter
+		
+		Log.i("gLog", "Adapter done")
+		
+		loader = CustomLoader(this, CoinsContentProvider.Operation.ALL.uri, adapter.cursorAdapter)
+		supportLoaderManager.initLoader(0, null, loader)
+		
+		Log.i("gLog", "Loader done")
 		
 		currencyList.setOnRefreshListener {
 			API.refreshPrices()
-			currencyList.currencyRecycler.childViews().forEach {
-				it.progressBar.progress = 0
-				it.progressBar.animation = CustomAnimation.fadeIn
+			currencyRecycler.childViews().forEach {
 				launch(UI) {
 					adapter.loadPrices(it, it.symbol.text.toString()).join()
-					it.progressBar.progressAnimate(100)
 					currencyList.isRefreshing = false
 				}
 			}
@@ -97,19 +100,63 @@ class CurrencyListActivity : AppCompatActivity() {
 	}
 	
 	private val showAddCoinDialog = View.OnClickListener { view: View? ->
-		with(AlertDialog.Builder(this)) {
-			setTitle("Choose a coin")
-			async(UI) {
-				val coins = API.coins.await()
-				setItems(coins.keys.toTypedArray(), { dialog, which ->
-					if (view != null) {
-						Snackbar.make(view, "Clicked item $which", Snackbar.LENGTH_LONG).show()
-					}
-					dialog.dismiss()
-				})
+		val dialog = AlertDialog.Builder(this).apply {
+			setTitle(getString(R.string.add_coin_title))
+		}
+		
+		async(UI) {
+			val coins = API.coins.await() as MutableMap
+			
+			// Remove any coins from the list to be added if they already exist in the added list
+			currencyRecycler.childViews().forEach {
+				val symbol = it.symbol.text.toString()
+				if (coins[symbol] != null) coins.remove(symbol)
+			}
+			
+			with(dialog) {
+				if (coins.isEmpty()) {
+					dialog.setMessage(getString(R.string.add_coins_emptymsg))
+				} else {
+					val coinsArray = List<String>(coins.size, {
+						coins.keys.toTypedArray()[it] + " - " + coins.values.toTypedArray()[it].name
+					})
+					dialog.setItems(coinsArray.toTypedArray(), { dialog, which ->
+						
+						coins[coinsArray[which].split(" - ").first()]?.symbol?.let { addCoin(it) }
+						
+						// Show notification and ability to undo
+						if (view != null) {
+							Snackbar.make(view, "Clicked item $which", Snackbar.LENGTH_LONG).apply {
+								setAction("Undo", {
+									TODO("Perform undo")
+								})
+								show()
+							}
+						}
+						dialog.dismiss()
+					})
+				}
+				
 				setNegativeButton("Cancel", { dialog, _ -> dialog.cancel() })
 				show()
 			}
 		}
+	}
+	
+	private fun addCoin(symbol: String) = launch(UI) {
+		val coin = API.coins.await()[symbol] ?: return@launch
+		contentResolver.insert(CoinsContentProvider.Operation.ALL.uri, ContentValues().apply {
+			put(DBOpenHelper.Coin.Symbol.column, coin.symbol)
+			put(DBOpenHelper.Coin.Name.column, coin.name)
+		})
+		supportLoaderManager.restartLoader(0, null, loader)
+		
+		//adapter.notifyDataSetChanged()
+		//adapter.notifyItemInserted(adapter.itemCount - 1)
+		//currencyRecycler.smoothScrollToPosition(currencyRecycler.childCount - 1)
+	}
+	
+	private fun removeCoin(index: Int) {
+		adapter.notifyItemInserted(index)
 	}
 }

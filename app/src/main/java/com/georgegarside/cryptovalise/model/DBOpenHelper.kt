@@ -1,60 +1,79 @@
 package com.georgegarside.cryptovalise.model
 
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.provider.BaseColumns
+import kotlin.reflect.KClass
 
 class DBOpenHelper(private val context: Context) : SQLiteOpenHelper(context, "coins.db", null, 1) {
-	class Table(val name: String, vararg columns: String) {
-		val columns = arrayOf(BaseColumns._ID, *columns)
+	
+	enum class SQL(val sql: String) {
+		Table("CREATE TABLE"),
+		Int("INTEGER"),
+		Text("TEXT"),
+		Key("PRIMARY KEY"),
+		Auto("AUTOINCREMENT");
+		
+		override fun toString(): String = this.sql
 	}
 	
-	companion object {
-		val tables = arrayOf(Table("coin", "name", "symbol"))
+	interface TableColumn {
+		val type: SQL
+		val extras: Array<out SQL>
+		val column: String
+	}
+	
+	private val <T : TableColumn> KClass<T>.declaration
+		get() = this.java.enumConstants.joinToString(
+				prefix = "${SQL.Table} ${this.simpleName} (",
+				separator = ", ",
+				postfix = ")"
+		) {
+			return@joinToString "${it.column} ${it.type} ${it.extras.joinToString(" ")}"
+		}
+	
+	enum class Coin(override val type: SQL, override vararg val extras: SQL) : TableColumn {
+		/**
+		 * ID column is an integer which is the primary key in table, marked as autoincrementing so it does not need to be
+		 * provided when adding a new row to the table.
+		 */
+		ID(SQL.Int, SQL.Key, SQL.Auto) {
+			/**
+			 * ID column name must match [BaseColumns._ID] such that [android.provider] can access data correctly
+			 */
+			override val column = BaseColumns._ID
+		},
+		Symbol(SQL.Text),
+		Name(SQL.Text);
 		
 		/**
-		 * Get a [Table] by its [name]
+		 * Open the column's [name] for overriding by a specific column declaration
 		 */
-		fun findTable(name: String): Table? {
-			return tables.find { it.name == name }
+		override val column = this.name
+		
+		companion object {
+			val columns = values().map { it.column }.toTypedArray()
 		}
+	}
+	
+	enum class Table(val columns: Array<String>) {
+		Coin(DBOpenHelper.Coin.columns);
 	}
 	
 	/**
-	 * Creates the [db] and populates it with [Table]s defined in [tables]
+	 * Creates the [db] and populates it with [TableColumn]s defined in [tables]
 	 */
 	override fun onCreate(db: SQLiteDatabase) {
 		// Need to create a table in the database for each defined table
-		tables.forEach {
-			db.execSQL((
-					// Build SQL statement for creating table
-					"CREATE TABLE ${it.name} (" +
-							
-							// ID column is primary key in table
-							"${BaseColumns._ID} INTEGER PRIMARY KEY AUTOINCREMENT, " +
-							
-							// All other columns in table
-							it.columns
-									// Remove ID column since it was handled separately
-									.drop(1)
-									// All other columns are text
-									.joinToString(" TEXT, ")
-					
-					)
-					// Remove extraneous characters added by columns join
-					.trim(' ', ',')
-					// End SQL table definitions
-					+ ")")
-		}
+		db.execSQL(Coin::class.declaration)
 		
 		// Insert starter content
-		findTable("coin")?.let {
-			db.execSQL("""
-				INSERT INTO ${it.name} ('name', 'symbol')
-				VALUES ('Bitcoin', 'BTC'), ('Ethereum', 'ETH')
-				""")
-		}
+		db.execSQL("""
+			INSERT INTO ${Coin::class.simpleName} ("${Coin.Symbol}", "${Coin.Name}")
+			VALUES ("BTC", "Bitcoin"), ("ETH", "Ethereum")
+		""".trimIndent())
 	}
 	
 	/**
@@ -62,9 +81,7 @@ class DBOpenHelper(private val context: Context) : SQLiteOpenHelper(context, "co
 	 */
 	override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
 		// Drop all tables in database
-		tables.forEach {
-			db.execSQL("DROP TABLE IF EXISTS ${it.name}")
-		}
+		db.execSQL("DROP TABLE IF EXISTS ${Coin::class.simpleName}")
 		// Recreate database from scratch
 		onCreate(db)
 	}
