@@ -24,7 +24,7 @@ object API {
 	
 	var currencies = storage.currencies
 	
-	fun refreshPrices() {
+	fun invalidateCache() {
 		storage = Storage()
 	}
 	
