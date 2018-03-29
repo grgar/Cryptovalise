@@ -14,7 +14,6 @@ import android.widget.CursorAdapter
 import android.widget.TextView
 import com.georgegarside.cryptovalise.CurrencyDetailActivity
 import com.georgegarside.cryptovalise.CurrencyDetailFragment
-import com.georgegarside.cryptovalise.CurrencyListActivity
 import com.georgegarside.cryptovalise.R
 import com.georgegarside.cryptovalise.model.API
 import com.georgegarside.cryptovalise.model.DBOpenHelper
@@ -27,7 +26,7 @@ class CurrencyRecyclerViewAdapter(private val context: Context,
                                   private val isMasterDetail: Boolean) :
 		RecyclerView.Adapter<CurrencyRecyclerViewAdapter.ViewHolder>() {
 	
-	val cursorAdapter = object : CursorAdapter(context, null, 0) {
+	private val cursorAdapter = object : CursorAdapter(context, null, 0) {
 		// No implementation since view management is performed with ViewHolder
 		override fun newView(context: Context, cursor: Cursor, parent: ViewGroup): View =
 				LayoutInflater.from(parent.context)

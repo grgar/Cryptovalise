@@ -1,15 +1,14 @@
 package com.georgegarside.cryptovalise.model
 
 import android.content.Context
-import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.provider.BaseColumns
 import kotlin.reflect.KClass
 
-class DBOpenHelper(private val context: Context) : SQLiteOpenHelper(context, "coins.db", null, 1) {
+class DBOpenHelper(context: Context) : SQLiteOpenHelper(context, "coins.db", null, 1) {
 	
-	enum class SQL(val sql: String) {
+	enum class SQL(private val sql: String) {
 		Table("CREATE TABLE"),
 		Int("INTEGER"),
 		Text("TEXT"),
@@ -63,7 +62,7 @@ class DBOpenHelper(private val context: Context) : SQLiteOpenHelper(context, "co
 	}
 	
 	/**
-	 * Creates the [db] and populates it with [TableColumn]s defined in [tables]
+	 * Creates the [db] and populates it with [TableColumn]s defined in [Table]
 	 */
 	override fun onCreate(db: SQLiteDatabase) {
 		// Need to create a table in the database for each defined table

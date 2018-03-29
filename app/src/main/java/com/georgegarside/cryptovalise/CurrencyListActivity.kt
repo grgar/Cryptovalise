@@ -10,7 +10,6 @@ import android.support.v4.content.Loader
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.Menu
 import android.view.View
 import com.georgegarside.cryptovalise.model.API
@@ -89,7 +88,8 @@ class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
 	override fun onLoaderReset(loader: Loader<Cursor>) = when (loader.id) {
 		0 -> adapter.swapCursor(null)
 		
-		else -> {} // Ignore
+		else -> {
+		} // Ignore
 	}
 	
 	/**
@@ -131,7 +131,7 @@ class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
 				if (coins.isEmpty()) {
 					dialog.setMessage(getString(R.string.add_coins_emptymsg))
 				} else {
-					val coinsArray = List<String>(coins.size, {
+					val coinsArray = List(coins.size, {
 						coins.keys.toTypedArray()[it] + " - " + coins.values.toTypedArray()[it].name
 					})
 					dialog.setItems(coinsArray.toTypedArray(), { dialog, which ->

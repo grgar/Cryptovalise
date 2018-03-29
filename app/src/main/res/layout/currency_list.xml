@@ -12,7 +12,7 @@
 		android:name="com.georgegarside.cryptovalise.CurrencyListFragment"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		app:layoutManager="LinearLayoutManager"
+		app:layoutManager="android.support.v7.widget.LinearLayoutManager"
 		tools:context="com.georgegarside.cryptovalise.CurrencyListActivity"
 		tools:listitem="@layout/currency_list_content"
 		android:paddingBottom="@dimen/item_padding_huge"

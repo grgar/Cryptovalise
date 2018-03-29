@@ -9,7 +9,7 @@ import android.widget.TextView
 
 object CustomAnimation {
 	val fadeIn = AlphaAnimation(0.0f, 1.0f)
-	val fadeOut = AlphaAnimation(1.0f, 0.0f)
+	private val fadeOut = AlphaAnimation(1.0f, 0.0f)
 	
 	init {
 		fadeIn.apply {

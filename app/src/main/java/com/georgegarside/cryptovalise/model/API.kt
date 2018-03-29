@@ -10,11 +10,6 @@ import kotlinx.coroutines.experimental.CoroutineStart
 import kotlinx.coroutines.experimental.async
 import java.text.DecimalFormat
 
-/**
- * API
- *
- * Created by grgarside on 22/02/2018.
- */
 object API {
 	private class Storage {
 		val coins = async(start = CoroutineStart.LAZY) { getCoins().associate { it.symbol to it } }
@@ -114,7 +109,7 @@ object API {
 						week = Pair(attributes["percent-change-7d"] as Double, attributes["point-change-7d"] as Double)
 				)
 		)
-	}?.toTypedArray<Coin>() ?: arrayOf()
+	}?.toTypedArray() ?: arrayOf()
 	
 	private fun getCurrencies(): Array<Currency> {
 		return call<ArrayListInMap>(endpoint = "currencies")["currencies"]?.map {
@@ -123,7 +118,7 @@ object API {
 					name = it["full_name"] as String,
 					rate = it["exchange_rate"] as Double
 			)
-		}?.toTypedArray<Currency>() ?: arrayOf()
+		}?.toTypedArray() ?: arrayOf()
 	}
 	
 	private fun download(path: String) = fuel.request(Method.GET, path).response().third
