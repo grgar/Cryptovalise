@@ -59,9 +59,11 @@ class CoinsContentProvider : ContentProvider() {
 	                   sortOrder: String?): Cursor? {
 		// Get table to perform query on
 		val table = dbTable(uri)
-		return db.query(table.name, table.columns, selection, selectionArgs, null, null, sortOrder).apply {
-			setNotificationUri(context.contentResolver, Operation.ALL.uri)
+		val cursor = db.query(table.name, table.columns, selection, selectionArgs, null, null, sortOrder).apply {
+			setNotificationUri(context.contentResolver, uri)
 		}
+		context.contentResolver.notifyChange(uri, null)
+		return cursor
 	}
 	
 	/**
@@ -75,9 +77,9 @@ class CoinsContentProvider : ContentProvider() {
 		// Perform insertion and get ID for row just inserted
 		val insertionId = db.insert(table.name, null, values)
 		// Convert ID into Uri to return
-		val newUri = Uri.withAppendedPath(Operation.SINGLE.uri, insertionId.toString())
+		val newUri = Uri.withAppendedPath(uri, insertionId.toString())
 		// Notify change occurred
-		context.contentResolver.notifyChange(Operation.ALL.uri, null)
+		context.contentResolver.notifyChange(uri, null)
 		// Return Uri to the new row inserted
 		return newUri
 	}
@@ -88,7 +90,7 @@ class CoinsContentProvider : ContentProvider() {
 		// Get number of rows which were updated to be returned
 		val rows = db.update(table.name, values, selection, selectionArgs)
 		// Notify change occurred
-		context.contentResolver.notifyChange(Operation.ALL.uri, null)
+		if (rows > 0) context.contentResolver.notifyChange(uri, null)
 		// Return number of rows updated
 		return rows
 	}
@@ -97,6 +99,10 @@ class CoinsContentProvider : ContentProvider() {
 		// Get table to perform delete operation on
 		val table = dbTable(uri)
 		// Tell database to delete matching rows
-		return db.delete(table.name, selection, selectionArgs)
+		val rows = db.delete(table.name, selection, selectionArgs)
+		// Notify change occurred
+		if (rows > 0) context.contentResolver.notifyChange(uri, null)
+		// Return number of rows deleted
+		return rows
 	}
 }

@@ -3,12 +3,9 @@ package com.georgegarside.cryptovalise.presenter
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
-import android.net.Uri
 import android.os.Bundle
-import android.support.v4.app.LoaderManager
+import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
-import android.support.v4.content.CursorLoader
-import android.support.v4.content.Loader
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -26,23 +23,27 @@ import kotlinx.android.synthetic.main.currency_list_content.view.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 
-class CurrencyRecyclerViewAdapter(private val cursor: Cursor,
-                                  private val activity: CurrencyListActivity,
+class CurrencyRecyclerViewAdapter(private val context: Context,
                                   private val isMasterDetail: Boolean) :
 		RecyclerView.Adapter<CurrencyRecyclerViewAdapter.ViewHolder>() {
 	
-	val cursorAdapter = object : CursorAdapter(activity, cursor, 0) {
+	val cursorAdapter = object : CursorAdapter(context, null, 0) {
 		// No implementation since view management is performed with ViewHolder
-		override fun newView(context: Context, cursor: Cursor, parent: ViewGroup): View = TODO("Implement newView")
+		override fun newView(context: Context, cursor: Cursor, parent: ViewGroup): View =
+				LayoutInflater.from(parent.context)
+						// Inflate a new view based on the card layout defined in currency list content layout
+						.inflate(R.layout.currency_list_content, parent, false)
 		
-		override fun bindView(view: View, context: Context, cursor: Cursor) = TODO("Implement bindView")
+		override fun bindView(view: View, context: Context, cursor: Cursor) =
+				ViewHolder(view).setData(cursor)
+	}
+	
+	fun swapCursor(cursor: Cursor?) {
+		cursorAdapter.swapCursor(cursor)
+		notifyDataSetChanged()
 	}
 	
 	inner class ViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
-		constructor(parent: ViewGroup) : this(LayoutInflater.from(parent.context)
-				// Inflate a new view based on the card layout defined in currency list content layout
-				.inflate(R.layout.currency_list_content, parent, false))
-		
 		fun setData(cursor: Cursor) {
 			// Load basic info from database
 			val symbol = cursor.getString(DBOpenHelper.Coin.Symbol.ordinal)
@@ -61,17 +62,17 @@ class CurrencyRecyclerViewAdapter(private val cursor: Cursor,
 	}
 	
 	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
-			ViewHolder(parent)
+			ViewHolder(cursorAdapter.newView(context, cursorAdapter.cursor, parent))
 	
 	override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-		cursor?.moveToPosition(position)
-		holder.setData(cursor ?: return)
+		cursorAdapter.cursor.moveToPosition(position)
+		holder.setData(cursorAdapter.cursor)
 	}
 	
-	override fun getItemCount(): Int = cursor?.count ?: 0
+	override fun getItemCount(): Int = cursorAdapter.count
 	
-	private val deltaUp by lazy { ContextCompat.getColor(activity, R.color.deltaUp) }
-	private val deltaDown by lazy { ContextCompat.getColor(activity, R.color.deltaDown) }
+	private val deltaUp by lazy { ContextCompat.getColor(context, R.color.deltaUp) }
+	private val deltaDown by lazy { ContextCompat.getColor(context, R.color.deltaDown) }
 	private fun TextView.setDeltaColour() {
 		setTextColor(if (text.startsWith("↓")) deltaDown else deltaUp)
 	}
@@ -118,9 +119,9 @@ class CurrencyRecyclerViewAdapter(private val cursor: Cursor,
 						putString(CurrencyDetailFragment.ARG_ITEM_ID, "1")
 					}
 				}
-				activity.replace(R.id.currencyDetail, fragment)
+				(context as? FragmentActivity)?.replace(R.id.currencyDetail, fragment)
 			} else {
-				activity.startActivity(Intent(activity, CurrencyDetailActivity::class.java))
+				context.startActivity(Intent(context, CurrencyDetailActivity::class.java))
 			}
 		}
 	}

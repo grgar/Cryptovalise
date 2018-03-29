@@ -5,6 +5,8 @@ import android.database.Cursor
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.LoaderManager
+import android.support.v4.content.CursorLoader
+import android.support.v4.content.Loader
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
@@ -13,7 +15,6 @@ import android.view.Menu
 import android.view.View
 import com.georgegarside.cryptovalise.model.API
 import com.georgegarside.cryptovalise.model.CoinsContentProvider
-import com.georgegarside.cryptovalise.model.CustomLoader
 import com.georgegarside.cryptovalise.model.DBOpenHelper
 import com.georgegarside.cryptovalise.presenter.CurrencyRecyclerViewAdapter
 import kotlinx.android.synthetic.main.activity_currency_list.*
@@ -24,14 +25,12 @@ import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import kotlinx.android.synthetic.main.activity_currency_list.currencyList as currencyListActivity
 
-class CurrencyListActivity : AppCompatActivity() {
+class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor> {
 	
 	/**
 	 * Is screen showing both master and detail containers (true on tablet-scale containers)
 	 */
 	private var isMasterDetail = false
-	
-	private lateinit var loader: LoaderManager.LoaderCallbacks<Cursor>
 	
 	private lateinit var adapter: CurrencyRecyclerViewAdapter
 	
@@ -43,21 +42,17 @@ class CurrencyListActivity : AppCompatActivity() {
 		
 		// On large layout, detail is shown beside master
 		isMasterDetail = currencyDetail != null
-		
+
+/*
 		val cursor = contentResolver.query(CoinsContentProvider.Operation.ALL.uri, DBOpenHelper.Coin.columns,
 				null, null, null, null)
+*/
 		
-		Log.i("gLog", "Cursor done")
-		
-		adapter = CurrencyRecyclerViewAdapter(cursor, this, isMasterDetail)
+		adapter = CurrencyRecyclerViewAdapter(this, isMasterDetail)
 		currencyRecycler.adapter = adapter
 		
-		Log.i("gLog", "Adapter done")
-		
-		loader = CustomLoader(this, CoinsContentProvider.Operation.ALL.uri, adapter.cursorAdapter)
-		supportLoaderManager.initLoader(0, null, loader)
-		
-		Log.i("gLog", "Loader done")
+		supportLoaderManager.initLoader(0, null, this)
+		//loader = CustomLoader(this, CoinsContentProvider.Operation.ALL.uri, adapter.cursorAdapter)
 		
 		currencyList.setOnRefreshListener {
 			API.refreshPrices()
@@ -76,6 +71,25 @@ class CurrencyListActivity : AppCompatActivity() {
 		override fun hasNext(): Boolean = childCount > currentIndex
 		
 		override fun next(): View = getChildAt(currentIndex++)
+	}
+	
+	override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> = when (id) {
+		0 -> CursorLoader(this, CoinsContentProvider.Operation.ALL.uri,
+				null, null, null, null)
+		
+		else -> throw Exception("Invalid loader ID")
+	}
+	
+	override fun onLoadFinished(loader: Loader<Cursor>, data: Cursor) = when (loader.id) {
+		0 -> adapter.swapCursor(data)
+		
+		else -> throw Exception("Invalid loader ID")
+	}
+	
+	override fun onLoaderReset(loader: Loader<Cursor>) = when (loader.id) {
+		0 -> adapter.swapCursor(null)
+		
+		else -> {} // Ignore
 	}
 	
 	/**
@@ -149,9 +163,9 @@ class CurrencyListActivity : AppCompatActivity() {
 			put(DBOpenHelper.Coin.Symbol.column, coin.symbol)
 			put(DBOpenHelper.Coin.Name.column, coin.name)
 		})
-		supportLoaderManager.restartLoader(0, null, loader)
+		supportLoaderManager.restartLoader(0, null, this@CurrencyListActivity)
 		
-		//adapter.notifyDataSetChanged()
+		adapter.notifyDataSetChanged()
 		//adapter.notifyItemInserted(adapter.itemCount - 1)
 		//currencyRecycler.smoothScrollToPosition(currencyRecycler.childCount - 1)
 	}

@@ -18,9 +18,11 @@ class CustomLoader(private val context: Context, private val uri: Uri,
 	
 	override fun onLoadFinished(loader: Loader<Cursor>, data: Cursor?) {
 		cursorAdapter.swapCursor(data)
+		cursorAdapter.notifyDataSetChanged()
 	}
 	
 	override fun onLoaderReset(loader: Loader<Cursor>) {
 		cursorAdapter.swapCursor(null)
+		cursorAdapter.notifyDataSetChanged()
 	}
 }
