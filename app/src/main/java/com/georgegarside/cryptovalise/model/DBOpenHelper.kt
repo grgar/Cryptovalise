@@ -13,7 +13,8 @@ class DBOpenHelper(context: Context) : SQLiteOpenHelper(context, "coins.db", nul
 		Int("INTEGER"),
 		Text("TEXT"),
 		Key("PRIMARY KEY"),
-		Auto("AUTOINCREMENT");
+		Auto("AUTOINCREMENT"),
+		Unique("UNIQUE");
 		
 		override fun toString(): String = this.sql
 	}
@@ -44,7 +45,7 @@ class DBOpenHelper(context: Context) : SQLiteOpenHelper(context, "coins.db", nul
 			 */
 			override val column = BaseColumns._ID
 		},
-		Symbol(SQL.Text),
+		Symbol(SQL.Text, SQL.Unique),
 		Name(SQL.Text);
 		
 		/**

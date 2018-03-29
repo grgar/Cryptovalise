@@ -59,7 +59,7 @@ class CoinsContentProvider : ContentProvider() {
 	                   sortOrder: String?): Cursor? {
 		// Get table to perform query on
 		val table = dbTable(uri)
-		val cursor = db.query(table.name, table.columns, selection, selectionArgs, null, null, sortOrder).apply {
+		val cursor = db.query(table.name, projection, selection, selectionArgs, null, null, sortOrder).apply {
 			setNotificationUri(context.contentResolver, uri)
 		}
 		context.contentResolver.notifyChange(uri, null)

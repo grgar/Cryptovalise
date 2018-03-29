@@ -41,11 +41,6 @@ class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
 		
 		// On large layout, detail is shown beside master
 		isMasterDetail = currencyDetail != null
-
-/*
-		val cursor = contentResolver.query(CoinsContentProvider.Operation.ALL.uri, DBOpenHelper.Coin.columns,
-				null, null, null, null)
-*/
 		
 		adapter = CurrencyRecyclerViewAdapter(this, isMasterDetail)
 		currencyRecycler.adapter = adapter
@@ -113,7 +108,7 @@ class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
 		return super.onCreateOptionsMenu(menu)
 	}
 	
-	private val showAddCoinDialog = View.OnClickListener { view: View? ->
+	private val showAddCoinDialog = View.OnClickListener { view: View ->
 		val dialog = AlertDialog.Builder(this).apply {
 			setTitle(getString(R.string.add_coin_title))
 		}
@@ -122,8 +117,19 @@ class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
 			val coins = API.coins.await() as MutableMap
 			
 			// Remove any coins from the list to be added if they already exist in the added list
-			currencyRecycler.childViews().forEach {
-				val symbol = it.symbol.text.toString()
+			val cursor = contentResolver.query(
+					// Get all coins
+					CoinsContentProvider.Operation.ALL.uri,
+					// Get symbol column
+					arrayOf(DBOpenHelper.Coin.Symbol.column),
+					// Basic catch-all query
+					null, null, null)
+					// Begin from first row
+					.apply { moveToFirst() }
+			generateSequence(cursor.apply { moveToPrevious() }) {
+				if (cursor.moveToNext()) cursor else null
+			}.forEach {
+				val symbol = it.getString(0)
 				if (coins[symbol] != null) coins.remove(symbol)
 			}
 			
@@ -136,16 +142,15 @@ class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
 					})
 					dialog.setItems(coinsArray.toTypedArray(), { dialog, which ->
 						
-						coins[coinsArray[which].split(" - ").first()]?.symbol?.let { addCoin(it) }
+						val coin = coins[coinsArray[which].split(" - ").first()] ?: return@setItems
+						addCoin(coin.symbol)
 						
 						// Show notification and ability to undo
-						if (view != null) {
-							Snackbar.make(view, "Clicked item $which", Snackbar.LENGTH_LONG).apply {
-								setAction("Undo", {
-									TODO("Perform undo")
-								})
-								show()
-							}
+						Snackbar.make(view, "Added ${coin.name}", Snackbar.LENGTH_LONG).apply {
+							setAction("Undo", {
+								TODO("Perform undo")
+							})
+							show()
 						}
 						dialog.dismiss()
 					})
@@ -165,9 +170,8 @@ class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
 		})
 		supportLoaderManager.restartLoader(0, null, this@CurrencyListActivity)
 		
-		adapter.notifyDataSetChanged()
-		//adapter.notifyItemInserted(adapter.itemCount - 1)
-		//currencyRecycler.smoothScrollToPosition(currencyRecycler.childCount - 1)
+		adapter.notifyItemInserted(adapter.itemCount - 1)
+		currencyRecycler.smoothScrollToPosition(adapter.itemCount)
 	}
 	
 	private fun removeCoin(index: Int) {
