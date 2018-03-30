@@ -1,5 +1,6 @@
 package com.georgegarside.cryptovalise
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.database.Cursor
 import android.os.Bundle
@@ -149,7 +150,6 @@ class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
 					else -> false
 				}
 			}
-			
 		} else {
 			// On mobile, the add coin button is a floating action button defined in the layout file
 			fab?.setOnClickListener(showAddCoinDialog)
@@ -178,14 +178,12 @@ class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
 					// Get all coins
 					CoinsContentProvider.Operation.ALL.uri,
 					// Get symbol column
-					arrayOf(DBOpenHelper.Coin.Symbol.column),
+					arrayOf(DBOpenHelper.Coin.Symbol.toString()),
 					// Basic catch-all query
 					null, null, null)
-					// Begin from first row
-					.apply { moveToFirst(); }
 			
 			// Perform the set negation, removing coins if they already exist in the coins list
-			with(cursor.apply { moveToPrevious() }) {
+			with(cursor.apply { moveToFirst(); moveToPrevious() }) {
 				while (moveToNext()) {
 					// Column index is 0 since this is defined by the projection,
 					// the column required will always be the only column returned
@@ -193,6 +191,7 @@ class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
 					val symbol = getString(0)
 					if (coins[symbol] != null) coins.remove(symbol)
 				}
+				close()
 			}
 			
 			coins
@@ -243,14 +242,32 @@ class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
 	 */
 	private fun addCoin(coin: API.Coin) {
 		// Get the coin from the given symbol
-		contentResolver.insert(CoinsContentProvider.Operation.ALL.uri, ContentValues().apply {
-			put(DBOpenHelper.Coin.Symbol.column, coin.symbol)
-			put(DBOpenHelper.Coin.Name.column, coin.name)
+		val uri = contentResolver.insert(CoinsContentProvider.Operation.ALL.uri, ContentValues().apply {
+			put(DBOpenHelper.Coin.ID.toString(), coin.id)
+			put(DBOpenHelper.Coin.Symbol.toString(), coin.symbol)
+			put(DBOpenHelper.Coin.Name.toString(), coin.name)
 		})
 		supportLoaderManager.restartLoader(0, null, this@CurrencyListActivity)
 		
-		adapter.notifyItemInserted(adapter.itemCount - 1)
-		currencyRecycler.smoothScrollToPosition(adapter.itemCount)
+		@SuppressLint("Recycle") // Android Studio bug, lint does not see `with` block as calling close on cursor
+		val cursor = contentResolver.query(
+				CoinsContentProvider.Operation.ALL.uri,
+				// Get IDs
+				arrayOf(DBOpenHelper.Coin.ID.toString()),
+				null, null, null)
+		
+		val coinId = uri.lastPathSegment.toInt()
+		
+		val position = with(cursor.apply { moveToFirst(); moveToPrevious() }) {
+			while (moveToNext()) {
+				if (coinId == getInt(0)) break
+			}
+			close()
+			position
+		}
+		
+		adapter.notifyItemInserted(position)
+		currencyRecycler.scrollToPosition(position)
 	}
 	
 	/**
