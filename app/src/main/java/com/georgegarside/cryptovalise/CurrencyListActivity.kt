@@ -84,7 +84,7 @@ class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
 	 */
 	override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> = when (id) {
 		0 -> CursorLoader(this, CoinsContentProvider.Operation.ALL.uri,
-				null, null, null, null) // TODO: Sort by coin ID
+				null, null, null, null)
 		
 		else -> throw Exception("Invalid loader ID")
 	}

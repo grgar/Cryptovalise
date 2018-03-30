@@ -102,12 +102,15 @@ class CurrencyRecyclerViewAdapter(private val context: Context,
 	}
 	
 	fun loadLogo(view: View, symbol: String) = launch(UI) {
-		API.coins.await()[symbol]?.let {
-			it.logo.await()?.let { view.icon.setImageBitmap(it) }
-					?: view.icon.setImageResource(R.drawable.ic_attach_money_black_24dp)
-			view.icon.animation = CustomAnimation.fadeIn
-			view.progressBar.progressAnimate(100)
-		}
+		val coin = API.coins.await()[symbol] ?: return@launch
+		val logo = coin.logo.await() ?: return@launch
+		
+		// After asynchronous operations, need to check whether the view has been bound to a different coin
+		if (view.symbol.text != coin.symbol) return@launch
+		
+		view.icon.setImageBitmap(logo)
+		view.icon.animation = CustomAnimation.fadeIn
+		view.progressBar.progressAnimate(100)
 	}
 	
 	private val infoClickListener by lazy {
