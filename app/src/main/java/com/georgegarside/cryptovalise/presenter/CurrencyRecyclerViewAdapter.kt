@@ -64,6 +64,7 @@ class CurrencyRecyclerViewAdapter(private val context: Context,
 			ViewHolder(cursorAdapter.newView(context, cursorAdapter.cursor, parent))
 	
 	override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+		if (cursorAdapter.cursor.isClosed) return
 		cursorAdapter.cursor.moveToPosition(position)
 		holder.setData(cursorAdapter.cursor)
 	}
@@ -78,27 +79,28 @@ class CurrencyRecyclerViewAdapter(private val context: Context,
 	
 	// Load latest price info from API
 	fun loadPrices(view: View, symbol: String) = launch(UI) {
-		API.coins.await()[symbol]?.let {
-			view.priceDollars.fadeInText(it.price.usdPrice)
-			view.progressBar.progressAnimate(40)
-			// Deltas
-			with(view.delta1h) {
-				fadeInText(it.delta.sumHour, view.deltaHeader1h)
-				setDeltaColour()
-			}
-			with(view.delta24h) {
-				fadeInText(it.delta.sumDay, view.deltaHeader24h)
-				setDeltaColour()
-			}
-			with(view.delta7d) {
-				fadeInText(it.delta.sumWeek, view.deltaHeader7d)
-				setDeltaColour()
-			}
-			
-			// Pounds
-			view.pricePounds.fadeInText(it.price.gbpPrice.await())
-			view.progressBar.progressAnimate(40)
+		val coin = API.coins.await()[symbol] ?: return@launch
+		if (view.symbol.text != symbol) return@launch
+		
+		view.priceDollars.fadeInText(coin.price.usdPrice)
+		view.progressBar.progressAnimate(40)
+		// Deltas
+		with(view.delta1h) {
+			fadeInText(coin.delta.sumHour, view.deltaHeader1h)
+			setDeltaColour()
 		}
+		with(view.delta24h) {
+			fadeInText(coin.delta.sumDay, view.deltaHeader24h)
+			setDeltaColour()
+		}
+		with(view.delta7d) {
+			fadeInText(coin.delta.sumWeek, view.deltaHeader7d)
+			setDeltaColour()
+		}
+		
+		// Pounds
+		view.pricePounds.fadeInText(coin.price.gbpPrice.await())
+		view.progressBar.progressAnimate(40)
 	}
 	
 	fun loadLogo(view: View, symbol: String) = launch(UI) {

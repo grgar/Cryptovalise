@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.database.Cursor
 import android.os.Bundle
+import android.os.Handler
 import android.support.design.widget.Snackbar
 import android.support.v4.app.LoaderManager
 import android.support.v4.content.CursorLoader
@@ -102,10 +103,13 @@ class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
 	 * Clear any previously loaded data in the [adapter] for the [loader] which was reset
 	 */
 	override fun onLoaderReset(loader: Loader<Cursor>) = when (loader.id) {
-		0 -> adapter.swapCursor(null)
+		0 -> {
+			//adapter.swapCursor(null)
+		}
 		
 		else -> {
-		} // Ignore
+			// Ignore
+		}
 	}
 	
 	/**
@@ -114,6 +118,7 @@ class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
 	private val refreshListener = {
 		// Invalidate all previously received prices to make sure the prices are the latest ones available
 		API.invalidateCache()
+		adapter.notifyDataSetChanged()
 		
 		// Only need to refresh views which exist, since views yet to exist haven't had data bound and will be making
 		// their own request for the latest prices individually when inflated
@@ -266,9 +271,19 @@ class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
 			position
 		}
 		
-		adapter.notifyItemInserted(position)
-		currencyRecycler.scrollToPosition(position)
+		//adapter.notifyDataSetChanged()
+		adapter.notifyItemRangeChanged(position, adapter.itemCount - position)
+		//adapter.notifyItemInserted(position)
+		//scrollTo(coin, position) TODO: Repair scrolling
 	}
+	
+	private fun scrollTo(coin: API.Coin, position: Int): Boolean = Handler().postDelayed({
+		try {
+			currencyRecycler.smoothScrollToPosition(position)
+		} catch (e: Exception) {
+			scrollTo(coin, position)
+		}
+	}, 500)
 	
 	/**
 	 * Remove a [API.Coin] from the list of coins given the [index] of the coin in the list
