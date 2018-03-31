@@ -80,10 +80,11 @@ class CurrencyRecyclerViewAdapter(private val context: Context,
 	// Load latest price info from API
 	fun loadPrices(view: View, symbol: String) = launch(UI) {
 		val coin = API.coins.await()[symbol] ?: return@launch
+		
+		// Confirm the view we're binding to hasn't been replaced beneath us
 		if (view.symbol.text != symbol) return@launch
 		
 		view.priceDollars.fadeInText(coin.price.usdPrice)
-		view.progressBar.progressAnimate(40)
 		// Deltas
 		with(view.delta1h) {
 			fadeInText(coin.delta.sumHour, view.deltaHeader1h)
@@ -100,7 +101,7 @@ class CurrencyRecyclerViewAdapter(private val context: Context,
 		
 		// Pounds
 		view.pricePounds.fadeInText(coin.price.gbpPrice.await())
-		view.progressBar.progressAnimate(40)
+		view.progressBar.progressAnimate(50)
 	}
 	
 	fun loadLogo(view: View, symbol: String) = launch(UI) {

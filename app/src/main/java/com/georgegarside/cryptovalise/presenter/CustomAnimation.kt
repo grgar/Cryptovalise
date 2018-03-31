@@ -39,15 +39,12 @@ fun TextView.fadeInText(text: String, additionalView: View? = null) =
 		CustomAnimation.animateText(this, CustomAnimation.fadeIn, text, additionalView)
 
 fun ProgressBar.progressAnimate(delta: Int) {
-	// Ensure progress bar is visible if progress happens to be reversed off 100% completion
-	alpha = 1.0f
-	
 	// Calculate new percentage
 	val newProgress = progress + delta
 	
 	// Animate progress bar up to given progress
 	val animator = ObjectAnimator.ofInt(this, "progress", newProgress).apply {
-		duration = 300
+		duration = 600
 		start()
 	}
 	

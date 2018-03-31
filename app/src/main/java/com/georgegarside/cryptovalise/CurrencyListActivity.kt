@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.database.Cursor
 import android.os.Bundle
-import android.os.Handler
 import android.support.design.widget.Snackbar
 import android.support.v4.app.LoaderManager
 import android.support.v4.content.CursorLoader
@@ -20,7 +19,6 @@ import com.georgegarside.cryptovalise.model.DBOpenHelper
 import com.georgegarside.cryptovalise.presenter.CurrencyRecyclerViewAdapter
 import kotlinx.android.synthetic.main.activity_currency_list.*
 import kotlinx.android.synthetic.main.currency_list.*
-import kotlinx.android.synthetic.main.currency_list_content.view.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
@@ -32,7 +30,7 @@ import kotlinx.android.synthetic.main.activity_currency_list.currencyList as cur
 class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor> {
 	
 	/**
-	 * Is screen showing both master and detail containers (true on tablet-scale containers)
+	 * Boolean for whether the screen is showing both master and detail containers (true on tablet-scale containers)
 	 */
 	private var isMasterDetail = false
 	
@@ -119,7 +117,8 @@ class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
 		// Invalidate all previously received prices to make sure the prices are the latest ones available
 		API.invalidateCache()
 		adapter.notifyDataSetChanged()
-		
+
+/*
 		// Only need to refresh views which exist, since views yet to exist haven't had data bound and will be making
 		// their own request for the latest prices individually when inflated
 		currencyRecycler.childViews().forEach {
@@ -133,6 +132,7 @@ class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
 				currencyList.isRefreshing = false
 			}
 		}
+*/
 	}
 	
 	/**
@@ -177,7 +177,7 @@ class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
 		// Perform API and database query asynchronously in CommonPool, awaited for in UI pool to make UI changes
 		val coins = async {
 			// API call to get latest list of coins (cached by API object)
-			val coins = API.coins.await() as MutableMap
+			val coins = API.coins.await().toMutableMap()
 			
 			val cursor = contentResolver.query(
 					// Get all coins
@@ -246,14 +246,20 @@ class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
 	 * Add a coin to the user saved list of coins
 	 */
 	private fun addCoin(coin: API.Coin) {
-		// Get the coin from the given symbol
+		// Perform database insertion of coin
 		val uri = contentResolver.insert(CoinsContentProvider.Operation.ALL.uri, ContentValues().apply {
 			put(DBOpenHelper.Coin.ID.toString(), coin.id)
 			put(DBOpenHelper.Coin.Symbol.toString(), coin.symbol)
 			put(DBOpenHelper.Coin.Name.toString(), coin.name)
 		})
+		
+		// Loader needs to ensure it has loaded the latest data
+		// In this case, the loader is a custom CursorLoader, so the cursor is replaced by this method
+		// This method applies regardless of implementation though, so if the app replaces Cursor with something else in
+		// the future, this method still applies (and without any changes) since the loader always needs to be restarted
 		supportLoaderManager.restartLoader(0, null, this@CurrencyListActivity)
 		
+		// Get a cursor of coin IDs in the database, to look for the coin just added
 		@SuppressLint("Recycle") // Android Studio bug, lint does not see `with` block as calling close on cursor
 		val cursor = contentResolver.query(
 				CoinsContentProvider.Operation.ALL.uri,
@@ -261,29 +267,30 @@ class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
 				arrayOf(DBOpenHelper.Coin.ID.toString()),
 				null, null, null)
 		
+		// The ID of the coin just inserted, since the Uri returned points to an Operation.SINGLE
 		val coinId = uri.lastPathSegment.toInt()
 		
+		// Determine the position the new coin was added into by moving cursor until row is found
+		// The number of steps the cursor moved determines the position
+		// This is a very lightweight procedure since the cursor's query has a projection limiting it to only the IDs
+		// without any extraneous coin data that would go unused
 		val position = with(cursor.apply { moveToFirst(); moveToPrevious() }) {
+			// Continue until the coin is found
 			while (moveToNext()) {
+				// If the coin has been found, stop iterating the cursor at this line
 				if (coinId == getInt(0)) break
 			}
+			// The cursor has completed so is closed here (aforementioned Android Studio IDE bug misses this in linting)
 			close()
+			// Get and return the cursor's current position
 			position
 		}
 		
-		//adapter.notifyDataSetChanged()
-		adapter.notifyItemRangeChanged(position, adapter.itemCount - position)
-		//adapter.notifyItemInserted(position)
-		//scrollTo(coin, position) TODO: Repair scrolling
+		// Add row to recycler view
+		adapter.notifyItemInserted(position)
+		// Scroll to display the newly inserted coin (scrolls just enough for the coin to be visible, from either direction)
+		currencyRecycler.smoothScrollToPosition(position)
 	}
-	
-	private fun scrollTo(coin: API.Coin, position: Int): Boolean = Handler().postDelayed({
-		try {
-			currencyRecycler.smoothScrollToPosition(position)
-		} catch (e: Exception) {
-			scrollTo(coin, position)
-		}
-	}, 500)
 	
 	/**
 	 * Remove a [API.Coin] from the list of coins given the [index] of the coin in the list
