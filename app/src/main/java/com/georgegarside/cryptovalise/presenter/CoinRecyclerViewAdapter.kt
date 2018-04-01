@@ -12,8 +12,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CursorAdapter
 import android.widget.TextView
-import com.georgegarside.cryptovalise.CurrencyDetailActivity
-import com.georgegarside.cryptovalise.CurrencyDetailFragment
+import com.georgegarside.cryptovalise.CoinDetailActivity
+import com.georgegarside.cryptovalise.CoinDetailFragment
 import com.georgegarside.cryptovalise.R
 import com.georgegarside.cryptovalise.model.API
 import com.georgegarside.cryptovalise.model.DBOpenHelper
@@ -22,9 +22,9 @@ import kotlinx.android.synthetic.main.currency_list_content.view.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 
-class CurrencyRecyclerViewAdapter(private val context: Context,
-                                  private val isMasterDetail: Boolean) :
-		RecyclerView.Adapter<CurrencyRecyclerViewAdapter.ViewHolder>() {
+class CoinRecyclerViewAdapter(private val context: Context,
+                              private val isMasterDetail: Boolean) :
+		RecyclerView.Adapter<CoinRecyclerViewAdapter.ViewHolder>() {
 	
 	private val cursorAdapter = object : CursorAdapter(context, null, 0) {
 		// No implementation since view management is performed with ViewHolder
@@ -119,14 +119,14 @@ class CurrencyRecyclerViewAdapter(private val context: Context,
 	private val infoClickListener by lazy {
 		View.OnClickListener {
 			if (isMasterDetail) {
-				val fragment = CurrencyDetailFragment().apply {
+				val fragment = CoinDetailFragment().apply {
 					arguments = Bundle().apply {
-						putString(CurrencyDetailFragment.ARG_ITEM_ID, "1")
+						putString(CoinDetailFragment.ARG_ITEM_ID, "1")
 					}
 				}
 				(context as? FragmentActivity)?.replace(R.id.currencyDetail, fragment)
 			} else {
-				context.startActivity(Intent(context, CurrencyDetailActivity::class.java))
+				context.startActivity(Intent(context, CoinDetailActivity::class.java))
 			}
 		}
 	}

@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
 import com.georgegarside.cryptovalise.BuildConfig
 
-class CoinsContentProvider : ContentProvider() {
+class CoinContentProvider : ContentProvider() {
 	
 	companion object {
 		private const val authority = "com.georgegarside.cryptovalise"

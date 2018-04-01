@@ -9,7 +9,7 @@ import com.georgegarside.cryptovalise.dummy.DummyContent
 import kotlinx.android.synthetic.main.activity_currency_detail.*
 import kotlinx.android.synthetic.main.currency_detail.view.*
 
-class CurrencyDetailFragment : Fragment() {
+class CoinDetailFragment : Fragment() {
 	
 	private var mItem: DummyContent.DummyItem? = null
 	

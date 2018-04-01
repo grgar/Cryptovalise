@@ -14,9 +14,9 @@ import android.support.v7.widget.RecyclerView
 import android.view.Menu
 import android.view.View
 import com.georgegarside.cryptovalise.model.API
-import com.georgegarside.cryptovalise.model.CoinsContentProvider
+import com.georgegarside.cryptovalise.model.CoinContentProvider
 import com.georgegarside.cryptovalise.model.DBOpenHelper
-import com.georgegarside.cryptovalise.presenter.CurrencyRecyclerViewAdapter
+import com.georgegarside.cryptovalise.presenter.CoinRecyclerViewAdapter
 import kotlinx.android.synthetic.main.activity_currency_list.*
 import kotlinx.android.synthetic.main.currency_list.*
 import kotlinx.coroutines.experimental.android.UI
@@ -27,7 +27,7 @@ import kotlinx.android.synthetic.main.activity_currency_list.currencyList as cur
 /**
  * The main activity of the app which loads all the coins and data
  */
-class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor> {
+class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor> {
 	
 	/**
 	 * Boolean for whether the screen is showing both master and detail containers (true on tablet-scale containers)
@@ -35,9 +35,9 @@ class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
 	private var isMasterDetail = false
 	
 	/**
-	 * [RecyclerView.Adapter] for the list of coins from the [CoinsContentProvider]
+	 * [RecyclerView.Adapter] for the list of coins from the [CoinContentProvider]
 	 */
-	private lateinit var adapter: CurrencyRecyclerViewAdapter
+	private lateinit var adapter: CoinRecyclerViewAdapter
 	
 	/**
 	 * Set up the activity
@@ -52,7 +52,7 @@ class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
 		isMasterDetail = currencyDetail != null
 		
 		// Bind the adapter to the recycler
-		adapter = CurrencyRecyclerViewAdapter(this, isMasterDetail)
+		adapter = CoinRecyclerViewAdapter(this, isMasterDetail)
 		currencyRecycler.adapter = adapter
 		
 		// Initialise the loader
@@ -82,7 +82,7 @@ class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
 	 * Returns a new [Loader] for the given [id]
 	 */
 	override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> = when (id) {
-		0 -> CursorLoader(this, CoinsContentProvider.Operation.ALL.uri,
+		0 -> CursorLoader(this, CoinContentProvider.Operation.ALL.uri,
 				null, null, null, null)
 		
 		else -> throw Exception("Invalid loader ID")
@@ -181,7 +181,7 @@ class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
 			
 			val cursor = contentResolver.query(
 					// Get all coins
-					CoinsContentProvider.Operation.ALL.uri,
+					CoinContentProvider.Operation.ALL.uri,
 					// Get symbol column
 					arrayOf(DBOpenHelper.Coin.Symbol.toString()),
 					// Basic catch-all query
@@ -247,7 +247,7 @@ class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
 	 */
 	private fun addCoin(coin: API.Coin) {
 		// Perform database insertion of coin
-		val uri = contentResolver.insert(CoinsContentProvider.Operation.ALL.uri, ContentValues().apply {
+		val uri = contentResolver.insert(CoinContentProvider.Operation.ALL.uri, ContentValues().apply {
 			put(DBOpenHelper.Coin.ID.toString(), coin.id)
 			put(DBOpenHelper.Coin.Symbol.toString(), coin.symbol)
 			put(DBOpenHelper.Coin.Name.toString(), coin.name)
@@ -257,12 +257,12 @@ class CurrencyListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
 		// In this case, the loader is a custom CursorLoader, so the cursor is replaced by this method
 		// This method applies regardless of implementation though, so if the app replaces Cursor with something else in
 		// the future, this method still applies (and without any changes) since the loader always needs to be restarted
-		supportLoaderManager.restartLoader(0, null, this@CurrencyListActivity)
+		supportLoaderManager.restartLoader(0, null, this@CoinListActivity)
 		
 		// Get a cursor of coin IDs in the database, to look for the coin just added
 		@SuppressLint("Recycle") // Android Studio bug, lint does not see `with` block as calling close on cursor
 		val cursor = contentResolver.query(
-				CoinsContentProvider.Operation.ALL.uri,
+				CoinContentProvider.Operation.ALL.uri,
 				// Get IDs
 				arrayOf(DBOpenHelper.Coin.ID.toString()),
 				null, null, null)
