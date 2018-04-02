@@ -19,6 +19,7 @@ import com.georgegarside.cryptovalise.model.DBOpenHelper
 import com.georgegarside.cryptovalise.presenter.CoinRecyclerViewAdapter
 import kotlinx.android.synthetic.main.activity_currency_list.*
 import kotlinx.android.synthetic.main.currency_list.*
+import kotlinx.android.synthetic.main.currency_list_content.view.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
@@ -98,17 +99,11 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 	}
 	
 	/**
-	 * Clear any previously loaded data in the [adapter] for the [loader] which was reset
+	 * Clear any previously loaded data in the [adapter] for the [loader] which was reset.
+	 * This method has no function, since we don't want to remove all the data added to the view even if the cursor should
+	 * be reset. Super is not called since this is an implementation of an interface and therefore has no inherited super.
 	 */
-	override fun onLoaderReset(loader: Loader<Cursor>) = when (loader.id) {
-		0 -> {
-			//adapter.swapCursor(null)
-		}
-		
-		else -> {
-			// Ignore
-		}
-	}
+	override fun onLoaderReset(loader: Loader<Cursor>) = Unit
 	
 	/**
 	 * Swipe to refresh is implemented to allow the user to manually reload the current market price for each coin
@@ -116,23 +111,24 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 	private val refreshListener = {
 		// Invalidate all previously received prices to make sure the prices are the latest ones available
 		API.invalidateCache()
-		adapter.notifyDataSetChanged()
-
-/*
+		
 		// Only need to refresh views which exist, since views yet to exist haven't had data bound and will be making
 		// their own request for the latest prices individually when inflated
 		currencyRecycler.childViews().forEach {
 			
-			// Each loading of prices is performed asynchronously using dispatched coroutines
+			// Each card view is manipulated asynchronously using dispatched coroutines
 			launch(UI) {
-				// Perform the API call to get the latest prices for the specific coin in question
-				adapter.loadPrices(it, it.symbol.text.toString()).join()
+				with(it.progressBar) {
+					progress = 0
+					alpha = 1f
+				}
 				// Once the first data begins to come in, hide the loading indicator
 				// Each card now has its own progress bar, so the indefinite indicator is extraneous at this point
 				currencyList.isRefreshing = false
 			}
 		}
-*/
+		
+		adapter.notifyDataSetChanged()
 	}
 	
 	/**

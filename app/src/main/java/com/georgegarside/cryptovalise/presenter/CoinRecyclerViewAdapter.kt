@@ -50,11 +50,12 @@ class CoinRecyclerViewAdapter(private val context: Context,
 			view.coinName.text = cursor.getString(DBOpenHelper.Coin.Name.ordinal)
 			
 			// Set click listeners
-			view.buttonInfo.setOnClickListener(infoClickListener)
+			val coinId = cursor.getInt(DBOpenHelper.Coin.ID.ordinal)
+			view.buttonInfo.setOnClickListener { openInfo(coinId) }
 			
 			view.progressBar.progressAnimate(10)
 			
-			// These methods are asynchronous and run simultaneously
+			// These methods to load additional data are asynchronous and run simultaneously
 			loadPrices(view, symbol)
 			loadLogo(view, symbol)
 		}
@@ -116,17 +117,39 @@ class CoinRecyclerViewAdapter(private val context: Context,
 		view.progressBar.progressAnimate(100)
 	}
 	
+	fun openInfo(coinId: Int) {
+		val bundle = Bundle().apply {
+			putInt(CoinDetailFragment.intentIdKey, coinId)
+		}
+		
+		if (isMasterDetail) {
+			// Create and set fragment for details
+			val fragment = CoinDetailActivity.createFragment(bundle)
+			(context as? FragmentActivity)?.replace(R.id.currencyDetail, fragment)
+		} else {
+			// Intent to detail activity
+			val intent = Intent(context, CoinDetailActivity::class.java).apply {
+				putExtras(bundle)
+			}
+			context.startActivity(intent)
+		}
+	}
+	
 	private val infoClickListener by lazy {
 		View.OnClickListener {
 			if (isMasterDetail) {
 				val fragment = CoinDetailFragment().apply {
 					arguments = Bundle().apply {
-						putString(CoinDetailFragment.ARG_ITEM_ID, "1")
+						putString(CoinDetailFragment.intentIdKey, "1")
 					}
 				}
 				(context as? FragmentActivity)?.replace(R.id.currencyDetail, fragment)
 			} else {
-				context.startActivity(Intent(context, CoinDetailActivity::class.java))
+				val intent = Intent(context, CoinDetailActivity::class.java)
+				intent.putExtras(Bundle().apply {
+					putInt(CoinDetailFragment.intentIdKey, 1)
+				})
+				context.startActivity(intent)
 			}
 		}
 	}
