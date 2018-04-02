@@ -15,27 +15,29 @@
 		android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
 		<android.support.design.widget.CollapsingToolbarLayout
-			android:id="@+id/toolbar_layout"
+			android:id="@+id/collapsingToolbar"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:fitsSystemWindows="true"
 			app:contentScrim="@color/colorPrimary"
 			app:layout_scrollFlags="scroll|exitUntilCollapsed"
-			app:toolbarId="@+id/toolbar">
+			app:toolbarId="@+id/toolbar"
+			>
 
 			<android.support.v7.widget.Toolbar
-				android:id="@+id/detail_toolbar"
+				android:id="@+id/toolbarDetail"
 				android:layout_width="match_parent"
 				android:layout_height="?android:attr/actionBarSize"
 				app:layout_collapseMode="pin"
-				app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+				app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+				/>
 
 		</android.support.design.widget.CollapsingToolbarLayout>
 
 	</android.support.design.widget.AppBarLayout>
 
 	<android.support.v4.widget.NestedScrollView
-		android:id="@+id/currencyDetail"
+		android:id="@+id/coinDetail"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		app:layout_behavior="@string/appbar_scrolling_view_behavior"/>

@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import com.georgegarside.cryptovalise.model.replace
-import kotlinx.android.synthetic.main.activity_currency_detail.*
+import kotlinx.android.synthetic.main.activity_coin_detail.*
 
 /**
  * An activity representing a single Coin detail screen. This activity is only used on narrow width devices.
@@ -21,20 +21,20 @@ class CoinDetailActivity : AppCompatActivity() {
 	
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-		setContentView(R.layout.activity_currency_detail)
-		setSupportActionBar(detail_toolbar)
+		setContentView(R.layout.activity_coin_detail)
+		setSupportActionBar(toolbarDetail)
 		
 		// Action bar up button to call onBackPressed
 		supportActionBar?.setDisplayHomeAsUpEnabled(true)
 		
 		if (savedInstanceState == null) {
 			val fragment = createFragment(Bundle().apply {
-				with(CoinDetailFragment.intentIdKey) {
-					putInt(this, intent.getIntExtra(this, -1))
+				with(CoinDetailFragment.coinSymbolKey) {
+					putString(this, intent.getStringExtra(this))
 				}
 			})
 			
-			replace(R.id.currencyDetail, fragment)
+			replace(R.id.coinDetail, fragment)
 		}
 	}
 	

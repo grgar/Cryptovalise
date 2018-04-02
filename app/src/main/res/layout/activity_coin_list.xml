@@ -30,8 +30,8 @@
 		app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
 		<include
-			layout="@layout/currency_list"
-			android:id="@+id/currencyList"/>
+			layout="@layout/coin_list"
+			android:id="@+id/coinList"/>
 	</FrameLayout>
 
 	<android.support.design.widget.FloatingActionButton

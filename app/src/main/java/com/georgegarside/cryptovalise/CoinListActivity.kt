@@ -17,13 +17,13 @@ import com.georgegarside.cryptovalise.model.API
 import com.georgegarside.cryptovalise.model.CoinContentProvider
 import com.georgegarside.cryptovalise.model.DBOpenHelper
 import com.georgegarside.cryptovalise.presenter.CoinRecyclerViewAdapter
-import kotlinx.android.synthetic.main.activity_currency_list.*
-import kotlinx.android.synthetic.main.currency_list.*
-import kotlinx.android.synthetic.main.currency_list_content.view.*
+import com.georgegarside.cryptovalise.presenter.CustomAnimation
+import kotlinx.android.synthetic.main.activity_coin_list.*
+import kotlinx.android.synthetic.main.coin_list.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
-import kotlinx.android.synthetic.main.activity_currency_list.currencyList as currencyListActivity
+import kotlinx.android.synthetic.main.activity_coin_list.coinList as coinListActivity
 
 /**
  * The main activity of the app which loads all the coins and data
@@ -45,22 +45,22 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 	 */
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-		setContentView(R.layout.activity_currency_list)
+		setContentView(R.layout.activity_coin_list)
 		
 		setSupportActionBar(toolbar)
 		
 		// On large layout, detail is shown beside master
-		isMasterDetail = currencyDetail != null
+		isMasterDetail = coinDetail != null
 		
 		// Bind the adapter to the recycler
 		adapter = CoinRecyclerViewAdapter(this, isMasterDetail)
-		currencyRecycler.adapter = adapter
+		coinRecycler.adapter = adapter
 		
 		// Initialise the loader
 		supportLoaderManager.initLoader(0, null, this)
 		
 		// Swipe to refresh is implemented to reload the prices
-		currencyList.setOnRefreshListener(refreshListener)
+		coinList.setOnRefreshListener(refreshListener)
 	}
 	
 	/**
@@ -114,21 +114,22 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 		
 		// Only need to refresh views which exist, since views yet to exist haven't had data bound and will be making
 		// their own request for the latest prices individually when inflated
-		currencyRecycler.childViews().forEach {
+		coinRecycler.childViews().forEach {
 			
 			// Each card view is manipulated asynchronously using dispatched coroutines
 			launch(UI) {
-				with(it.progressBar) {
-					progress = 0
-					alpha = 1f
-				}
+				// Refresh information for this position
+				val i = coinRecycler.getChildAdapterPosition(it)
+				adapter.notifyItemChanged(i)
+				
+				// Flash card with fast fade out-in
+				it.animation = CustomAnimation.fadeIn
+				
 				// Once the first data begins to come in, hide the loading indicator
 				// Each card now has its own progress bar, so the indefinite indicator is extraneous at this point
-				currencyList.isRefreshing = false
+				coinList.isRefreshing = false
 			}
 		}
-		
-		adapter.notifyDataSetChanged()
 	}
 	
 	/**
@@ -285,7 +286,7 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 		// Add row to recycler view
 		adapter.notifyItemInserted(position)
 		// Scroll to display the newly inserted coin (scrolls just enough for the coin to be visible, from either direction)
-		currencyRecycler.smoothScrollToPosition(position)
+		coinRecycler.smoothScrollToPosition(position)
 	}
 	
 	/**

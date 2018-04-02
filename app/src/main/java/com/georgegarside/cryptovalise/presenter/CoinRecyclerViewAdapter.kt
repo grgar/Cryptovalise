@@ -18,7 +18,7 @@ import com.georgegarside.cryptovalise.R
 import com.georgegarside.cryptovalise.model.API
 import com.georgegarside.cryptovalise.model.DBOpenHelper
 import com.georgegarside.cryptovalise.model.replace
-import kotlinx.android.synthetic.main.currency_list_content.view.*
+import kotlinx.android.synthetic.main.coin_list_content.view.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 
@@ -31,7 +31,7 @@ class CoinRecyclerViewAdapter(private val context: Context,
 		override fun newView(context: Context, cursor: Cursor, parent: ViewGroup): View =
 				LayoutInflater.from(parent.context)
 						// Inflate a new view based on the card layout defined in currency list content layout
-						.inflate(R.layout.currency_list_content, parent, false)
+						.inflate(R.layout.coin_list_content, parent, false)
 		
 		override fun bindView(view: View, context: Context, cursor: Cursor) =
 				ViewHolder(view).setData(cursor)
@@ -50,8 +50,7 @@ class CoinRecyclerViewAdapter(private val context: Context,
 			view.coinName.text = cursor.getString(DBOpenHelper.Coin.Name.ordinal)
 			
 			// Set click listeners
-			val coinId = cursor.getInt(DBOpenHelper.Coin.ID.ordinal)
-			view.buttonInfo.setOnClickListener { openInfo(coinId) }
+			view.buttonInfo.setOnClickListener { openInfo(symbol) }
 			
 			view.progressBar.progressAnimate(10)
 			
@@ -117,15 +116,15 @@ class CoinRecyclerViewAdapter(private val context: Context,
 		view.progressBar.progressAnimate(100)
 	}
 	
-	fun openInfo(coinId: Int) {
+	fun openInfo(coinSymbol: String) {
 		val bundle = Bundle().apply {
-			putInt(CoinDetailFragment.intentIdKey, coinId)
+			putString(CoinDetailFragment.coinSymbolKey, coinSymbol)
 		}
 		
 		if (isMasterDetail) {
 			// Create and set fragment for details
 			val fragment = CoinDetailActivity.createFragment(bundle)
-			(context as? FragmentActivity)?.replace(R.id.currencyDetail, fragment)
+			(context as? FragmentActivity)?.replace(R.id.coinDetail, fragment)
 		} else {
 			// Intent to detail activity
 			val intent = Intent(context, CoinDetailActivity::class.java).apply {
@@ -140,14 +139,14 @@ class CoinRecyclerViewAdapter(private val context: Context,
 			if (isMasterDetail) {
 				val fragment = CoinDetailFragment().apply {
 					arguments = Bundle().apply {
-						putString(CoinDetailFragment.intentIdKey, "1")
+						putString(CoinDetailFragment.coinSymbolKey, "1")
 					}
 				}
-				(context as? FragmentActivity)?.replace(R.id.currencyDetail, fragment)
+				(context as? FragmentActivity)?.replace(R.id.coinDetail, fragment)
 			} else {
 				val intent = Intent(context, CoinDetailActivity::class.java)
 				intent.putExtras(Bundle().apply {
-					putInt(CoinDetailFragment.intentIdKey, 1)
+					putInt(CoinDetailFragment.coinSymbolKey, 1)
 				})
 				context.startActivity(intent)
 			}

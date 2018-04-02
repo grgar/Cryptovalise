@@ -3,18 +3,18 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
-	android:id="@+id/currencyList"
+	android:id="@+id/coinList"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
 	<android.support.v7.widget.RecyclerView
-		android:id="@+id/currencyRecycler"
+		android:id="@+id/coinRecycler"
 		android:name="com.georgegarside.cryptovalise.CurrencyListFragment"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		app:layoutManager="android.support.v7.widget.LinearLayoutManager"
 		tools:context="com.georgegarside.cryptovalise.CoinListActivity"
-		tools:listitem="@layout/currency_list_content"
+		tools:listitem="@layout/coin_list_content"
 		android:paddingBottom="@dimen/item_padding_huge"
 		android:clipToPadding="false"/>
 </android.support.v4.widget.SwipeRefreshLayout>

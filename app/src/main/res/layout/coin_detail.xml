@@ -5,12 +5,12 @@
 	android:layout_width="match_parent">
 
 	<TextView
-		android:id="@+id/currency_detail"
+		android:id="@+id/coinDetail"
 		style="?android:attr/textAppearanceLarge"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:padding="16dp"
 		android:textIsSelectable="true"
-		tools:context="com.georgegarside.cryptovalise.CurrencyDetailFragment"
+		tools:context="com.georgegarside.cryptovalise.CoinDetailFragment"
 		tools:text="Text content for currency @string/title_currency_detail"/>
 </android.support.constraint.ConstraintLayout>

@@ -32,11 +32,11 @@
 		app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
 		<include
-			layout="@layout/currency_list"
+			layout="@layout/coin_list"
 			android:layout_weight="1"
 			android:layout_width="0dp"
 			android:layout_height="match_parent"
-			android:id="@+id/currencyList"/>
+			android:id="@+id/coinList"/>
 
 		<RelativeLayout
 			android:layout_width="0dp"
@@ -46,8 +46,8 @@
 			<include
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:id="@+id/currencyDetail"
-				layout="@layout/activity_currency_detail"
+				android:id="@+id/coinDetail"
+				layout="@layout/activity_coin_detail"
 				tools:ignore="InconsistentLayout"/>
 			<!-- Inconsistency ignored since it is correct that only tablet has detail view shown -->
 
