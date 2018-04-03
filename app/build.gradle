@@ -58,6 +58,9 @@ dependencies {
 	implementation "com.jakewharton:disklrucache:2.0.2"
 	implementation "com.github.kittinunf.fuse:fuse:0.2"
 
+	// Palette
+	implementation "com.android.support:palette-v7:27.1.0"
+
 	// Test framework
 	testImplementation "org.junit.jupiter:junit-jupiter-api:5.1.0"
 }

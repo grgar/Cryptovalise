@@ -1,6 +1,5 @@
 package com.georgegarside.cryptovalise.model
 
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.Method
@@ -28,10 +27,22 @@ object API {
 		storage = Storage()
 	}
 	
+	private val fuel = FuelManager.instance
+	
+	init {
+		// Set up base configuration
+		fuel.basePath = "https://coin.fyi/"
+		fuel.baseHeaders = mapOf("X-Requested-With" to "XMLHttpRequest", "Accept" to "application/json, text/plain, */*")
+	}
+	
 	data class Coin(val id: Int = 0, val symbol: String = "", val name: String = "", val slug: String = "",
 	                val description: String?, var price: Price = Price(), var delta: Delta = Delta()) {
 		
-		val logo = async(start = CoroutineStart.LAZY) { getIcon(id, slug) }
+		internal val logoPath = fuel.basePath + "uploads/production/coin/icon/$id/$slug.png"
+		val logo = async(start = CoroutineStart.LAZY) {
+			val bytes = download(logoPath).component1() ?: return@async null
+			BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+		}
 		
 		data class Price(val usd: Double = 0.0, val btc: Double = 0.0) {
 			private fun format(number: Double) =
@@ -67,14 +78,6 @@ object API {
 	
 	data class Currency(val code: String = "", val name: String = "", val rate: Double = 0.0)
 	
-	private val fuel = FuelManager.instance
-	
-	init {
-		// Set up base configuration
-		fuel.basePath = "https://coin.fyi/"
-		fuel.baseHeaders = mapOf("X-Requested-With" to "XMLHttpRequest", "Accept" to "application/json, text/plain, */*")
-	}
-	
 	private inline fun <reified T : Any> call(method: Method = Method.GET, endpoint: String,
 	                                          data: List<Pair<String, Any?>>? = null): T {
 		// Perform request
@@ -85,10 +88,14 @@ object API {
 		})
 	}
 	
+	private fun download(path: String) = fuel.request(Method.GET, path).response().third
+	
 	private fun getCoins(): Array<Coin> = call<ArrayListInMap>(endpoint = "coins")["data"]?.map {
 		// Extract further data as objects
-		@Suppress("UNCHECKED_CAST") val attributes = it["attributes"] as LinkedTreeMap<String, Any>
-		@Suppress("UNCHECKED_CAST") val links = attributes["links"] as LinkedTreeMap<String, String>
+		@Suppress("UNCHECKED_CAST")
+		val attributes = it["attributes"] as LinkedTreeMap<String, Any>
+		@Suppress("UNCHECKED_CAST")
+		val links = attributes["links"] as LinkedTreeMap<String, String>
 		
 		// Attributes which require special handling e.g. casting
 		val id = (it["id"] as String).toInt()
@@ -119,15 +126,5 @@ object API {
 					rate = it["exchange_rate"] as Double
 			)
 		}?.toTypedArray() ?: arrayOf()
-	}
-	
-	private fun download(path: String) = fuel.request(Method.GET, path).response().third
-	
-	private fun getIcon(id: Int, slug: String): Bitmap? {
-		download("uploads/production/coin/icon/$id/$slug.png").fold(success = {
-			return BitmapFactory.decodeByteArray(it, 0, it.size)
-		}, failure = {
-			return null
-		})
 	}
 }

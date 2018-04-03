@@ -1,7 +1,13 @@
 package com.georgegarside.cryptovalise
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.graphics.PorterDuff
+import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.graphics.Palette
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -53,6 +59,27 @@ class CoinDetailFragment : Fragment() {
 				)
 				?: getString(R.string.coin_detail_missing_description)
 		coinDescription.text = shortDescription
+		
+		// Coin logo
+		launch(UI) {
+			val logo = coin.logo.await() ?: return@launch
+			coinLogo.setImageBitmap(logo)
+			
+			val dominantSwatch = Palette.from(logo).generate().dominantSwatch ?: return@launch
+			
+			activity?.collapsingToolbar?.apply {
+				setBackgroundColor(dominantSwatch.rgb)
+				setContentScrimColor(dominantSwatch.rgb)
+				setExpandedTitleColor(dominantSwatch.bodyTextColor)
+				setCollapsedTitleTextColor(dominantSwatch.titleTextColor)
+			}
+			
+			activity?.toolbarDetail?.apply {
+				setBackgroundColor(dominantSwatch.rgb)
+				//it.setStatusBarScrimColor(dominantSwatch.bodyTextColor)
+				navigationIcon?.setColorFilter(dominantSwatch.bodyTextColor, PorterDuff.Mode.SRC_ATOP)
+			}
+		}
 	}
 	
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

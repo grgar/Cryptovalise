@@ -22,7 +22,7 @@
 			app:contentScrim="@color/colorPrimary"
 			app:layout_scrollFlags="scroll|exitUntilCollapsed"
 			app:toolbarId="@+id/toolbar"
-			>
+			app:statusBarScrim="@android:color/transparent">
 
 			<android.support.v7.widget.Toolbar
 				android:id="@+id/toolbarDetail"

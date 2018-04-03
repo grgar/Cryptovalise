@@ -2,7 +2,7 @@
 	<string name="app_name">Cryptovalise</string>
 	<string name="title_coin_detail">Coin Detail</string>
 	<string name="coin_list_icon_description">Coin logo</string>
-	<string name="coin_list_more_description">More</string>
+	<string name="coin_list_more_description">More…</string>
 	<string name="graph_title">Graph</string>
 	<string name="news_title">News</string>
 	<string name="info_title">Info</string>
@@ -14,4 +14,5 @@
 	<string name="add_coin_title">Choose a coin</string>
 	<string name="add_coin_emptymsg">No more coins are available</string>
 	<string name="coin_detail_missing_description">No description</string>
+	<string name="coin_detail_copy_logo">Copy</string>
 </resources>
