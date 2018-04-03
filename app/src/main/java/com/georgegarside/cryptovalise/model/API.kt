@@ -29,7 +29,7 @@ object API {
 	}
 	
 	data class Coin(val id: Int = 0, val symbol: String = "", val name: String = "", val slug: String = "",
-	                val description: String = "", var price: Price = Price(), var delta: Delta = Delta()) {
+	                val description: String?, var price: Price = Price(), var delta: Delta = Delta()) {
 		
 		val logo = async(start = CoroutineStart.LAZY) { getIcon(id, slug) }
 		
