@@ -76,21 +76,7 @@ class CoinRecyclerViewAdapter(private val context: Context,
 		/**
 		 * Bind the data in the [cursor] to the [view].
 		 */
-		override fun bindView(view: View, context: Context, cursor: Cursor) =
-				ViewHolder(view).setData(cursor)
-	}
-	
-	/**
-	 * Swap the [cursor] within the [cursorAdapter] for a new one. This method will notify the RecyclerView that the data
-	 * set has changed in its entirety.
-	 */
-	fun swapCursor(cursor: Cursor?) {
-		cursorAdapter.swapCursor(cursor)
-		notifyDataSetChanged()
-	}
-	
-	inner class ViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
-		fun setData(cursor: Cursor) {
+		override fun bindView(view: View, context: Context, cursor: Cursor) {
 			// Load basic info from database
 			val symbol = cursor.getString(DBOpenHelper.Coin.Symbol.ordinal)
 			view.symbol.text = symbol
@@ -107,6 +93,17 @@ class CoinRecyclerViewAdapter(private val context: Context,
 		}
 	}
 	
+	/**
+	 * Swap the [cursor] within the [cursorAdapter] for a new one. This method will notify the RecyclerView that the data
+	 * set has changed in its entirety.
+	 */
+	fun swapCursor(cursor: Cursor?) {
+		cursorAdapter.swapCursor(cursor)
+		notifyDataSetChanged()
+	}
+	
+	inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view)
+	
 	// Documentation inherited
 	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
 			ViewHolder(cursorAdapter.newView(context, cursorAdapter.cursor, parent))
@@ -115,7 +112,7 @@ class CoinRecyclerViewAdapter(private val context: Context,
 	override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 		if (cursorAdapter.cursor.isClosed) return
 		cursorAdapter.cursor.moveToPosition(position)
-		holder.setData(cursorAdapter.cursor)
+		cursorAdapter.bindView(holder.itemView, context, cursorAdapter.cursor)
 	}
 	
 	// Documentation inherited
