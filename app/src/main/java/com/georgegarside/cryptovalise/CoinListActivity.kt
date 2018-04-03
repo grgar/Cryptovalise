@@ -26,22 +26,37 @@ import kotlinx.coroutines.experimental.launch
 import kotlinx.android.synthetic.main.activity_coin_list.coinList as coinListActivity
 
 /**
- * The main activity of the app which loads all the coins and data
+ * CoinListActivity is the main launcher activity for Cryptovalise which shows all of the coins the user has selected.
+ * This activity's main view is a card-based vertical scrolling layout with a card for each coin added to the app by the
+ * user. The user can add coins using the [fab] on mobile or from a menu option in [onCreateOptionsMenu] on tablet.
+ *
+ * The scrolling list is implemented using [RecyclerView] instead of a standard ListView. This is discussed in the
+ * class documentation for the custom adapter I wrote: [CoinRecyclerViewAdapter].
+ *
+ * On tablet, this activity manages the loading of the master-detail layout, where the list of coins is shown in a
+ * column on the left and the rest contains other content in the form of fragments, e.g. [CoinDetailFragment].
+ *
+ * Whether or not these components are displayed depending on mobile/tablet is dependent on the loading of the relevant
+ * layout variation of [R.layout.activity_coin_list]. A large-land variation is used on tablet, which includes the
+ * extra fragment content. This is used to determine the value of [isMasterDetail], used elsewhere in this class where
+ * it is necessary to determine the difference between mobile or tablet.
  */
 class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor> {
 	
 	/**
-	 * Boolean for whether the screen is showing both master and detail containers (true on tablet-scale containers)
+	 * Boolean for whether the screen is showing both master and detail containers (true on tablet-scale containers).
+	 * Used by layout inflation and configuration to determine whether the layout has other fragments or content on the
+	 * screen at the same time, and whether to use intents to other activities or to directly replace fragments.
 	 */
 	private var isMasterDetail = false
 	
 	/**
-	 * [RecyclerView.Adapter] for the list of coins from the [CoinContentProvider]
+	 * A reference to a [RecyclerView.Adapter] for the list of coins from the [CoinContentProvider].
 	 */
 	private lateinit var adapter: CoinRecyclerViewAdapter
 	
 	/**
-	 * Set up the activity
+	 * The initial set up of the activity, where the [adapter] is set up and the loader is initialised.
 	 */
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -106,10 +121,12 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 	override fun onLoaderReset(loader: Loader<Cursor>) = Unit
 	
 	/**
-	 * Swipe to refresh is implemented to allow the user to manually reload the current market price for each coin
+	 * Swipe to refresh is implemented to allow the user to manually reload the current market price for each coin.
+	 * This only reloads content which is relevant to the user requesting a refresh and is most likely to have changed.
+	 * For example, the coin's logo is not refreshed.
 	 */
 	private val refreshListener = {
-		// Invalidate all previously received prices to make sure the prices are the latest ones available
+		// Invalidate all previously received prices to make sure the obtained prices are the latest ones available
 		API.invalidateCache()
 		
 		// Only need to refresh views which exist, since views yet to exist haven't had data bound and will be making
