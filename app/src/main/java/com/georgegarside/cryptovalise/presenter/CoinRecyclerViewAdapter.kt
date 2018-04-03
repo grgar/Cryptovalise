@@ -22,21 +22,68 @@ import kotlinx.android.synthetic.main.coin_list_content.view.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 
+/**
+ * CoinRecyclerViewAdapter is a completely custom implementation of [RecyclerView.Adapter], necessary to implement the
+ * [CursorAdapter] for a [RecyclerView]. This app's main database content is presented in cards in a RecyclerView
+ * instead of a ListView, for a number of reasons:
+ *
+ * - increased performance and better support for dealing with the complex layout defined in this app for the coin card
+ *   (each card is an inflation of [R.layout.coin_list_content])
+ *
+ * - [RecyclerView.ViewHolder] for maintaining access to a single view once asynchronous code has completed. This is
+ *   crucial for implementing the more advanced content where live data is being streamed from a server and placed
+ *   alongside content from the [CoinContentProvider] which purely accesses the database and not the [API].
+ *
+ * A ListView would have been much easier to implement: unlike a ListView, a [RecyclerView.Adapter] does not provide
+ * an implementation for a [Cursor] with a [CursorAdapter]. Therefore I created this custom [CoinRecyclerViewAdapter],
+ * to ensure I did not lose the features I wished to obtain from the superior RecyclerView. You can read more about
+ * my development process for this adapter in my report.
+ *
+ * TODO: Move to report
+ * However, just because I needed to implement a custom adapter for the RecyclerView, this did not mean that I should
+ * write code to handle cursors and loaders myself. Research I did into this topic lead to a number of Stack Overflow
+ * answers, ranging from copy-pasting and modifying code used in the CursorAdapter and ListView adapters with extra
+ * code to handle the Cursor, to re-implementing loader behaviour in this adapter. Instead of these, I chose to create
+ * a CursorAdapter within my RecyclerView adapter, and could therefore use all the functionality which comes with this
+ * with the cursor I could obtain from the loader. This includes automatically closing the Cursor when it is done with,
+ * to automatically updating the list of cards when the data set changes, and only loading changes in these cases. This
+ * increases the mental complexity of this code through the use of an additional class instance, however the benefits
+ * this provides outweighs the ‘thought cost’ of such an implementation through improvements and functionality now
+ * available with this.
+ */
 class CoinRecyclerViewAdapter(private val context: Context,
                               private val isMasterDetail: Boolean) :
 		RecyclerView.Adapter<CoinRecyclerViewAdapter.ViewHolder>() {
 	
+	/**
+	 * An instance of the [CursorAdapter], calling upon [CursorAdapter.newView] to inflate a new
+	 * [R.layout.coin_list_content], and delegating the behaviour of [CursorAdapter.bindView] to the custom [ViewHolder]
+	 * implementation of [RecyclerView.ViewHolder].
+	 */
 	private val cursorAdapter = object : CursorAdapter(context, null, 0) {
-		// No implementation since view management is performed with ViewHolder
+		
+		/**
+		 * Inflate a new view in the [context] and [parent] provided.
+		 *
+		 * [cursor] is unused in the initial inflation: only when it is necessary to [bindView] is the [Cursor] used. It is
+		 * possible and permitted for the cursor to have changed between this method and the data being bound to the view.
+		 */
 		override fun newView(context: Context, cursor: Cursor, parent: ViewGroup): View =
 				LayoutInflater.from(parent.context)
 						// Inflate a new view based on the card layout defined in currency list content layout
 						.inflate(R.layout.coin_list_content, parent, false)
 		
+		/**
+		 * Bind the data in the [cursor] to the [view].
+		 */
 		override fun bindView(view: View, context: Context, cursor: Cursor) =
 				ViewHolder(view).setData(cursor)
 	}
 	
+	/**
+	 * Swap the [cursor] within the [cursorAdapter] for a new one. This method will notify the RecyclerView that the data
+	 * set has changed in its entirety.
+	 */
 	fun swapCursor(cursor: Cursor?) {
 		cursorAdapter.swapCursor(cursor)
 		notifyDataSetChanged()
@@ -60,32 +107,55 @@ class CoinRecyclerViewAdapter(private val context: Context,
 		}
 	}
 	
+	// Documentation inherited
 	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
 			ViewHolder(cursorAdapter.newView(context, cursorAdapter.cursor, parent))
 	
+	// Documentation inherited
 	override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 		if (cursorAdapter.cursor.isClosed) return
 		cursorAdapter.cursor.moveToPosition(position)
 		holder.setData(cursorAdapter.cursor)
 	}
 	
+	// Documentation inherited
 	override fun getItemCount(): Int = cursorAdapter.count
 	
+	/**
+	 * ID of the positive colour used to indicate a delta increase
+	 */
 	private val deltaUp by lazy { ContextCompat.getColor(context, R.color.deltaUp) }
+	/**
+	 * ID of the negative colour used to indicate a delta decrease
+	 */
 	private val deltaDown by lazy { ContextCompat.getColor(context, R.color.deltaDown) }
-	private fun TextView.setDeltaColour() {
-		setTextColor(if (text.startsWith("↓")) deltaDown else deltaUp)
-	}
 	
-	// Load latest price info from API
+	/**
+	 * Extension function to set the colour of a [TextView] containing a delta (that is, a TextView containing text with
+	 * an up or down arrow in unicode as the first character) to either [deltaUp] or [deltaDown] based on the
+	 * [TextView.getText] contained within itself. This method should be run once the TextView text has been set as
+	 * necessary since it takes no input for the text itself.
+	 */
+	private fun TextView.setDeltaColour() = setTextColor(if (text.startsWith("↓")) deltaDown else deltaUp)
+	
+	/**
+	 * Load the latest price information for the coin with [symbol] in view from the [API] into the [view]. The view must
+	 * be an inflation of [R.layout.coin_list_content] for the view data to be bound into the correct locations. This
+	 * method runs a coroutine in the [UI] handler context, so this runs asynchronously to other coin cards being loaded.
+	 *
+	 * TODO: Remove need for symbol parameter and get symbol from view
+	 */
 	fun loadPrices(view: View, symbol: String) = launch(UI) {
+		// Get the coin whose data this method will load into the view
 		val coin = API.coins.await()[symbol] ?: return@launch
 		
-		// Confirm the view we're binding to hasn't been replaced beneath us
+		// Confirm the view we're binding to has the correct symbol for the data to be inserted
 		if (view.symbol.text != symbol) return@launch
 		
+		// Price in Dollars
 		view.priceDollars.fadeInText(coin.price.usdPrice)
-		// Deltas
+		
+		// Price deltas
 		with(view.delta1h) {
 			fadeInText(coin.delta.sumHour, view.deltaHeader1h)
 			setDeltaColour()
@@ -98,12 +168,16 @@ class CoinRecyclerViewAdapter(private val context: Context,
 			fadeInText(coin.delta.sumWeek, view.deltaHeader7d)
 			setDeltaColour()
 		}
+		view.progressBar.progressAnimate(35)
 		
-		// Pounds
+		// Price in Pounds
 		view.pricePounds.fadeInText(coin.price.gbpPrice.await())
-		view.progressBar.progressAnimate(50)
+		view.progressBar.progressAnimate(35)
 	}
 	
+	/**
+	 * Load the coin's logo into the [view]
+	 */
 	fun loadLogo(view: View, symbol: String) = launch(UI) {
 		val coin = API.coins.await()[symbol] ?: return@launch
 		val logo = coin.logo.await() ?: return@launch
@@ -111,45 +185,37 @@ class CoinRecyclerViewAdapter(private val context: Context,
 		// After asynchronous operations, need to check whether the view has been bound to a different coin
 		if (view.symbol.text != coin.symbol) return@launch
 		
+		// The logo returned is a bitmap which can be placed directly into the view
 		view.icon.setImageBitmap(logo)
+		
+		// Animation and progress update
 		view.icon.animation = CustomAnimation.fadeIn
 		view.progressBar.progressAnimate(100)
 	}
 	
+	/**
+	 * Segue to the coin info. On mobile, this starts an [Intent] to the [CoinDetailActivity] containing a
+	 * [CoinDetailFragment]. On tablet, this directly replaces [R.id.coinDetail] with [CoinDetailFragment].
+	 */
 	fun openInfo(coinSymbol: String) {
+		// Create the bundle of data to be passed to the intent or fragment
 		val bundle = Bundle().apply {
+			// The coin's symbol is passed through for the info page to obtain the rest of the data using this key
 			putString(CoinDetailFragment.coinSymbolKey, coinSymbol)
 		}
 		
+		// Determine whether to use fragments directly or start an activity
 		if (isMasterDetail) {
 			// Create and set fragment for details
 			val fragment = CoinDetailActivity.createFragment(bundle)
 			(context as? FragmentActivity)?.replace(R.id.coinDetail, fragment)
+			
 		} else {
 			// Intent to detail activity
 			val intent = Intent(context, CoinDetailActivity::class.java).apply {
 				putExtras(bundle)
 			}
 			context.startActivity(intent)
-		}
-	}
-	
-	private val infoClickListener by lazy {
-		View.OnClickListener {
-			if (isMasterDetail) {
-				val fragment = CoinDetailFragment().apply {
-					arguments = Bundle().apply {
-						putString(CoinDetailFragment.coinSymbolKey, "1")
-					}
-				}
-				(context as? FragmentActivity)?.replace(R.id.coinDetail, fragment)
-			} else {
-				val intent = Intent(context, CoinDetailActivity::class.java)
-				intent.putExtras(Bundle().apply {
-					putInt(CoinDetailFragment.coinSymbolKey, 1)
-				})
-				context.startActivity(intent)
-			}
 		}
 	}
 }
