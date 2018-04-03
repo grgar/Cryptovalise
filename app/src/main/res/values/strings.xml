@@ -15,4 +15,6 @@
 	<string name="add_coin_emptymsg">No more coins are available</string>
 	<string name="coin_detail_missing_description">No description</string>
 	<string name="coin_detail_copy_logo">Copy</string>
+	<string name="coin_detail_cap_title">Market Cap</string>
+	<string name="coin_detail_vol_title">24h Volume</string>
 </resources>

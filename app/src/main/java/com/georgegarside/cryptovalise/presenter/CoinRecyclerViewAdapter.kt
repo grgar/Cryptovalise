@@ -3,6 +3,7 @@ package com.georgegarside.cryptovalise.presenter
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
+import android.graphics.Color
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
@@ -126,6 +127,10 @@ class CoinRecyclerViewAdapter(private val context: Context,
 	 * ID of the negative colour used to indicate a delta decrease
 	 */
 	private val deltaDown by lazy { ContextCompat.getColor(context, R.color.deltaDown) }
+	/**
+	 * ID of the neutral colour used for general text, which for a delta signifies neither increase nor decrease
+	 */
+	private val deltaNone by lazy { ContextCompat.getColor(context, R.color.colorAccentText) }
 	
 	/**
 	 * Extension function to set the colour of a [TextView] containing a delta (that is, a TextView containing text with
@@ -133,7 +138,11 @@ class CoinRecyclerViewAdapter(private val context: Context,
 	 * [TextView.getText] contained within itself. This method should be run once the TextView text has been set as
 	 * necessary since it takes no input for the text itself.
 	 */
-	private fun TextView.setDeltaColour() = setTextColor(if (text.startsWith("↓")) deltaDown else deltaUp)
+	private fun TextView.setDeltaColour() = when {
+		text.startsWith(API.Coin.Delta.upSymbol) -> setTextColor(deltaUp)
+		text.startsWith(API.Coin.Delta.downSymbol) -> setTextColor(deltaDown)
+		else -> setTextColor(deltaNone)
+	}
 	
 	/**
 	 * Load the latest price information for the coin with [symbol] in view from the [API] into the [view]. The view must
@@ -206,7 +215,6 @@ class CoinRecyclerViewAdapter(private val context: Context,
 			// Create and set fragment for details
 			val fragment = CoinDetailActivity.createFragment(bundle)
 			(context as? FragmentActivity)?.replace(R.id.coinDetail, fragment)
-			
 		} else {
 			// Intent to detail activity
 			val intent = Intent(context, CoinDetailActivity::class.java).apply {

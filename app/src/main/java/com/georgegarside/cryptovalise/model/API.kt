@@ -1,6 +1,7 @@
 package com.georgegarside.cryptovalise.model
 
 import android.graphics.BitmapFactory
+import com.georgegarside.cryptovalise.presenter.format
 import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.Method
 import com.github.kittinunf.fuel.gson.responseObject
@@ -11,9 +12,11 @@ import java.text.DecimalFormat
 
 object API {
 	private class Storage {
-		val coins = async(start = CoroutineStart.LAZY) { getCoins().associate { it.symbol to it } }
+		val coins =
+				async(start = CoroutineStart.LAZY) { getCoins().associate { it.symbol to it } }
 		
-		val currencies = async(start = CoroutineStart.LAZY) { getCurrencies().associate { it.code to it } }
+		val currencies =
+				async(start = CoroutineStart.LAZY) { getCurrencies().associate { it.code to it } }
 	}
 	
 	private var storage = Storage()
@@ -63,16 +66,26 @@ object API {
 		data class Delta(
 				val hour: Pair<Double, Double> = Pair(0.0, 0.0),
 				val day: Pair<Double, Double> = Pair(0.0, 0.0),
-				val week: Pair<Double, Double> = Pair(0.0, 0.0)
+				val week: Pair<Double, Double> = Pair(0.0, 0.0),
+				val cap: Pair<Double, Long> = Pair(0.0, 0L),
+				val vol: Pair<Double, Long> = Pair(0.0, 0L),
+				val dom: Pair<Double, Long> = Pair(0.0, 0L)
 		) {
 			companion object {
+				const val downSymbol = "▽"
+				const val upSymbol = "▲"
+				
 				private fun Pair<Double, Any>.percentage() =
-						(if (this.first < 0) "↓" else "↑") + (this.first.toString().replace("-", ""))
+						(if (this.first < 0) downSymbol else upSymbol) +
+								(this.first.format("%").toString().replace("-", ""))
 			}
 			
 			val sumHour = hour.percentage()
 			val sumDay = day.percentage()
 			val sumWeek = week.percentage()
+			val sumCap = cap.percentage()
+			val sumVol = vol.percentage()
+			val sumDom = dom.percentage()
 		}
 	}
 	
@@ -113,7 +126,8 @@ object API {
 				delta = Coin.Delta(
 						hour = Pair(attributes["percent-change-1h"] as Double, attributes["point-change-1h"] as Double),
 						day = Pair(attributes["percent-change-24h"] as Double, attributes["point-change-24h"] as Double),
-						week = Pair(attributes["percent-change-7d"] as Double, attributes["point-change-7d"] as Double)
+						week = Pair(attributes["percent-change-7d"] as Double, attributes["point-change-7d"] as Double),
+						cap = Pair(attributes["market-cap-percent-change"] as Double, (attributes["market-cap-usd"] as Double).toLong())
 				)
 		)
 	}?.toTypedArray() ?: arrayOf()
