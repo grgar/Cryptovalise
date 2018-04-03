@@ -80,6 +80,14 @@ class CoinDetailFragment : Fragment() {
 				navigationIcon?.setColorFilter(dominantSwatch.bodyTextColor, PorterDuff.Mode.SRC_ATOP)
 			}
 		}
+		
+		coinLogoCopy.setOnClickListener(copyLogo(coin))
+	}
+	
+	private fun copyLogo(coin: API.Coin): (View) -> Unit = {
+		val clipboard = context?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+		val clipUri = ClipData.newRawUri("Logo for ${coin.name}", Uri.parse(coin.logoPath))
+		clipboard.primaryClip = clipUri
 	}
 	
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
