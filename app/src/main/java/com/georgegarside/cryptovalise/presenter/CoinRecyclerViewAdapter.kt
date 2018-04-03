@@ -83,7 +83,7 @@ class CoinRecyclerViewAdapter(private val context: Context,
 			view.coinName.text = cursor.getString(DBOpenHelper.Coin.Name.ordinal)
 			
 			// Set click listeners
-			view.buttonInfo.setOnClickListener { openInfo(symbol) }
+			view.setOnClickListener { openInfo(symbol) }
 			
 			view.progressBar.progressAnimate(10)
 			
