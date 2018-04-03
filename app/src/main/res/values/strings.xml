@@ -1,16 +1,16 @@
 <resources>
 	<string name="app_name">Cryptovalise</string>
-	<string name="title_currency_detail">Currency Detail</string>
-	<string name="currency_list_icon_description">Currency logo</string>
+	<string name="title_coin_detail">Coin Detail</string>
+	<string name="coin_list_icon_description">Coin logo</string>
+	<string name="coin_list_more_description">More</string>
 	<string name="graph_title">Graph</string>
 	<string name="news_title">News</string>
 	<string name="info_title">Info</string>
-	<string name="currency_list_more_description">More</string>
 	<string name="delta_1h">1h %</string>
 	<string name="delta_7d">7d %</string>
 	<string name="delta_24h">24h %</string>
-	<string name="toolbar_add_currency">Add currency</string>
 	<string name="title_activity_currency">Coins</string>
+	<string name="add_coin_toolbar">Add coin</string>
 	<string name="add_coin_title">Choose a coin</string>
-	<string name="add_coins_emptymsg">No more coins are available</string>
+	<string name="add_coin_emptymsg">No more coins are available</string>
 </resources>

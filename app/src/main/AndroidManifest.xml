@@ -26,7 +26,7 @@
 		</activity>
 		<activity
 			android:name=".CoinDetailActivity"
-			android:label="@string/title_currency_detail"
+			android:label="@string/title_coin_detail"
 			android:parentActivityName=".CoinListActivity"
 			android:theme="@style/AppTheme.NoActionBar">
 			<meta-data

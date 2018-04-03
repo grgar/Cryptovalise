@@ -230,7 +230,7 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 			with(dialog) {
 				if (coinsArray.isEmpty()) {
 					// Show a message that there are no more coins available to be added
-					dialog.setMessage(getString(R.string.add_coins_emptymsg))
+					dialog.setMessage(getString(R.string.add_coin_emptymsg))
 				} else {
 					dialog.setItems(coinsArray, { dialog, which ->
 						// Get the new coin which was selected by the user

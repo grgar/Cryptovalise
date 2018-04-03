@@ -60,7 +60,7 @@
 			app:layout_constraintTop_toTopOf="parent"
 			android:layout_marginTop="16dp"
 			android:scaleType="fitXY"
-			android:contentDescription="@string/currency_list_icon_description"
+			android:contentDescription="@string/coin_list_icon_description"
 			tools:srcCompat="@drawable/ic_attach_money_black_24dp"/>
 
 		<LinearLayout
@@ -137,7 +137,7 @@
 			android:background="?android:attr/selectableItemBackgroundBorderless"
 			app:layout_constraintEnd_toEndOf="parent"
 			android:tint="@android:color/darker_gray"
-			android:contentDescription="@string/currency_list_more_description"
+			android:contentDescription="@string/coin_list_more_description"
 			app:layout_constraintStart_toEndOf="@+id/buttonInfo"
 			android:layout_marginStart="8dp"
 			app:layout_constraintHorizontal_bias="1.0"
