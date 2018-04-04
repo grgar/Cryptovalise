@@ -6,6 +6,6 @@
 	<color name="colorAccent">#00BF9A</color>
 	<color name="colorAccentText">#333</color>
 
-	<color name="deltaUp">#00CC81</color>
-	<color name="deltaDown">#FF0047</color>
+	<color name="deltaUp">#087F23</color>
+	<color name="deltaDown">#BA000D</color>
 </resources>

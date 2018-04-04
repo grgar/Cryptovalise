@@ -1,6 +1,5 @@
 package com.georgegarside.cryptovalise
 
-import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -88,9 +87,17 @@ class CoinDetailFragment : Fragment() {
 		coinLogoCopy.setOnClickListener(copyLogo(coin))
 		
 		// Coin market cap
-		capPercent.text = coin.delta.cap.first.format(NumberFormat.Delta, "%")
-		capPercent.setDeltaColour()
+		capDelta.text = coin.delta.cap.first.format(NumberFormat.Delta, "%")
+		capDelta.setDeltaColour()
 		capTotal.text = coin.delta.cap.second.format()
+		
+		// Coin volume
+		volDelta.text = coin.delta.vol.first.format(NumberFormat.Delta, "%")
+		volDelta.setDeltaColour()
+		volTotal.text = coin.delta.vol.second.format()
+		
+		// Coin supply
+		supply.text = getString(R.string.coin_detail_supply, coin.supply.format())
 	}
 	
 	private fun copyLogo(coin: API.Coin): (View) -> Unit = {

@@ -38,7 +38,8 @@ object API {
 	}
 	
 	data class Coin(val id: Int = 0, val symbol: String = "", val name: String = "", val slug: String = "",
-	                val description: String?, var price: Price = Price(), var delta: Delta = Delta()) {
+	                val description: String?, var price: Price = Price(), var delta: Delta = Delta(),
+	                val supply: Long = 0L) {
 		
 		internal val logoPath = fuel.basePath + "uploads/production/coin/icon/$id/$slug.png"
 		val logo = async(start = CoroutineStart.LAZY) {
@@ -110,8 +111,10 @@ object API {
 						hour = Pair(attributes["percent-change-1h"] as Double, attributes["point-change-1h"] as Double),
 						day = Pair(attributes["percent-change-24h"] as Double, attributes["point-change-24h"] as Double),
 						week = Pair(attributes["percent-change-7d"] as Double, attributes["point-change-7d"] as Double),
-						cap = Pair(attributes["market-cap-percent-change"] as Double, (attributes["market-cap-usd"] as Double).toLong())
-				)
+						cap = Pair(attributes["market-cap-percent-change"] as Double, (attributes["market-cap-usd"] as Double).toLong()),
+						vol = Pair(attributes["volume-percent-change"] as Double, (attributes["volume-24h-usd"] as Double).toLong())
+				),
+				supply = (attributes["available-supply"] as Double).toLong()
 		)
 	}?.toTypedArray() ?: arrayOf()
 	
