@@ -118,31 +118,6 @@ class CoinRecyclerViewAdapter(private val context: Context,
 	override fun getItemCount(): Int = cursorAdapter.count
 	
 	/**
-	 * ID of the positive colour used to indicate a delta increase
-	 */
-	private val deltaUp by lazy { ContextCompat.getColor(context, R.color.deltaUp) }
-	/**
-	 * ID of the negative colour used to indicate a delta decrease
-	 */
-	private val deltaDown by lazy { ContextCompat.getColor(context, R.color.deltaDown) }
-	/**
-	 * ID of the neutral colour used for general text, which for a delta signifies neither increase nor decrease
-	 */
-	private val deltaNone by lazy { ContextCompat.getColor(context, R.color.colorAccentText) }
-	
-	/**
-	 * Extension function to set the colour of a [TextView] containing a delta (that is, a TextView containing text with
-	 * an up or down arrow in unicode as the first character) to either [deltaUp] or [deltaDown] based on the
-	 * [TextView.getText] contained within itself. This method should be run once the TextView text has been set as
-	 * necessary since it takes no input for the text itself.
-	 */
-	private fun TextView.setDeltaColour() = when {
-		text.startsWith(API.Coin.Delta.upSymbol) -> setTextColor(deltaUp)
-		text.startsWith(API.Coin.Delta.downSymbol) -> setTextColor(deltaDown)
-		else -> setTextColor(deltaNone)
-	}
-	
-	/**
 	 * Load the latest price information for the coin with [symbol] in view from the [API] into the [view]. The view must
 	 * be an inflation of [R.layout.coin_list_content] for the view data to be bound into the correct locations. This
 	 * method runs a coroutine in the [UI] handler context, so this runs asynchronously to other coin cards being loaded.

@@ -3,7 +3,7 @@ package com.georgegarside.cryptovalise
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
-import com.georgegarside.cryptovalise.model.replace
+import com.georgegarside.cryptovalise.presenter.replace
 import kotlinx.android.synthetic.main.activity_coin_detail.*
 
 /**

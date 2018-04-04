@@ -15,6 +15,7 @@ import android.view.ViewGroup
 import com.georgegarside.cryptovalise.model.API
 import com.georgegarside.cryptovalise.model.NumberFormat
 import com.georgegarside.cryptovalise.model.format
+import com.georgegarside.cryptovalise.presenter.setDeltaColour
 import kotlinx.android.synthetic.main.activity_coin_detail.*
 import kotlinx.android.synthetic.main.coin_detail.*
 import kotlinx.coroutines.experimental.android.UI
@@ -88,6 +89,7 @@ class CoinDetailFragment : Fragment() {
 		
 		// Coin market cap
 		capPercent.text = coin.delta.cap.first.format(NumberFormat.Delta, "%")
+		capPercent.setDeltaColour()
 		capTotal.text = coin.delta.cap.second.format()
 	}
 	

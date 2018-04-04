@@ -47,18 +47,13 @@ object API {
 		}
 		
 		data class Price(val usd: Double = 0.0, val btc: Double = 0.0) {
-			private fun format(number: Double) =
-					if (number < 10)
-						DecimalFormat("0.0000").format(number)
-					else
-						DecimalFormat("#,##0.00").format(number)
+			val usdPrice by lazy { "$ " + usd.format() }
+			val btcPrice by lazy { "Ḇ " + btc.format() }
 			
-			val usdPrice by lazy { "$ " + format(usd) }
-			val btcPrice by lazy { "BTC " + format(btc) }
 			val gbpPrice = async(start = CoroutineStart.LAZY) {
 				val rate = currencies.await()["GBP"]?.rate
 				val gbp = usd * (rate ?: 0.0)
-				"£ ${format(gbp)}"
+				"£ " + gbp.format()
 			}
 		}
 		
