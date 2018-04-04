@@ -18,4 +18,5 @@
 	<string name="coin_detail_cap_title">Market Cap $</string>
 	<string name="coin_detail_vol_title">24h Volume $</string>
 	<string name="coin_detail_supply">Available: %1$s</string>
+	<string name="coin_detail_rank">Rank: #%1$d</string>
 </resources>

@@ -98,6 +98,9 @@ class CoinDetailFragment : Fragment() {
 		
 		// Coin supply
 		supply.text = getString(R.string.coin_detail_supply, coin.supply.format())
+		
+		// Coin rank
+		rank.text = getString(R.string.coin_detail_rank, coin.rank)
 	}
 	
 	private fun copyLogo(coin: API.Coin): (View) -> Unit = {
