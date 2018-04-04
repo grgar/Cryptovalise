@@ -1,7 +1,6 @@
 package com.georgegarside.cryptovalise.model
 
 import android.graphics.BitmapFactory
-import com.georgegarside.cryptovalise.presenter.format
 import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.Method
 import com.github.kittinunf.fuel.gson.responseObject
@@ -74,18 +73,7 @@ object API {
 			companion object {
 				const val downSymbol = "▽"
 				const val upSymbol = "▲"
-				
-				private fun Pair<Double, Any>.percentage() =
-						(if (this.first < 0) downSymbol else upSymbol) +
-								(this.first.format("%").toString().replace("-", ""))
 			}
-			
-			val sumHour = hour.percentage()
-			val sumDay = day.percentage()
-			val sumWeek = week.percentage()
-			val sumCap = cap.percentage()
-			val sumVol = vol.percentage()
-			val sumDom = dom.percentage()
 		}
 	}
 	

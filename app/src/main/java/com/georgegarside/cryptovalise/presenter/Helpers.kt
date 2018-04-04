@@ -1,10 +1,8 @@
-package com.georgegarside.cryptovalise.model
+package com.georgegarside.cryptovalise.presenter
 
 import android.support.annotation.IdRes
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
-import com.google.gson.internal.LinkedTreeMap
-import java.util.*
 
 /**
  * Helper method to simplify the transaction process of replacing a [fragment] within the specific [containerViewId]
@@ -22,8 +20,3 @@ fun FragmentActivity.replace(@IdRes containerViewId: Int, fragment: Fragment) {
 			// Perform the transaction
 			.commit()
 }
-
-/**
- * A [LinkedTreeMap], from [String] to [ArrayList] of [LinkedTreeMap], from [String] to [Any].
- */
-typealias ArrayListInMap = LinkedTreeMap<String, ArrayList<LinkedTreeMap<String, Any>>>

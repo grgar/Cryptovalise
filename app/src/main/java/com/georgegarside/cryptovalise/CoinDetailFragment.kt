@@ -13,7 +13,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.georgegarside.cryptovalise.model.API
-import com.georgegarside.cryptovalise.presenter.format
+import com.georgegarside.cryptovalise.model.NumberFormat
+import com.georgegarside.cryptovalise.model.format
 import kotlinx.android.synthetic.main.activity_coin_detail.*
 import kotlinx.android.synthetic.main.coin_detail.*
 import kotlinx.coroutines.experimental.android.UI
@@ -86,8 +87,7 @@ class CoinDetailFragment : Fragment() {
 		coinLogoCopy.setOnClickListener(copyLogo(coin))
 		
 		// Coin market cap
-		@SuppressLint("SetTextI18n")
-		capPercent.text = coin.delta.sumCap + "%"
+		capPercent.text = coin.delta.cap.first.format(NumberFormat.Delta, "%")
 		capTotal.text = coin.delta.cap.second.format()
 	}
 	

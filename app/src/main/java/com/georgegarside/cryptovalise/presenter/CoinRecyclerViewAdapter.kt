@@ -16,9 +16,7 @@ import android.widget.TextView
 import com.georgegarside.cryptovalise.CoinDetailActivity
 import com.georgegarside.cryptovalise.CoinDetailFragment
 import com.georgegarside.cryptovalise.R
-import com.georgegarside.cryptovalise.model.API
-import com.georgegarside.cryptovalise.model.DBOpenHelper
-import com.georgegarside.cryptovalise.model.replace
+import com.georgegarside.cryptovalise.model.*
 import kotlinx.android.synthetic.main.coin_list_content.view.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
@@ -163,15 +161,15 @@ class CoinRecyclerViewAdapter(private val context: Context,
 		
 		// Price deltas
 		with(view.delta1h) {
-			fadeInText(coin.delta.sumHour, view.deltaHeader1h)
+			fadeInText(coin.delta.hour.first.format(NumberFormat.Delta), view.deltaHeader1h)
 			setDeltaColour()
 		}
 		with(view.delta24h) {
-			fadeInText(coin.delta.sumDay, view.deltaHeader24h)
+			fadeInText(coin.delta.day.first.format(NumberFormat.Delta), view.deltaHeader24h)
 			setDeltaColour()
 		}
 		with(view.delta7d) {
-			fadeInText(coin.delta.sumWeek, view.deltaHeader7d)
+			fadeInText(coin.delta.week.first.format(NumberFormat.Delta), view.deltaHeader7d)
 			setDeltaColour()
 		}
 		view.progressBar.progressAnimate(35)

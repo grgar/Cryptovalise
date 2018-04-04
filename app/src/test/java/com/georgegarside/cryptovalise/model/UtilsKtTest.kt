@@ -1,10 +1,9 @@
 package com.georgegarside.cryptovalise.model
 
-import com.georgegarside.cryptovalise.presenter.format
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
-internal class HelpersKtTest {
+internal class UtilsKtTest {
 	
 	@Test
 	fun formatNoChange() {
