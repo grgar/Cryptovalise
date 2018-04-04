@@ -18,5 +18,8 @@
 	<string name="coin_detail_cap_title">Market Cap $</string>
 	<string name="coin_detail_vol_title">24h Volume $</string>
 	<string name="coin_detail_supply">Available: %1$s</string>
+	<string name="coin_detail_supply_total">Total: %1$s</string>
 	<string name="coin_detail_rank">Rank: #%1$d</string>
+	<string name="coin_detail_dominance_title">Dominance</string>
+	<string name="coin_detail_cmc_credit">CoinMarketCap Data</string>
 </resources>
