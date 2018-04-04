@@ -16,33 +16,43 @@ import com.georgegarside.cryptovalise.model.NumberFormat
 import com.georgegarside.cryptovalise.model.format
 import com.georgegarside.cryptovalise.presenter.setDeltaColour
 import kotlinx.android.synthetic.main.activity_coin_detail.*
-import kotlinx.android.synthetic.main.coin_detail.*
+import kotlinx.android.synthetic.main.coin_detail.view.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 
 class CoinDetailFragment : Fragment() {
 	companion object {
+		fun createFragment(bundle: Bundle) =
+				CoinDetailFragment().apply {
+					arguments = bundle
+				}
+	
 		const val coinSymbolKey = "coin_symbol"
 	}
+	
+	lateinit var coinSymbol: String
 	
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		
 		// Get coin ID for its info to be displayed in this fragment
-		val coinSymbol = arguments?.getString(coinSymbolKey, "") ?: ""
+		coinSymbol = arguments?.getString(coinSymbolKey, "") ?: ""
 		
 		// If there is no passed coin ID to the fragment, finish the activity and return
 		if (coinSymbol.isBlank()) {
 			activity?.onBackPressed()
 			return
 		}
-		
-		launch(UI) {
-			loadData(coinSymbol)
-		}
 	}
 	
-	private suspend fun loadData(symbol: String) {
+	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
+			inflater.inflate(R.layout.coin_detail, container, false).also {
+				launch(UI) {
+					loadData(it, coinSymbol)
+				}
+			}
+	
+	private suspend fun loadData(view: View, symbol: String) {
 		val coin = API.coins.await()[symbol] ?: run {
 			activity?.onBackPressed()
 			return
@@ -61,66 +71,39 @@ class CoinDetailFragment : Fragment() {
 						truncated = "…"
 				)
 				?: getString(R.string.coin_detail_missing_description)
-		coinDescription.text = shortDescription
+		view.coinDescription.text = shortDescription
 		
 		// Coin logo
 		launch(UI) {
 			val logo = coin.logo.await() ?: return@launch
-			coinLogo.setImageBitmap(logo)
-			
-			val dominantSwatch = Palette.from(logo).generate().dominantSwatch ?: return@launch
-			
-			activity?.collapsingToolbar?.apply {
-				setBackgroundColor(dominantSwatch.rgb)
-				setContentScrimColor(dominantSwatch.rgb)
-				setExpandedTitleColor(dominantSwatch.bodyTextColor)
-				setCollapsedTitleTextColor(dominantSwatch.titleTextColor)
-			}
-			
-			activity?.toolbarDetail?.apply {
-				setBackgroundColor(dominantSwatch.rgb)
-				//it.setStatusBarScrimColor(dominantSwatch.bodyTextColor)
-				navigationIcon?.setColorFilter(dominantSwatch.bodyTextColor, PorterDuff.Mode.SRC_ATOP)
-			}
+			view.coinLogo.setImageBitmap(logo)
 		}
 		
-		coinLogoCopy.setOnClickListener(copyLogo(coin))
+		view.coinLogoCopy.setOnClickListener(copyLogo(coin))
 		
 		// Coin market cap
-		capDelta.text = coin.delta.cap.first.format(NumberFormat.Delta, "%")
-		capDelta.setDeltaColour()
-		capTotal.text = coin.delta.cap.second.format()
+		view.capDelta.text = coin.delta.cap.first.format(NumberFormat.Delta, "%")
+		view.capDelta.setDeltaColour()
+		view.capTotal.text = coin.delta.cap.second.format()
 		
 		// Coin volume
-		volDelta.text = coin.delta.vol.first.format(NumberFormat.Delta, "%")
-		volDelta.setDeltaColour()
-		volTotal.text = coin.delta.vol.second.format()
+		view.volDelta.text = coin.delta.vol.first.format(NumberFormat.Delta, "%")
+		view.volDelta.setDeltaColour()
+		view.volTotal.text = coin.delta.vol.second.format()
 		
 		// Coin supply
-		supply.text = getString(R.string.coin_detail_supply, coin.supply.format())
-		supplyTotal.text = getString(R.string.coin_detail_supply_total, coin.total.format())
+		view.supply.text = getString(R.string.coin_detail_supply, coin.supply.format())
+		view.supplyTotal.text = getString(R.string.coin_detail_supply_total, coin.total.format())
 		
 		// Coin dominance
-		domDelta.text = coin.delta.dom.first.format(NumberFormat.Delta, "%")
-		domDelta.setDeltaColour()
-		rank.text = getString(R.string.coin_detail_rank, coin.delta.dom.second)
+		view.domDelta.text = coin.delta.dom.first.format(NumberFormat.Delta, "%")
+		view.domDelta.setDeltaColour()
+		view.rank.text = getString(R.string.coin_detail_rank, coin.delta.dom.second)
 	}
 	
 	private fun copyLogo(coin: API.Coin): (View) -> Unit = {
 		val clipboard = context?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
 		val clipUri = ClipData.newRawUri("Logo for ${coin.name}", Uri.parse(coin.logoPath))
 		clipboard.primaryClip = clipUri
-	}
-	
-	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-		val rootView = inflater.inflate(R.layout.coin_detail, container, false)
-
-/*
-		mItem?.let {
-			rootView.coin_detail.text = it.details
-		}
-*/
-		
-		return rootView
 	}
 }

@@ -3,10 +3,13 @@ package com.georgegarside.cryptovalise.presenter
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Bundle
+import android.support.annotation.ColorInt
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
+import android.support.v7.graphics.Palette
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -19,6 +22,7 @@ import com.georgegarside.cryptovalise.R
 import com.georgegarside.cryptovalise.model.*
 import kotlinx.android.synthetic.main.coin_list_content.view.*
 import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 
 /**
@@ -155,14 +159,18 @@ class CoinRecyclerViewAdapter(private val context: Context,
 	}
 	
 	/**
-	 * Load the coin's logo into the [view]
+	 * Get a [Bitmap] logo for the given [API.Coin] [symbol].
+	 */
+	private suspend fun getLogo(symbol: String): Bitmap? = API.coins.await()[symbol]?.logo?.await()
+	
+	/**
+	 * Load the coin's logo into the [view].
 	 */
 	fun loadLogo(view: View, symbol: String) = launch(UI) {
-		val coin = API.coins.await()[symbol] ?: return@launch
-		val logo = coin.logo.await() ?: return@launch
+		val logo = getLogo(symbol) ?: return@launch
 		
 		// After asynchronous operations, need to check whether the view has been bound to a different coin
-		if (view.symbol.text != coin.symbol) return@launch
+		if (view.symbol.text != symbol) return@launch
 		
 		// The logo returned is a bitmap which can be placed directly into the view
 		view.icon.setImageBitmap(logo)
@@ -173,27 +181,42 @@ class CoinRecyclerViewAdapter(private val context: Context,
 	}
 	
 	/**
+	 * Calculate the dominant [Palette.Swatch] RGB from the coin's [getLogo]. Returns the swatch as RGB.
+	 */
+	private suspend fun getLogoColour(coinSymbol: String): Int? {
+		val logo = getLogo(coinSymbol) ?: return null
+		return Palette.from(logo).generate().dominantSwatch?.rgb
+	}
+	
+	/**
 	 * Segue to the coin info. On mobile, this starts an [Intent] to the [CoinDetailActivity] containing a
 	 * [CoinDetailFragment]. On tablet, this directly replaces [R.id.coinDetail] with [CoinDetailFragment].
 	 */
-	fun openInfo(coinSymbol: String) {
+	fun openInfo(coinSymbol: String) = async {
 		// Create the bundle of data to be passed to the intent or fragment
 		val bundle = Bundle().apply {
 			// The coin's symbol is passed through for the info page to obtain the rest of the data using this key
 			putString(CoinDetailFragment.coinSymbolKey, coinSymbol)
+			
+			// Pass the logo colour to the activity so that it can style the toolbar
+			getLogoColour(coinSymbol)?.let {
+				putInt(CoinDetailActivity.coinColourKey, it)
+			}
 		}
 		
-		// Determine whether to use fragments directly or start an activity
-		if (isMasterDetail) {
-			// Create and set fragment for details
-			val fragment = CoinDetailActivity.createFragment(bundle)
-			(context as? FragmentActivity)?.replace(R.id.coinDetail, fragment)
-		} else {
-			// Intent to detail activity
-			val intent = Intent(context, CoinDetailActivity::class.java).apply {
-				putExtras(bundle)
+		launch(UI) {
+			// Determine whether to use fragments directly or start an activity
+			if (isMasterDetail) {
+				// Create and set fragment for details
+				val fragment = CoinDetailFragment.createFragment(bundle)
+				(this@CoinRecyclerViewAdapter.context as? FragmentActivity)?.replace(R.id.coinDetail, fragment)
+			} else {
+				// Intent to detail activity
+				val intent = Intent(this@CoinRecyclerViewAdapter.context, CoinDetailActivity::class.java).apply {
+					putExtras(bundle)
+				}
+				this@CoinRecyclerViewAdapter.context.startActivity(intent)
 			}
-			context.startActivity(intent)
 		}
 	}
 }
