@@ -6,6 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.georgegarside.cryptovalise.model.API
+import com.github.mikephil.charting.components.YAxis
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import kotlinx.android.synthetic.main.fragment_chart.*
 
 class ChartFragment : Fragment() {
 	
@@ -16,7 +21,15 @@ class ChartFragment : Fragment() {
 		val slug = API.coins.await()[symbol]?.slug ?: return
 		val prices = API.getPrices(slug)
 		
-		val price = prices[0].data
+		val price = prices[0].data ?: return
+		
+		val priceList = price.map { Entry((it.first / 1000).toFloat(), it.second.toFloat()) }
+		
+		val lineDataSet = LineDataSet(priceList, "Prices in USD")
+		lineDataSet.axisDependency = YAxis.AxisDependency.LEFT
+		
+		chart.data = LineData(listOf(lineDataSet))
+		chart.invalidate()
 	}
 	
 	companion object {
