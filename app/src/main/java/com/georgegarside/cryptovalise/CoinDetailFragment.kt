@@ -3,11 +3,9 @@ package com.georgegarside.cryptovalise
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.graphics.PorterDuff
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v7.graphics.Palette
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,7 +24,7 @@ class CoinDetailFragment : Fragment() {
 				CoinDetailFragment().apply {
 					arguments = bundle
 				}
-	
+		
 		const val coinSymbolKey = "coin_symbol"
 	}
 	
@@ -93,7 +91,11 @@ class CoinDetailFragment : Fragment() {
 		
 		// Coin supply
 		view.supply.text = getString(R.string.coin_detail_supply, coin.supply.format())
-		view.supplyTotal.text = getString(R.string.coin_detail_supply_total, coin.total.format())
+		if (coin.total == 0L) {
+			view.supplyTotal.text = getString(R.string.coin_detail_supply_total_unlimited)
+		} else {
+			view.supplyTotal.text = getString(R.string.coin_detail_supply_total, coin.total.format())
+		}
 		
 		// Coin dominance
 		view.domDelta.text = coin.delta.dom.first.format(NumberFormat.Delta, "%")

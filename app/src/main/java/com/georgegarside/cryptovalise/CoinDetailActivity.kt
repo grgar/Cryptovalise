@@ -8,6 +8,8 @@ import android.support.v7.graphics.Palette
 import android.view.MenuItem
 import com.georgegarside.cryptovalise.presenter.replace
 import kotlinx.android.synthetic.main.activity_coin_detail.*
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
 
 /**
  * An activity representing a single Coin detail screen. This activity is only used on narrow width devices.
@@ -30,13 +32,15 @@ class CoinDetailActivity : AppCompatActivity() {
 		
 		setToolbarColour(intent.getIntExtra(coinColourKey, 0))
 		
-		val fragment = CoinDetailFragment.createFragment(Bundle().apply {
-			with(CoinDetailFragment.coinSymbolKey) {
-				putString(this, intent.getStringExtra(this))
-			}
-		})
+		val coinSymbol = intent.getStringExtra(CoinDetailFragment.coinSymbolKey)
+		
+		val fragment = CoinDetailFragment.createFragment(intent.extras)
 		
 		replace(R.id.coinDetail, fragment)
+		
+		launch(UI) {
+			(chartFragment as? ChartFragment)?.loadChart(coinSymbol)
+		}
 	}
 	
 	override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {

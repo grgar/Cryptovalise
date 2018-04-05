@@ -9,4 +9,5 @@
 	<dimen name="item_padding">8dp</dimen>
 	<!-- Custom -->
 	<dimen name="item_padding_huge">64dp</dimen>
+	<dimen name="full_collapsing_layout">360dp</dimen>
 </resources>

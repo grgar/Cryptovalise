@@ -6,7 +6,43 @@ import java.util.*
 /**
  * A [LinkedTreeMap], from [String] to [ArrayList] of [LinkedTreeMap], from [String] to [Any].
  */
-typealias ArrayListInMap = LinkedTreeMap<String, ArrayList<LinkedTreeMap<String, Any>>>
+typealias MapArrayListMap =
+		LinkedTreeMap<
+				String,
+				ArrayList<
+						LinkedTreeMap<
+								String,
+								Any
+								>
+						>
+				>
+
+/**
+ *
+ */
+typealias ArrayMap =
+		LinkedTreeMap<
+				String,
+				Array<
+						Array<
+								String
+								>
+						>
+				>
+
+typealias SimpleMap =
+		LinkedTreeMap<
+				String,
+				Any
+				>
+
+typealias PointArray =
+		Array<
+				Pair<
+						Long,
+						Double
+						>
+				>
 
 /**
  * Extension function to provide [NumberFormat] formatting capability to the Double.

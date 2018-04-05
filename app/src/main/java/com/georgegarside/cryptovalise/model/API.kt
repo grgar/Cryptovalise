@@ -7,7 +7,6 @@ import com.github.kittinunf.fuel.gson.responseObject
 import com.google.gson.internal.LinkedTreeMap
 import kotlinx.coroutines.experimental.CoroutineStart
 import kotlinx.coroutines.experimental.async
-import java.text.DecimalFormat
 
 object API {
 	private class Storage {
@@ -16,6 +15,8 @@ object API {
 		
 		val currencies =
 				async(start = CoroutineStart.LAZY) { getCurrencies().associate { it.code to it } }
+		
+		val prices = ArrayMap()
 	}
 	
 	private var storage = Storage()
@@ -87,7 +88,7 @@ object API {
 	
 	private fun download(path: String) = fuel.request(Method.GET, path).response().third
 	
-	private fun getCoins(): Array<Coin> = call<ArrayListInMap>(endpoint = "coins")["data"]?.map {
+	private fun getCoins(): Array<Coin> = call<MapArrayListMap>(endpoint = "coins")["data"]?.map {
 		// Extract further data as objects
 		@Suppress("UNCHECKED_CAST")
 		val attributes = it["attributes"] as LinkedTreeMap<String, Any>
@@ -111,8 +112,10 @@ object API {
 						hour = Pair(attributes["percent-change-1h"] as Double, attributes["point-change-1h"] as Double),
 						day = Pair(attributes["percent-change-24h"] as Double, attributes["point-change-24h"] as Double),
 						week = Pair(attributes["percent-change-7d"] as Double, attributes["point-change-7d"] as Double),
-						cap = Pair(attributes["market-cap-percent-change"] as Double, (attributes["market-cap-usd"] as Double).toLong()),
-						vol = Pair(attributes["volume-percent-change"] as Double, (attributes["volume-24h-usd"] as Double).toLong()),
+						cap = Pair(attributes["market-cap-percent-change"] as Double,
+								(attributes["market-cap-usd"] as Double).toLong()),
+						vol = Pair(attributes["volume-percent-change"] as Double,
+								(attributes["volume-24h-usd"] as Double).toLong()),
 						dom = Pair(attributes["dominance-percent-change"] as Double, (attributes["rank"] as Double).toInt())
 				),
 				supply = (attributes["available-supply"] as Double).toLong(),
@@ -121,7 +124,7 @@ object API {
 	}?.toTypedArray() ?: arrayOf()
 	
 	private fun getCurrencies(): Array<Currency> {
-		return call<ArrayListInMap>(endpoint = "currencies")["currencies"]?.map {
+		return call<MapArrayListMap>(endpoint = "currencies")["currencies"]?.map {
 			Currency(
 					code = it["code"] as String,
 					name = it["full_name"] as String,
@@ -129,4 +132,34 @@ object API {
 			)
 		}?.toTypedArray() ?: arrayOf()
 	}
+	
+	enum class PriceSeries(val key: String) {
+		Price("value_usd"),
+		Bitcoin("price_btc"),
+		Cap("market_cap_usd");
+		
+		override fun toString(): String = this.key
+		
+		var data: PointArray? = null
+	}
+	
+	suspend fun getPrices(slug: String): Array<PriceSeries> = async {
+		val data = call<SimpleMap>(endpoint = "coins/$slug/prices")
+		
+		arrayOf(PriceSeries.Price, PriceSeries.Bitcoin, PriceSeries.Cap).also {
+			it.forEach { series ->
+				
+				@Suppress("UNCHECKED_CAST")
+				series.data =
+						(data[series.toString()] as? ArrayList<ArrayList<Double>>)
+								?.map {
+									val x = it[0].toLong()
+									val y = it[1]
+									Pair(x, y)
+								}
+								?.toTypedArray()
+			}
+		}
+		
+	}.await()
 }
