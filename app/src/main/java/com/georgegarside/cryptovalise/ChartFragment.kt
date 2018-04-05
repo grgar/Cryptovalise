@@ -6,10 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.georgegarside.cryptovalise.model.API
+import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.formatter.IAxisValueFormatter
 import kotlinx.android.synthetic.main.fragment_chart.*
 
 class ChartFragment : Fragment() {
@@ -21,16 +23,34 @@ class ChartFragment : Fragment() {
 		val slug = API.coins.await()[symbol]?.slug ?: return
 		val prices = API.getPrices(slug)
 		
-		val price = prices[0].data ?: return
+		// Price in USD
+		val price = prices[API.PriceSeries.Price.toString()]?.data?.let {
+			val list = it.map { Entry((it.first / 1000).toFloat(), it.second.toFloat()) }
+			
+			LineDataSet(list, it.toString()).apply {
+				axisDependency = YAxis.AxisDependency.LEFT
+			}
+		}
 		
-		val priceList = price.map { Entry((it.first / 1000).toFloat(), it.second.toFloat()) }
+		val cap = prices[API.PriceSeries.Cap.toString()]?.data?.let {
+			val list = it.map { Entry((it.first / 1000).toFloat(), it.second.toFloat()) }
+			
+			LineDataSet(list, it.toString()).apply {
+				axisDependency = YAxis.AxisDependency.RIGHT
+			}
+		}
 		
-		val lineDataSet = LineDataSet(priceList, "Prices in USD")
-		lineDataSet.axisDependency = YAxis.AxisDependency.LEFT
+		chart.data = LineData(listOf(price, cap))
 		
-		chart.data = LineData(listOf(lineDataSet))
+		setChartStyle(chart)
+		
 		chart.invalidate()
 	}
+	
+	private fun setChartStyle(chart: LineChart) {
+	}
+	
+	val dateAxisFormatter = IAxisValueFormatter { value, axis -> TODO("Implement") }
 	
 	companion object {
 		/**

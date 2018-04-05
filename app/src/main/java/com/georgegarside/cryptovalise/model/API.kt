@@ -138,28 +138,26 @@ object API {
 		Bitcoin("price_btc"),
 		Cap("market_cap_usd");
 		
-		override fun toString(): String = this.key
-		
 		var data: PointArray? = null
 	}
 	
-	suspend fun getPrices(slug: String): Array<PriceSeries> = async {
+	suspend fun getPrices(slug: String): Map<String, PriceSeries> = async {
 		val data = call<SimpleMap>(endpoint = "coins/$slug/prices")
 		
-		arrayOf(PriceSeries.Price, PriceSeries.Bitcoin, PriceSeries.Cap).also {
-			it.forEach { series ->
-				
-				@Suppress("UNCHECKED_CAST")
-				series.data =
-						(data[series.toString()] as? ArrayList<ArrayList<Double>>)
-								?.map {
-									val x = it[0].toLong()
-									val y = it[1]
-									Pair(x, y)
-								}
-								?.toTypedArray()
-			}
-		}
+		arrayOf(PriceSeries.Price, PriceSeries.Bitcoin, PriceSeries.Cap).map {
+			
+			@Suppress("UNCHECKED_CAST")
+			it.data =
+					(data[it.key] as? ArrayList<ArrayList<Double>>)
+							?.map {
+								val x = it[0].toLong()
+								val y = it[1]
+								Pair(x, y)
+							}
+							?.toTypedArray()
+			
+			it.toString() to it
+		}.toMap()
 		
 	}.await()
 }
