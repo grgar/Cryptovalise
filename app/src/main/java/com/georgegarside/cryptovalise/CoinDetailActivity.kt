@@ -3,10 +3,12 @@ package com.georgegarside.cryptovalise
 import android.graphics.PorterDuff
 import android.os.Bundle
 import android.support.annotation.ColorRes
+import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.graphics.Palette
 import android.view.MenuItem
 import com.georgegarside.cryptovalise.presenter.replace
+import com.georgegarside.cryptovalise.presenter.rgbToSwatch
 import kotlinx.android.synthetic.main.activity_coin_detail.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
@@ -53,10 +55,18 @@ class CoinDetailActivity : AppCompatActivity() {
 		else -> super.onOptionsItemSelected(item)
 	}
 	
+	override fun onAttachFragment(childFragment: Fragment?) {
+		super.onAttachFragment(childFragment)
+		
+		if (childFragment is ChartFragment) {
+			childFragment.colour = rgbToSwatch(intent.getIntExtra(coinColourKey, 0))
+		}
+	}
+	
 	private fun setToolbarColour(rgb: Int) {
 		if (rgb == 0) return
 		
-		val dominantSwatch = Palette.from(listOf(Palette.Swatch(rgb, 1))).dominantSwatch ?: return
+		val dominantSwatch = rgbToSwatch(rgb) ?: return
 		
 		collapsingToolbar?.apply {
 			setBackgroundColor(dominantSwatch.rgb)

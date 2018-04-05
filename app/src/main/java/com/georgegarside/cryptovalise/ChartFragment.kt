@@ -1,11 +1,14 @@
 package com.georgegarside.cryptovalise
 
+import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.graphics.Palette
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.georgegarside.cryptovalise.model.API
+import com.georgegarside.cryptovalise.model.PointArray
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
@@ -13,8 +16,13 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IAxisValueFormatter
 import kotlinx.android.synthetic.main.fragment_chart.*
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 class ChartFragment : Fragment() {
+	
+	var colour: Palette.Swatch? = null
 	
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
 			inflater.inflate(R.layout.fragment_chart, container, false)
@@ -25,17 +33,19 @@ class ChartFragment : Fragment() {
 		
 		// Price in USD
 		val price = prices[API.PriceSeries.Price.toString()]?.data?.let {
-			val list = it.map { Entry((it.first / 1000).toFloat(), it.second.toFloat()) }
-			
-			LineDataSet(list, it.toString()).apply {
+			it.toEntryList().toLineDataSet(it.toString()).apply {
 				axisDependency = YAxis.AxisDependency.LEFT
 			}
 		}
 		
+		/*val bitcoin = prices[API.PriceSeries.Bitcoin.toString()]?.data?.let {
+			it.toEntryList().toLineDataSet(it.toString()).apply {
+				axisDependency = YAxis.AxisDependency.RIGHT
+			}
+		}*/
+		
 		val cap = prices[API.PriceSeries.Cap.toString()]?.data?.let {
-			val list = it.map { Entry((it.first / 1000).toFloat(), it.second.toFloat()) }
-			
-			LineDataSet(list, it.toString()).apply {
+			it.toEntryList().toLineDataSet(it.toString()).apply {
 				axisDependency = YAxis.AxisDependency.RIGHT
 			}
 		}
@@ -47,10 +57,41 @@ class ChartFragment : Fragment() {
 		chart.invalidate()
 	}
 	
-	private fun setChartStyle(chart: LineChart) {
+	private fun PointArray.toEntryList() = this.map { Entry((it.first / 1000).toFloat(), it.second.toFloat()) }
+	
+	private fun List<Entry>.toLineDataSet(label: String) = LineDataSet(this, label)
+	
+	private fun setChartStyle(chart: LineChart) = chart.apply {
+		xAxis.apply {
+			valueFormatter = dateAxisFormatter
+			
+			granularity = 1f
+			isGranularityEnabled = true
+			
+			setDrawAxisLine(false)
+			setDrawGridLines(false)
+			
+			textColor = colour?.rgb ?: textColor
+			
+			
+		}
+		
+		setTouchEnabled(true)
+		isDragEnabled = true
+		setScaleEnabled(true)
+		setPinchZoom(true)
+		
 	}
 	
-	val dateAxisFormatter = IAxisValueFormatter { value, axis -> TODO("Implement") }
+	private val dateAxisFormatter = IAxisValueFormatter { value, axis ->
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			val dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+			Instant.ofEpochSecond(value.toLong()).atZone(ZoneId.of("UTC")).format(dateTimeFormatter)
+		} else {
+			TODO("VERSION.SDK_INT < O")
+		}
+		
+	}
 	
 	companion object {
 		/**

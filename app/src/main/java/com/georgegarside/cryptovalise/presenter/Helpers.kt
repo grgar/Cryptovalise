@@ -4,6 +4,7 @@ import android.support.annotation.IdRes
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
+import android.support.v7.graphics.Palette
 import android.widget.TextView
 import com.georgegarside.cryptovalise.R
 import com.georgegarside.cryptovalise.model.API
@@ -44,3 +45,5 @@ fun TextView.setDeltaColour() = when {
 		// Neutral colour used for general text, which for a delta signifies neither increase nor decrease
 		setTextColor(ContextCompat.getColor(context, R.color.colorAccentText))
 }
+
+fun rgbToSwatch(rgb: Int) = Palette.from(listOf(Palette.Swatch(rgb, 1))).dominantSwatch
