@@ -51,25 +51,12 @@ class CoinDetailActivity : AppCompatActivity() {
 	/**
 	 * Perform extra handling of fragments within this activity: [ChartFragment].
 	 */
-	override fun onAttachFragment(childFragment: Fragment?) = when (childFragment) {
-		is ChartFragment -> {
-			// Pass all the intent extras received by this activity onwards
-			childFragment.arguments = intent.extras
-			//childFragment.colour = rgbToSwatch(intent.getIntExtra(coinColourKey, 0))
-			launch(UI) {
-				(chartFragment as? ChartFragment)?.loadChart(intent.getStringExtra(CoinDetailFragment.coinSymbolKey))
-			}
-			Unit
-		}
+	override fun onAttachFragment(childFragment: Fragment?) {
+		super.onAttachFragment(childFragment)
 		
-		is CoinDetailFragment -> {
-			childFragment.arguments = intent.extras
-		}
-		
-		else -> {
-		}
-		
-	}.also { super.onAttachFragment(childFragment) }
+		// Pass all the intent extras received by this activity onwards
+		childFragment?.arguments = intent.extras
+	}
 	
 	/**
 	 * Set the colour of the [toolbarDetail] and [collapsingToolbar] based on the given [rgb]. The given colour is only

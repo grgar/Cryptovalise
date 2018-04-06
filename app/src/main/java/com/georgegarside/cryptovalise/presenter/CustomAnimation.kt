@@ -82,3 +82,14 @@ fun ProgressBar.progressAnimate(delta: Int) {
 		this.animation = fadeOut
 	}
 }
+
+infix fun <T : View> View.now(show: T): T {
+	apply {
+		alpha = 0f
+		animation = fadeOut
+	}
+	return show.apply {
+		alpha = 1f
+		animation = fadeIn
+	}
+}
