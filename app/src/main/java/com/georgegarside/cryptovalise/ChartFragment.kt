@@ -37,54 +37,30 @@ class ChartFragment : Fragment() {
 	
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
 			inflater.inflate(R.layout.fragment_chart, container, false).also {
+				
+				// Set the colour palette for this fragment by creating a swatch from the passed colour
 				colour = rgbToSwatch(arguments?.getInt(CoinDetailActivity.coinColourKey, 0) ?: 0)
+				
+				// Load the chart content asynchronously
 				launch(UI) {
-					loadChart(arguments?.getString(CoinDetailFragment.coinSymbolKey, "") ?: return@launch)
+					// Determine what coin to show
+					val symbol = arguments?.getString(CoinDetailFragment.coinSymbolKey, "") ?: return@launch
+					// Load the content into the view
+					loadChart(symbol, API.PriceSeries.Price)
 				}
 			}
 	
-	suspend fun loadChart(symbol: String) {
+	private suspend fun loadChart(symbol: String, series: API.PriceSeries) {
 		val slug = API.coins.await()[symbol]?.slug ?: return
 		val prices = API.getPrices(slug)
 		
-		// Price in USD
-/*
-		val price = prices[API.PriceSeries.Price.toString()]?.data?.let {
-			it.toEntryList().toLineDataSet(API.PriceSeries.Price.toString()).apply {
-				axisDependency = YAxis.AxisDependency.LEFT
-			}
-		}
-*/
-		/**
-		 * Duration of 28 days
-		 */
-		val rangeStart = (System.currentTimeMillis()) - (1000L * 60 * 60 * 24 * 28)
-		
-		val price = prices[API.PriceSeries.Price.toString()]
+		val price = prices[series.toString()]
 				?.data
-				?.filter {
-					true //it.first > rangeStart
-				}
-				?.toTypedArray()
 				?.toEntryList()
-				?.toLineDataSet(API.PriceSeries.Price.toString())?.also {
+				?.toLineDataSet(series.toString())?.also {
 					setLineStyle(it)
 				}
 				?: return
-
-/*
-		val bitcoin = prices[API.PriceSeries.Bitcoin.toString()]?.data?.let {
-			it.toEntryList().toLineDataSet(it.toString()).apply {
-				axisDependency = YAxis.AxisDependency.RIGHT
-			}
-		}
-		
-		val cap = prices[API.PriceSeries.Cap.toString()]?.data?.let {
-			it.toEntryList().toLineDataSet(it.toString()).apply {
-				axisDependency = YAxis.AxisDependency.RIGHT
-			}
-		}
-*/
 		
 		chart.apply {
 			data = LineData(listOf(price))
@@ -103,7 +79,7 @@ class ChartFragment : Fragment() {
 	private fun List<Entry>.toLineDataSet(label: String) = LineDataSet(this, label)
 	
 	private fun setLineStyle(lineDataSet: LineDataSet) = lineDataSet.apply {
-		color = colour?.titleTextColor ?: return@apply
+		color = colour?.bodyTextColor ?: return@apply
 		setDrawCircles(false)
 		setDrawValues(false)
 		setDrawIcons(false)
