@@ -72,8 +72,6 @@ class ChartFragment : Fragment() {
 			setDrawGridLines(false)
 			
 			textColor = colour?.rgb ?: textColor
-			
-			
 		}
 		
 		setTouchEnabled(true)
@@ -91,21 +89,5 @@ class ChartFragment : Fragment() {
 			TODO("VERSION.SDK_INT < O")
 		}
 		
-	}
-	
-	companion object {
-		/**
-		 * Factory method to create a new instance
-		 */
-		// TODO: Rename and change types and number of parameters
-		fun newInstance(param1: String, param2: String) =
-				ChartFragment().apply {
-					arguments = Bundle().apply {
-						/*
-												putString(ARG_PARAM1, param1)
-												putString(ARG_PARAM2, param2)
-						*/
-					}
-				}
 	}
 }

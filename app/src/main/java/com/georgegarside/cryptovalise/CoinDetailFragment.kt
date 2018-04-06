@@ -20,32 +20,21 @@ import kotlinx.coroutines.experimental.launch
 
 class CoinDetailFragment : Fragment() {
 	companion object {
-		fun createFragment(bundle: Bundle) =
-				CoinDetailFragment().apply {
-					arguments = bundle
-				}
-		
 		const val coinSymbolKey = "coin_symbol"
-	}
-	
-	lateinit var coinSymbol: String
-	
-	override fun onCreate(savedInstanceState: Bundle?) {
-		super.onCreate(savedInstanceState)
-		
-		// Get coin ID for its info to be displayed in this fragment
-		coinSymbol = arguments?.getString(coinSymbolKey, "") ?: ""
-		
-		// If there is no passed coin ID to the fragment, finish the activity and return
-		if (coinSymbol.isBlank()) {
-			activity?.onBackPressed()
-			return
-		}
 	}
 	
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
 			inflater.inflate(R.layout.coin_detail, container, false).also {
 				launch(UI) {
+					// Get coin ID for its info to be displayed in this fragment
+					val coinSymbol = arguments?.getString(coinSymbolKey, "") ?: ""
+					
+					// If there is no passed coin ID to the fragment, finish the activity and return
+					if (coinSymbol.isBlank()) {
+						activity?.onBackPressed()
+						return@launch
+					}
+					
 					loadData(it, coinSymbol)
 				}
 			}

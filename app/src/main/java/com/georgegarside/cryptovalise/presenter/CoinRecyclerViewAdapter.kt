@@ -208,8 +208,11 @@ class CoinRecyclerViewAdapter(private val context: Context,
 			// Determine whether to use fragments directly or start an activity
 			if (isMasterDetail) {
 				// Create and set fragment for details
+				// TODO: Inflate fragment using layout
+/*
 				val fragment = CoinDetailFragment.createFragment(bundle)
 				(this@CoinRecyclerViewAdapter.context as? FragmentActivity)?.replace(R.id.coinDetail, fragment)
+*/
 			} else {
 				// Intent to detail activity
 				val intent = Intent(this@CoinRecyclerViewAdapter.context, CoinDetailActivity::class.java).apply {
