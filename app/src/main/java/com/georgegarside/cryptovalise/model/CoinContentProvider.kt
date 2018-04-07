@@ -23,14 +23,12 @@ class CoinContentProvider : ContentProvider() {
 	 * Operation which can be performed on the database, depending on the URI
 	 */
 	enum class Operation(val table: String, val uri: Uri) {
-		ALL("Coin", Uri.withAppendedPath(baseUri, "coin")),
-		SINGLE("Coin", Uri.withAppendedPath(baseUri, "coin"));
+		Coin("Coin", Uri.withAppendedPath(baseUri, "coin"));
 	}
 	
 	init {
 		// Set up URI paths
-		uriMatcher.addURI(authority, Operation.ALL.table.toLowerCase(), Operation.ALL.ordinal)
-		uriMatcher.addURI(authority, "${Operation.SINGLE.table.toLowerCase()}/#", Operation.SINGLE.ordinal)
+		uriMatcher.addURI(authority, Operation.Coin.table.toLowerCase(), Operation.Coin.ordinal)
 	}
 	
 	/**

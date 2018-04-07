@@ -4,20 +4,16 @@ import android.content.Context
 import android.content.Intent
 import android.database.Cursor
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.os.Bundle
-import android.support.annotation.ColorInt
-import android.support.v4.app.FragmentActivity
-import android.support.v4.content.ContextCompat
 import android.support.v7.graphics.Palette
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CursorAdapter
-import android.widget.TextView
 import com.georgegarside.cryptovalise.CoinDetailActivity
 import com.georgegarside.cryptovalise.CoinDetailFragment
+import com.georgegarside.cryptovalise.CoinListActivity
 import com.georgegarside.cryptovalise.R
 import com.georgegarside.cryptovalise.model.*
 import kotlinx.android.synthetic.main.coin_list_content.view.*
@@ -81,14 +77,23 @@ class CoinRecyclerViewAdapter(private val context: Context,
 		 */
 		override fun bindView(view: View, context: Context, cursor: Cursor) {
 			// Load basic info from database
+			val id = cursor.getInt(DBOpenHelper.Coin.ID.ordinal)
+			val name = cursor.getString(DBOpenHelper.Coin.Name.ordinal)
 			val symbol = cursor.getString(DBOpenHelper.Coin.Symbol.ordinal)
-			view.symbol.text = symbol
-			view.coinName.text = cursor.getString(DBOpenHelper.Coin.Name.ordinal)
 			
-			// Set click listeners
-			view.setOnClickListener { openInfo(symbol) }
-			
-			view.progressBar.progressAnimate(10)
+			view.apply {
+				this.symbol.text = symbol
+				coinName.text = name
+				
+				// Set on click listeners
+				setOnClickListener { openInfo(symbol) }
+				
+				(context as? CoinListActivity)?.apply {
+					buttonMore.setOnClickListener { showCoinMenu(buttonMore, id) }
+				}
+				
+				progressBar.progressAnimate(10)
+			}
 			
 			// These methods to load additional data are asynchronous and run simultaneously
 			loadPrices(view, symbol)

@@ -7,5 +7,5 @@
 		android:title="@string/add_coin_toolbar"
 		android:icon="@drawable/ic_add_white_24dp"
 		app:showAsAction="always"
-		android:id="@+id/add_currency"/>
+		android:id="@+id/menuAddCoin"/>
 </menu>

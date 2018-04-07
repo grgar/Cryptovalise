@@ -10,6 +10,7 @@ import android.support.v4.content.CursorLoader
 import android.support.v4.content.Loader
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.PopupMenu
 import android.support.v7.widget.RecyclerView
 import android.view.Menu
 import android.view.View
@@ -98,7 +99,7 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 	 * Returns a new [Loader] for the given [id]
 	 */
 	override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> = when (id) {
-		0 -> CursorLoader(this, CoinContentProvider.Operation.ALL.uri,
+		0 -> CursorLoader(this, CoinContentProvider.Operation.Coin.uri,
 				null, null, null, null)
 		
 		else -> throw Exception("Invalid loader ID")
@@ -162,7 +163,7 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 			// For each item in the menu, an appropriate click listener performs the associated action
 			toolbar.setOnMenuItemClickListener {
 				when (it.itemId) {
-					R.id.add_currency -> {
+					R.id.menuAddCoin -> {
 						showAddCoinDialog.onClick(toolbar.rootView)
 						true
 					}
@@ -195,7 +196,7 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 			
 			val cursor = contentResolver.query(
 					// Get all coins
-					CoinContentProvider.Operation.ALL.uri,
+					CoinContentProvider.Operation.Coin.uri,
 					// Get symbol column
 					arrayOf(DBOpenHelper.Coin.Symbol.toString()),
 					// Basic catch-all query
@@ -257,38 +258,22 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 	}
 	
 	/**
-	 * Add a coin to the user saved list of coins
+	 * Returns the index of the given [coinId] in the database.
 	 */
-	private fun addCoin(coin: API.Coin) {
-		// Perform database insertion of coin
-		val uri = contentResolver.insert(CoinContentProvider.Operation.ALL.uri, ContentValues().apply {
-			put(DBOpenHelper.Coin.ID.toString(), coin.id)
-			put(DBOpenHelper.Coin.Symbol.toString(), coin.symbol)
-			put(DBOpenHelper.Coin.Name.toString(), coin.name)
-		})
-		
-		// Loader needs to ensure it has loaded the latest data
-		// In this case, the loader is a custom CursorLoader, so the cursor is replaced by this method
-		// This method applies regardless of implementation though, so if the app replaces Cursor with something else in
-		// the future, this method still applies (and without any changes) since the loader always needs to be restarted
-		supportLoaderManager.restartLoader(0, null, this@CoinListActivity)
-		
-		// Get a cursor of coin IDs in the database, to look for the coin just added
+	private fun rowIndexOfCoin(coinId: Int): Int {
+		// Get a cursor of coin IDs in the database, to look for the coin
 		@SuppressLint("Recycle") // Android Studio bug, lint does not see `with` block as calling close on cursor
 		val cursor = contentResolver.query(
-				CoinContentProvider.Operation.ALL.uri,
+				CoinContentProvider.Operation.Coin.uri,
 				// Get IDs
 				arrayOf(DBOpenHelper.Coin.ID.toString()),
 				null, null, null)
-		
-		// The ID of the coin just inserted, since the Uri returned points to an Operation.SINGLE
-		val coinId = uri.lastPathSegment.toInt()
 		
 		// Determine the position the new coin was added into by moving cursor until row is found
 		// The number of steps the cursor moved determines the position
 		// This is a very lightweight procedure since the cursor's query has a projection limiting it to only the IDs
 		// without any extraneous coin data that would go unused
-		val position = with(cursor.apply { moveToFirst(); moveToPrevious() }) {
+		return with(cursor.apply { moveToFirst(); moveToPrevious() }) {
 			// Continue until the coin is found
 			while (moveToNext()) {
 				// If the coin has been found, stop iterating the cursor at this line
@@ -299,19 +284,80 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 			// Get and return the cursor's current position
 			position
 		}
+	}
+	
+	/**
+	 * Add a [coin] to the user's saved list of coins. This method inserts the [API.Coin] into the database using the
+	 * [CoinContentProvider], restarts the loader from [getSupportLoaderManager], informs the [adapter] that a coin has
+	 * been inserted and scrolls the [coinRecycler] to the new coin to display it to the user.
+	 */
+	private fun addCoin(coin: API.Coin) {
+		// Perform database insertion of coin
+		val coinId = contentResolver.insert(CoinContentProvider.Operation.Coin.uri, ContentValues().apply {
+			put(DBOpenHelper.Coin.ID.toString(), coin.id)
+			put(DBOpenHelper.Coin.Symbol.toString(), coin.symbol)
+			put(DBOpenHelper.Coin.Name.toString(), coin.name)
+		}).lastPathSegment.toInt()
+		
+		// Loader needs to ensure it has loaded the latest data
+		// In this case, the loader is a custom CursorLoader, so the cursor is replaced by this method
+		// This method applies regardless of implementation though, so if the app replaces Cursor with something else in
+		// the future, this method still applies (and without any changes) since the loader always needs to be restarted
+		supportLoaderManager.restartLoader(0, null, this@CoinListActivity)
+		
+		/**
+		 * Index of the coin's row in the database (and therefore adapter)
+		 */
+		val position = rowIndexOfCoin(coinId)
 		
 		launch(UI) {
 			// Add row to recycler view
 			adapter.notifyItemInserted(position)
-			// Scroll to display the newly inserted coin (scrolls just enough for the coin to be visible, from either direction)
+			// Scroll to display the inserted coin (scrolls just enough for the coin to be visible, from either direction)
 			coinRecycler.smoothScrollToPosition(position)
 		}
 	}
 	
 	/**
-	 * Remove a [API.Coin] from the list of coins given the [index] of the coin in the list
+	 * Remove a [API.Coin] from the list of coins given the [coinId] of the [API.Coin] in the database.
 	 */
-	private fun removeCoin(index: Int) {
-		TODO("Implement removing coin")
+	private fun removeCoin(coinId: Int) {
+		/**
+		 * The current index position of the coin to inform the adapter
+		 */
+		val position = rowIndexOfCoin(coinId)
+		
+		// Perform the deletion operation on the database
+		contentResolver.delete(CoinContentProvider.Operation.Coin.uri,
+				"${DBOpenHelper.Coin.ID} = ?", arrayOf(coinId.toString())).let {
+			
+			// If no coin was deleted, no need to continue with informing the UI
+			if (it == 0) return
+		}
+		
+		supportLoaderManager.restartLoader(0, null, this@CoinListActivity)
+		
+		launch(UI) {
+			adapter.notifyItemRemoved(position)
+		}
+	}
+	
+	/**
+	 * Show the [PopupMenu] for a [coinId]. The menu is attached to the [view] by inflating [R.menu.coin] and handling
+	 * clicks for the given coin's menu.
+	 */
+	fun showCoinMenu(view: View, coinId: Int) = PopupMenu(this, view).apply {
+		// Create a menu from layout
+		inflate(R.menu.coin)
+		
+		// Handle clicking an option from the menu
+		setOnMenuItemClickListener {
+			when (it.itemId) {
+				R.id.menuDeleteCoin -> removeCoin(coinId)
+			}
+			true
+		}
+		
+		show()
 	}
 }
