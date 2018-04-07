@@ -28,9 +28,6 @@ class CoinDetailActivity : AppCompatActivity() {
 		// Action bar up button to call onBackPressed
 		supportActionBar?.setDisplayHomeAsUpEnabled(true)
 		
-		// If an instance was saved previously, there is no need to recreate any content here
-		if (savedInstanceState != null) return
-		
 		// Set the colour as soon as possible as this defines the ‘theme’ of this activity
 		setToolbarColour(intent.getIntExtra(coinColourKey, 0))
 	}

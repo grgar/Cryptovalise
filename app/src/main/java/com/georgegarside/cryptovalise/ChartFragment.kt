@@ -1,11 +1,12 @@
 package com.georgegarside.cryptovalise
 
+import android.graphics.PorterDuff
 import android.icu.text.SimpleDateFormat
 import android.icu.util.TimeZone
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v7.graphics.Palette
+import android.support.v4.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +14,6 @@ import com.georgegarside.cryptovalise.model.API
 import com.georgegarside.cryptovalise.model.PointArray
 import com.georgegarside.cryptovalise.presenter.now
 import com.georgegarside.cryptovalise.presenter.rgbToSwatch
-import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.components.XAxis
@@ -33,8 +33,6 @@ import java.util.*
 
 class ChartFragment : Fragment() {
 	
-	var colour: Palette.Swatch? = null
-	
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
 			inflater.inflate(R.layout.fragment_chart, container, false).also {
 				
@@ -43,12 +41,18 @@ class ChartFragment : Fragment() {
 				
 				// Load the chart content asynchronously
 				launch(UI) {
+					colour?.titleTextColor?.let {
+						chartProgress?.indeterminateDrawable?.setColorFilter(it, PorterDuff.Mode.SRC_IN)
+					}
+					
 					// Determine what coin to show
 					val symbol = arguments?.getString(CoinDetailFragment.coinSymbolKey, "") ?: return@launch
 					// Load the content into the view
 					loadChart(symbol, API.PriceSeries.Price)
 				}
 			}
+	
+	var colour = rgbToSwatch(ContextCompat.getColor(context!!, android.R.color.darker_gray))
 	
 	private suspend fun loadChart(symbol: String, series: API.PriceSeries) {
 		val slug = API.coins.await()[symbol]?.slug ?: return
@@ -134,9 +138,7 @@ class ChartFragment : Fragment() {
 		isScaleXEnabled = true
 		isDoubleTapToZoomEnabled = false
 		isHighlightPerDragEnabled = false
-		isHighlightPerTapEnabled = false
-		
-		animateX(2000, Easing.EasingOption.EaseOutQuad)
+		//isHighlightPerTapEnabled = false
 	}
 	
 	private val dateAxisFormatter = IAxisValueFormatter { value, _ ->

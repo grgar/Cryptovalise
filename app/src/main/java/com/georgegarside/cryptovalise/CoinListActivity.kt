@@ -300,10 +300,12 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 			position
 		}
 		
-		// Add row to recycler view
-		adapter.notifyItemInserted(position)
-		// Scroll to display the newly inserted coin (scrolls just enough for the coin to be visible, from either direction)
-		coinRecycler.smoothScrollToPosition(position)
+		launch(UI) {
+			// Add row to recycler view
+			adapter.notifyItemInserted(position)
+			// Scroll to display the newly inserted coin (scrolls just enough for the coin to be visible, from either direction)
+			coinRecycler.smoothScrollToPosition(position)
+		}
 	}
 	
 	/**
