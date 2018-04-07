@@ -29,7 +29,9 @@ class CoinDetailActivity : AppCompatActivity() {
 		supportActionBar?.setDisplayHomeAsUpEnabled(true)
 		
 		// Set the colour as soon as possible as this defines the ‘theme’ of this activity
-		setToolbarColour(intent.getIntExtra(coinColourKey, 0))
+		intent.getIntExtra(coinColourKey, 0).let {
+			if (it != 0) setToolbarColour(it)
+		}
 	}
 	
 	/**
@@ -60,9 +62,6 @@ class CoinDetailActivity : AppCompatActivity() {
 	 * applied literally to the background, and then derived colours are set to other elements using [Palette].
 	 */
 	private fun setToolbarColour(rgb: Int) {
-		// Ignore no colour
-		if (rgb == 0) return
-		
 		// Convert the given RGB to a swatch for calculating associated colours based on this
 		val dominantSwatch = rgbToSwatch(rgb) ?: return
 		

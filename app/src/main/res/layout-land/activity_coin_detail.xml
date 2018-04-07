@@ -32,7 +32,8 @@
 				android:id="@+id/chartFragment"
 				app:layout_collapseParallaxMultiplier="1.0"
 				app:layout_collapseMode="parallax"
-				android:layout_marginBottom="80dp"/>
+				android:layout_marginBottom="80dp"
+				android:layout_marginTop="?android:attr/actionBarSize"/>
 
 			<android.support.v7.widget.Toolbar
 				android:id="@+id/toolbarDetail"

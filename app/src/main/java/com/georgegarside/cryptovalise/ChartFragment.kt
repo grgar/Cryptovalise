@@ -7,11 +7,14 @@ import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
+import android.support.v7.graphics.Palette
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.georgegarside.cryptovalise.model.API
+import com.georgegarside.cryptovalise.model.NumberFormat
 import com.georgegarside.cryptovalise.model.PointArray
+import com.georgegarside.cryptovalise.model.format
 import com.georgegarside.cryptovalise.presenter.now
 import com.georgegarside.cryptovalise.presenter.rgbToSwatch
 import com.github.mikephil.charting.charts.LineChart
@@ -22,7 +25,6 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IAxisValueFormatter
-import com.github.mikephil.charting.formatter.LargeValueFormatter
 import kotlinx.android.synthetic.main.fragment_chart.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
@@ -37,7 +39,9 @@ class ChartFragment : Fragment() {
 			inflater.inflate(R.layout.fragment_chart, container, false).also {
 				
 				// Set the colour palette for this fragment by creating a swatch from the passed colour
-				colour = rgbToSwatch(arguments?.getInt(CoinDetailActivity.coinColourKey, 0) ?: 0)
+				colour = arguments?.getInt(CoinDetailActivity.coinColourKey)?.let { rgb ->
+					if (rgb != 0) rgbToSwatch(rgb) else null
+				}
 				
 				// Load the chart content asynchronously
 				launch(UI) {
@@ -46,13 +50,13 @@ class ChartFragment : Fragment() {
 					}
 					
 					// Determine what coin to show
-					val symbol = arguments?.getString(CoinDetailFragment.coinSymbolKey, "") ?: return@launch
+					val symbol = arguments?.getString(CoinDetailFragment.coinSymbolKey) ?: return@launch
 					// Load the content into the view
 					loadChart(symbol, API.PriceSeries.Price)
 				}
 			}
 	
-	var colour = rgbToSwatch(ContextCompat.getColor(context!!, android.R.color.darker_gray))
+	private var colour: Palette.Swatch? = null
 	
 	private suspend fun loadChart(symbol: String, series: API.PriceSeries) {
 		val slug = API.coins.await()[symbol]?.slug ?: return
@@ -73,6 +77,7 @@ class ChartFragment : Fragment() {
 			
 			invalidate()
 			moveViewToX(Float.MAX_VALUE)
+			setVisibleXRangeMaximum((visibleXRange * 12.5).toFloat())
 			
 			chartProgress now this
 		}
@@ -83,7 +88,9 @@ class ChartFragment : Fragment() {
 	private fun List<Entry>.toLineDataSet(label: String) = LineDataSet(this, label)
 	
 	private fun setLineStyle(lineDataSet: LineDataSet) = lineDataSet.apply {
-		color = colour?.bodyTextColor ?: return@apply
+		color = colour?.bodyTextColor
+				?: context?.let { ContextCompat.getColor(it, android.R.color.black) }
+				?: color
 		setDrawCircles(false)
 		setDrawValues(false)
 		setDrawIcons(false)
@@ -167,6 +174,6 @@ class ChartFragment : Fragment() {
 	}
 	
 	private val priceValueFormatter = IAxisValueFormatter { value, axis ->
-		"$" + LargeValueFormatter().getFormattedValue(value, axis).capitalize()
+		"$" + value.toDouble().format(NumberFormat.Large)
 	}
 }
