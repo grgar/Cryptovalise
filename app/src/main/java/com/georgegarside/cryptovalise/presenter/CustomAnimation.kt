@@ -78,18 +78,21 @@ fun ProgressBar.progressAnimate(delta: Int) {
 	}
 	
 	// Fade out progress bar if completed
-	if (newProgress >= this.max) {
-		this.animation = fadeOut
+	if (newProgress >= max) {
+		animation = fadeOut
+		
+		// Fix for AlphaAnimation fillAfter not remaining filled if view is not recycled off-screen
+		postDelayed({ alpha = 0f }, 600)
 	}
 }
 
 infix fun <T : View> View.now(show: T): T {
 	apply {
-		alpha = 0f
 		animation = fadeOut
+		alpha = 0f
 	}
 	return show.apply {
-		alpha = 1f
 		animation = fadeIn
+		alpha = 1f
 	}
 }
