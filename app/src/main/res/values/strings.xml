@@ -23,6 +23,5 @@
 	<string name="coin_detail_rank">Rank: #%1$d</string>
 	<string name="coin_detail_dominance_title">Dominance</string>
 	<string name="coin_detail_cmc_credit">CoinMarketCap Data</string>
-	<string name="coin_detail_chart_timeframe">28 days</string>
 	<string name="coin_menu_delete">Delete</string>
 </resources>

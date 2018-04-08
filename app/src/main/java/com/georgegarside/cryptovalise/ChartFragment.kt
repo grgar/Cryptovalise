@@ -17,6 +17,7 @@ import com.georgegarside.cryptovalise.model.PointArray
 import com.georgegarside.cryptovalise.model.format
 import com.georgegarside.cryptovalise.presenter.now
 import com.georgegarside.cryptovalise.presenter.rgbToSwatch
+import com.github.mikephil.charting.charts.Chart
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.components.XAxis
@@ -25,6 +26,8 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IAxisValueFormatter
+import com.github.mikephil.charting.highlight.Highlight
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import kotlinx.android.synthetic.main.fragment_chart.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
@@ -96,16 +99,12 @@ class ChartFragment : Fragment() {
 		setDrawIcons(false)
 	}
 	
-	private fun setChartStyle(chart: LineChart) = chart.apply {
+	private fun setChartStyle(chart: LineChart) = chart.apply chart@{
 		setDrawBorders(false)
 		setDrawGridBackground(false)
 		
 		setNoDataText("")
-		description = Description().apply desc@{
-			text = context.getString(R.string.coin_detail_chart_timeframe)
-			textSize = 12f
-			textColor = colour?.bodyTextColor ?: textColor
-		}
+		setDescription("")
 		
 		isAutoScaleMinMaxEnabled = true
 		setVisibleXRangeMaximum(60f * 60 * 24 * 28)
@@ -145,35 +144,54 @@ class ChartFragment : Fragment() {
 		isScaleXEnabled = true
 		isDoubleTapToZoomEnabled = false
 		isHighlightPerDragEnabled = false
-		//isHighlightPerTapEnabled = false
+		isHighlightPerTapEnabled = true
+		
+		setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
+			override fun onNothingSelected() = this@chart.setDescription("")
+			
+			override fun onValueSelected(e: Entry?, h: Highlight?) = e?.let {
+				this@chart.setDescription("$${e.y} on ${dateFormat(e.x, "yyyy-MM-dd HH:mm")}")
+			} ?: Unit
+		})
 	}
 	
-	private val dateAxisFormatter = IAxisValueFormatter { value, _ ->
-		val datePattern = "yyyy-MM-dd"
-		
-		when {
-			Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
-				Instant
-						.ofEpochSecond(value.toLong())
-						.atZone(ZoneId.of(TimeZone.GMT_ZONE.id))
-						.format(DateTimeFormatter.ofPattern(datePattern))
-			}
-			
-			Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> {
-				SimpleDateFormat(datePattern, Locale.ENGLISH)
-						.apply { timeZone = TimeZone.GMT_ZONE }
-						.format(Date(value.toLong()))
-			}
-			
-			else -> {
-				java.text.SimpleDateFormat(datePattern, Locale.ENGLISH)
-						.apply { timeZone = java.util.TimeZone.getTimeZone("GMT") }
-						.format(Date(value.toLong()))
-			}
+	/**
+	 * George set
+	 */
+	private fun Chart<*>.setDescription(string: String) {
+		description = Description().apply {
+			text = string
+			textSize = 12f
+			textColor = colour?.bodyTextColor ?: textColor
 		}
 	}
 	
 	private val priceValueFormatter = IAxisValueFormatter { value, axis ->
 		"$" + value.toDouble().format(NumberFormat.Large)
+	}
+	
+	private val dateAxisFormatter = IAxisValueFormatter { value, _ ->
+		dateFormat(value, "yyyy-MM-dd")
+	}
+	
+	private fun dateFormat(value: Float, datePattern: String) = when {
+		Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
+			Instant
+					.ofEpochSecond(value.toLong())
+					.atZone(ZoneId.of(TimeZone.GMT_ZONE.id))
+					.format(DateTimeFormatter.ofPattern(datePattern))
+		}
+		
+		Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> {
+			SimpleDateFormat(datePattern, Locale.ENGLISH)
+					.apply { timeZone = TimeZone.GMT_ZONE }
+					.format(Date(value.toLong()))
+		}
+		
+		else -> {
+			java.text.SimpleDateFormat(datePattern, Locale.ENGLISH)
+					.apply { timeZone = java.util.TimeZone.getTimeZone("GMT") }
+					.format(Date(value.toLong()))
+		}
 	}
 }
