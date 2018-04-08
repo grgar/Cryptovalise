@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
 import android.support.v7.graphics.Palette
+import android.view.View
 import android.widget.TextView
 import com.georgegarside.cryptovalise.R
 import com.georgegarside.cryptovalise.model.API

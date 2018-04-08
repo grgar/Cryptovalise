@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	tools:showIn="@layout/coin_list_content">
+
+	<LinearLayout
+		android:orientation="vertical"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:id="@+id/linearLayout"
+		>
+
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:id="@+id/priceDollars"
+			tools:text="$10,000"
+			android:textSize="21sp"
+			tools:layout_editor_absoluteY="79dp"
+			tools:layout_editor_absoluteX="16dp"
+			android:textAlignment="textEnd"/>
+
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:id="@+id/pricePounds"
+			tools:text="£10,000"
+			android:textSize="21sp"
+			android:textAlignment="textEnd"
+			tools:layout_editor_absoluteY="104dp"
+			tools:layout_editor_absoluteX="16dp"/>
+
+	</LinearLayout>
+
+	<GridLayout
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:columnCount="3"
+		android:id="@+id/gridLayout"
+		app:layout_constraintBottom_toBottomOf="@+id/linearLayout"
+		app:layout_constraintStart_toEndOf="@+id/linearLayout"
+		app:layout_constraintEnd_toEndOf="parent"
+		>
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:id="@+id/deltaHeader1h"
+			android:text="@string/delta_1h"
+			android:textAlignment="textEnd"
+			tools:layout_editor_absoluteY="81dp"
+			tools:layout_editor_absoluteX="142dp"
+			android:alpha="0"
+			tools:alpha="1"
+			android:layout_gravity="end"
+			android:layout_columnWeight="1"/>
+
+		<TextView
+			android:text="@string/delta_24h"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:id="@+id/deltaHeader24h"
+			android:textAlignment="textEnd"
+			tools:layout_editor_absoluteY="81dp"
+			tools:layout_editor_absoluteX="190dp"
+			android:alpha="0"
+			tools:alpha="1"
+			android:layout_gravity="end"
+			android:layout_columnWeight="1"/>
+
+		<TextView
+			android:text="@string/delta_7d"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:id="@+id/deltaHeader7d"
+			android:textAlignment="textEnd"
+			tools:layout_editor_absoluteY="81dp"
+			tools:layout_editor_absoluteX="248dp"
+			tools:alpha="1"
+			android:alpha="0"
+			android:layout_gravity="end"
+			android:layout_columnWeight="1"/>
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:id="@+id/delta1h"
+			tools:text="▽10"
+			android:textSize="18sp"
+			tools:layout_editor_absoluteY="100dp"
+			tools:layout_editor_absoluteX="150dp"
+			android:layout_gravity="end"/>
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:id="@+id/delta24h"
+			android:textAlignment="textEnd"
+			tools:text="▲10"
+			android:textSize="18sp"
+			tools:layout_editor_absoluteY="100dp"
+			tools:layout_editor_absoluteX="210dp"
+			android:layout_gravity="end"/>
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:id="@+id/delta7d"
+			android:textAlignment="textEnd"
+			tools:text="▽10"
+			android:textSize="18sp"
+			tools:layout_editor_absoluteY="100dp"
+			tools:layout_editor_absoluteX="256dp"
+			android:layout_gravity="end"/>
+
+	</GridLayout>
+
+</android.support.constraint.ConstraintLayout>

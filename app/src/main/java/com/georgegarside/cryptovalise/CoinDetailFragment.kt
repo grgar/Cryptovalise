@@ -12,9 +12,10 @@ import android.view.ViewGroup
 import com.georgegarside.cryptovalise.model.API
 import com.georgegarside.cryptovalise.model.NumberFormat
 import com.georgegarside.cryptovalise.model.format
+import com.georgegarside.cryptovalise.presenter.CoinRecyclerViewAdapter
 import com.georgegarside.cryptovalise.presenter.setDeltaColour
 import kotlinx.android.synthetic.main.activity_coin_detail.*
-import kotlinx.android.synthetic.main.coin_detail.view.*
+import kotlinx.android.synthetic.main.fragment_coin_detail.view.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 
@@ -24,7 +25,7 @@ class CoinDetailFragment : Fragment() {
 	}
 	
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-			inflater.inflate(R.layout.coin_detail, container, false).also {
+			inflater.inflate(R.layout.fragment_coin_detail, container, false).also {
 				launch(UI) {
 					// Get coin ID for its info to be displayed in this fragment
 					val coinSymbol = arguments?.getString(coinSymbolKey, "") ?: ""
@@ -46,6 +47,9 @@ class CoinDetailFragment : Fragment() {
 		}
 		
 		activity?.collapsingToolbar?.title = coin.name
+		
+		// Load prices
+		CoinRecyclerViewAdapter.loadPrices(view, symbol)
 		
 		// Coin description abbreviated
 		val shortDescription = coin.description

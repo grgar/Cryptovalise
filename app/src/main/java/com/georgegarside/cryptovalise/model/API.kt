@@ -82,55 +82,61 @@ object API {
 		fuel.request(Method.GET, endpoint, data).responseObject<T>().third.fold(success = {
 			return it
 		}, failure = {
-			return mapOf<String, String>("error" to it.localizedMessage) as T
+			return mapOf<Any, Any>() as T
 		})
 	}
 	
 	private fun download(path: String) = fuel.request(Method.GET, path).response().third
 	
-	private fun getCoins(): Array<Coin> = call<MapArrayListMap>(endpoint = "coins")["data"]?.map {
-		// Extract further data as objects
-		@Suppress("UNCHECKED_CAST")
-		val attributes = it["attributes"] as LinkedTreeMap<String, Any>
-		@Suppress("UNCHECKED_CAST")
-		val links = attributes["links"] as LinkedTreeMap<String, String>
-		
-		// Attributes which require special handling e.g. casting
-		val id = (it["id"] as String).toInt()
-		
-		// Create coin
-		Coin(id,
-				symbol = attributes["symbol"] as String,
-				name = attributes["currency"] as String,
-				slug = attributes["slug"] as String,
-				description = attributes["description"] as String,
-				price = Coin.Price(
-						usd = attributes["price-usd"] as Double,
-						btc = attributes["price-btc"] as Double
-				),
-				delta = Coin.Delta(
-						hour = Pair(attributes["percent-change-1h"] as Double, attributes["point-change-1h"] as Double),
-						day = Pair(attributes["percent-change-24h"] as Double, attributes["point-change-24h"] as Double),
-						week = Pair(attributes["percent-change-7d"] as Double, attributes["point-change-7d"] as Double),
-						cap = Pair(attributes["market-cap-percent-change"] as Double,
-								(attributes["market-cap-usd"] as Double).toLong()),
-						vol = Pair(attributes["volume-percent-change"] as Double,
-								(attributes["volume-24h-usd"] as Double).toLong()),
-						dom = Pair(attributes["dominance-percent-change"] as Double, (attributes["rank"] as Double).toInt())
-				),
-				supply = (attributes["available-supply"] as Double).toLong(),
-				total = (attributes["max-supply"] as Double).toLong()
-		)
-	}?.toTypedArray() ?: arrayOf()
-	
-	private fun getCurrencies(): Array<Currency> {
-		return call<MapArrayListMap>(endpoint = "currencies")["currencies"]?.map {
-			Currency(
-					code = it["code"] as String,
-					name = it["full_name"] as String,
-					rate = it["exchange_rate"] as Double
+	private fun getCoins(): Array<Coin> = call<MapArrayListMap>(endpoint = "coins").let {
+		if (!it.containsKey("data")) return@let arrayOf()
+		it["data"]?.map {
+			// Extract further data as objects
+			@Suppress("UNCHECKED_CAST")
+			val attributes = it["attributes"] as LinkedTreeMap<String, Any>
+			@Suppress("UNCHECKED_CAST")
+			val links = attributes["links"] as LinkedTreeMap<String, String>
+			
+			// Attributes which require special handling e.g. casting
+			val id = (it["id"] as String).toInt()
+			
+			// Create coin
+			Coin(id,
+					symbol = attributes["symbol"] as String,
+					name = attributes["currency"] as String,
+					slug = attributes["slug"] as String,
+					description = attributes["description"] as String,
+					price = Coin.Price(
+							usd = attributes["price-usd"] as Double,
+							btc = attributes["price-btc"] as Double
+					),
+					delta = Coin.Delta(
+							hour = Pair(attributes["percent-change-1h"] as Double, attributes["point-change-1h"] as Double),
+							day = Pair(attributes["percent-change-24h"] as Double, attributes["point-change-24h"] as Double),
+							week = Pair(attributes["percent-change-7d"] as Double, attributes["point-change-7d"] as Double),
+							cap = Pair(attributes["market-cap-percent-change"] as Double,
+									(attributes["market-cap-usd"] as Double).toLong()),
+							vol = Pair(attributes["volume-percent-change"] as Double,
+									(attributes["volume-24h-usd"] as Double).toLong()),
+							dom = Pair(attributes["dominance-percent-change"] as Double, (attributes["rank"] as Double).toInt())
+					),
+					supply = (attributes["available-supply"] as Double).toLong(),
+					total = (attributes["max-supply"] as Double).toLong()
 			)
 		}?.toTypedArray() ?: arrayOf()
+	}
+	
+	private fun getCurrencies(): Array<Currency> {
+		return call<MapArrayListMap>(endpoint = "currencies").let {
+			if (!it.containsKey("currencies")) return@let arrayOf()
+			it["currencies"]?.map {
+				Currency(
+						code = it["code"] as String,
+						name = it["full_name"] as String,
+						rate = it["exchange_rate"] as Double
+				)
+			}?.toTypedArray() ?: arrayOf()
+		}
 	}
 	
 	enum class PriceSeries(val key: String) {

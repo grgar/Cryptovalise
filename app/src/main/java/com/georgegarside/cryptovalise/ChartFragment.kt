@@ -166,7 +166,7 @@ class ChartFragment : Fragment() {
 		}
 	}
 	
-	private val priceValueFormatter = IAxisValueFormatter { value, axis ->
+	private val priceValueFormatter = IAxisValueFormatter { value, _ ->
 		"$" + value.toDouble().format(NumberFormat.Large)
 	}
 	

@@ -17,6 +17,7 @@ import com.georgegarside.cryptovalise.CoinListActivity
 import com.georgegarside.cryptovalise.R
 import com.georgegarside.cryptovalise.model.*
 import kotlinx.android.synthetic.main.coin_list_content.view.*
+import kotlinx.android.synthetic.main.include_coin_prices.view.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
@@ -85,6 +86,9 @@ class CoinRecyclerViewAdapter(private val context: Context,
 				this.symbol.text = symbol
 				coinName.text = name
 				
+				// BTC is always visible in the list
+				if (symbol == "BTC") buttonMore?.visibility = View.INVISIBLE
+				
 				// Set on click listeners
 				setOnClickListener { openInfo(symbol) }
 				
@@ -127,73 +131,6 @@ class CoinRecyclerViewAdapter(private val context: Context,
 	override fun getItemCount(): Int = cursorAdapter.count
 	
 	/**
-	 * Load the latest price information for the coin with [symbol] in view from the [API] into the [view]. The view must
-	 * be an inflation of [R.layout.coin_list_content] for the view data to be bound into the correct locations. This
-	 * method runs a coroutine in the [UI] handler context, so this runs asynchronously to other coin cards being loaded.
-	 *
-	 * TODO: Remove need for symbol parameter and get symbol from view
-	 */
-	fun loadPrices(view: View, symbol: String) = launch(UI) {
-		// Get the coin whose data this method will load into the view
-		val coin = API.coins.await()[symbol] ?: return@launch
-		
-		// Confirm the view we're binding to has the correct symbol for the data to be inserted
-		if (view.symbol.text != symbol) return@launch
-		
-		// Price in Dollars
-		view.priceDollars.fadeInText(coin.price.usdPrice)
-		
-		// Price deltas
-		with(view.delta1h) {
-			fadeInText(coin.delta.hour.first.format(NumberFormat.Delta), view.deltaHeader1h)
-			setDeltaColour()
-		}
-		with(view.delta24h) {
-			fadeInText(coin.delta.day.first.format(NumberFormat.Delta), view.deltaHeader24h)
-			setDeltaColour()
-		}
-		with(view.delta7d) {
-			fadeInText(coin.delta.week.first.format(NumberFormat.Delta), view.deltaHeader7d)
-			setDeltaColour()
-		}
-		view.progressBar.progressAnimate(35)
-		
-		// Price in Pounds
-		view.pricePounds.fadeInText(coin.price.gbpPrice.await())
-		view.progressBar.progressAnimate(35)
-	}
-	
-	/**
-	 * Get a [Bitmap] logo for the given [API.Coin] [symbol].
-	 */
-	private suspend fun getLogo(symbol: String): Bitmap? = API.coins.await()[symbol]?.logo?.await()
-	
-	/**
-	 * Load the coin's logo into the [view].
-	 */
-	fun loadLogo(view: View, symbol: String) = launch(UI) {
-		val logo = getLogo(symbol) ?: return@launch
-		
-		// After asynchronous operations, need to check whether the view has been bound to a different coin
-		if (view.symbol.text != symbol) return@launch
-		
-		// The logo returned is a bitmap which can be placed directly into the view
-		view.icon.setImageBitmap(logo)
-		
-		// Animation and progress update
-		view.icon.animation = CustomAnimation.fadeIn
-		view.progressBar.progressAnimate(100)
-	}
-	
-	/**
-	 * Calculate the dominant [Palette.Swatch] RGB from the coin's [getLogo]. Returns the swatch as RGB.
-	 */
-	private suspend fun getLogoColour(coinSymbol: String): Int? {
-		val logo = getLogo(coinSymbol) ?: return null
-		return Palette.from(logo).generate().dominantSwatch?.rgb
-	}
-	
-	/**
 	 * Segue to the coin info. On mobile, this starts an [Intent] to the [CoinDetailActivity] containing a
 	 * [CoinDetailFragment]. On tablet, this directly replaces [R.id.coinDetail] with [CoinDetailFragment].
 	 */
@@ -225,6 +162,77 @@ class CoinRecyclerViewAdapter(private val context: Context,
 				}
 				this@CoinRecyclerViewAdapter.context.startActivity(intent)
 			}
+		}
+	}
+	
+	companion object DataBinder {
+		/**
+		 * Get a [Bitmap] logo for the given [API.Coin] [symbol].
+		 */
+		private suspend fun getLogo(symbol: String): Bitmap? = API.coins.await()[symbol]?.logo?.await()
+		
+		/**
+		 * Calculate the dominant [Palette.Swatch] RGB from the coin's [getLogo]. Returns the swatch as RGB.
+		 */
+		private suspend fun getLogoColour(coinSymbol: String): Int? {
+			val logo = getLogo(coinSymbol) ?: return null
+			return Palette.from(logo).generate().dominantSwatch?.rgb
+		}
+		
+		/**
+		 * Load the latest price information for the coin with [symbol] in view from the [API] into the [view]. The view must
+		 * be an inflation of [R.layout.coin_list_content] for the view data to be bound into the correct locations. This
+		 * method runs a coroutine in the [UI] handler context, so this runs asynchronously to other coin cards being loaded.
+		 */
+		fun loadPrices(view: View, symbol: String) = launch(UI) {
+			// Get the coin whose data this method will load into the view
+			val coin = API.coins.await()[symbol] ?: return@launch
+			
+			// Confirm the view we're binding to has the correct symbol for the data to be inserted
+			view.symbol?.let {
+				if (it.text != symbol) return@launch
+			}
+			
+			with(view) {
+				
+				// Price in Dollars
+				priceDollars.fadeInText(coin.price.usdPrice)
+				
+				// Price deltas
+				mapOf(
+						coin.delta.hour.first to Pair(delta1h, deltaHeader1h),
+						coin.delta.day.first to Pair(delta24h, deltaHeader24h),
+						coin.delta.week.first to Pair(delta7d, deltaHeader7d)
+				).forEach {
+					it.value.first.apply {
+						fadeInText(it.key.format(NumberFormat.Delta), it.value.second)
+						setDeltaColour()
+					}
+				}
+				
+				progressBar?.progressAnimate(35)
+				
+				// Price in Pounds
+				pricePounds.fadeInText(coin.price.gbpPrice.await())
+				progressBar?.progressAnimate(35)
+			}
+		}
+		
+		/**
+		 * Load the coin's logo into the [view].
+		 */
+		fun loadLogo(view: View, symbol: String) = launch(UI) {
+			val logo = getLogo(symbol) ?: return@launch
+			
+			// After asynchronous operations, need to check whether the view has been bound to a different coin
+			if (view.symbol.text != symbol) return@launch
+			
+			// The logo returned is a bitmap which can be placed directly into the view
+			view.icon.setImageBitmap(logo)
+			
+			// Animation and progress update
+			view.icon.animation = CustomAnimation.fadeIn
+			view.progressBar.progressAnimate(100)
 		}
 	}
 }
