@@ -8,8 +8,6 @@ import android.support.v7.graphics.Palette
 import android.view.MenuItem
 import com.georgegarside.cryptovalise.presenter.rgbToSwatch
 import kotlinx.android.synthetic.main.activity_coin_detail.*
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
 
 /**
  * An activity representing a single Coin detail screen. This activity is only used on narrow width devices.

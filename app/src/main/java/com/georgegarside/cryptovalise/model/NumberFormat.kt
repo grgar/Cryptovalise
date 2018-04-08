@@ -57,7 +57,7 @@ enum class NumberFormat(pattern: String) {
 	companion object {
 		/**
 		 * Format a given [number] as a [Double] of any size.
-		 * The method chooses the most appropriate formatter, either [Format.Small] or [Format.Normal].
+		 * The method chooses the most appropriate formatter, either [NumberFormat.Small] or [NumberFormat.Normal].
 		 */
 		fun format(number: Double): String = when {
 			number < 10 -> Small.format(number)
