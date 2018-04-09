@@ -155,9 +155,6 @@ class ChartFragment : Fragment() {
 		})
 	}
 	
-	/**
-	 * George set
-	 */
 	private fun Chart<*>.setDescription(string: String) {
 		description = Description().apply {
 			text = string

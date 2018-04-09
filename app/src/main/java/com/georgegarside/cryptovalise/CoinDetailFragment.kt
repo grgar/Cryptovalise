@@ -5,7 +5,9 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
+import android.support.customtabs.CustomTabsIntent
 import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.View
@@ -19,6 +21,8 @@ import kotlinx.android.synthetic.main.activity_coin_detail.*
 import kotlinx.android.synthetic.main.fragment_coin_detail.view.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
+import saschpe.android.customtabs.CustomTabsHelper
+import saschpe.android.customtabs.WebViewFallback
 
 class CoinDetailFragment : Fragment() {
 	companion object {
@@ -99,12 +103,26 @@ class CoinDetailFragment : Fragment() {
 			rank.text = getString(R.string.coin_detail_rank, coin.delta.dom.second)
 			
 			// Coin links
-			websiteDomain.text = coin.links.website?.host
-			websiteVisit.setOnClickListener {
-				TODO("Open URL")
+			coin.links.website?.let { uri ->
+				websiteDomain.text = uri.host
+				launch(UI) {
+					val colour = CoinRecyclerViewAdapter.getLogoColour(symbol)
+					websiteVisit.setOnClickListener { openUri(uri, colour) }
+				}
+			} ?: run {
+				websiteDomain.text = context.getString(R.string.coin_detail_links_none)
+				websiteVisit.visibility = View.GONE
 			}
-			whitepaperVisit.setOnClickListener {
-				TODO("Open URL")
+			
+			coin.links.whitepaper?.let { uri ->
+				launch(UI) {
+					val colour = CoinRecyclerViewAdapter.getLogoColour(symbol)
+					whitepaperVisit.setOnClickListener { openUri(uri, colour) }
+				}
+			} ?: whitepaperVisit.apply {
+				text = context.getString(R.string.coin_detail_links_none)
+				setTextColor(ContextCompat.getColor(context, android.R.color.darker_gray))
+				isClickable = false
 			}
 		}
 	}
@@ -121,5 +139,16 @@ class CoinDetailFragment : Fragment() {
 			setNeutralButton(getString(R.string.close), { dialog, _ -> dialog.dismiss() })
 			show()
 		}
+	}
+	
+	private fun openUri(uri: Uri, colour: Int? = null) {
+		if (context == null) return
+		val intent = CustomTabsIntent.Builder()
+				.setToolbarColor(colour ?: ContextCompat.getColor(context!!, R.color.colorPrimaryDark))
+				.addDefaultShareMenuItem()
+				.setShowTitle(true)
+				.setInstantAppsEnabled(true)
+				.build()
+		CustomTabsHelper.openCustomTab(context!!, intent, uri, WebViewFallback())
 	}
 }

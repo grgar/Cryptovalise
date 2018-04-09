@@ -27,4 +27,7 @@
 	<string name="close">Close</string>
 	<string name="coin_detail_links_visit">Visit</string>
 	<string name="coin_detail_links_whitepaper">Read Whitepaper</string>
+	<string name="coin_detail_links_none">None</string>
+	<string name="coin_detail_links_whitepaper_title">Whitepaper</string>
+	<string name="coin_detail_links_title">Website</string>
 </resources>

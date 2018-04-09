@@ -1,6 +1,7 @@
 package com.georgegarside.cryptovalise
 
 import android.graphics.PorterDuff
+import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
@@ -8,6 +9,7 @@ import android.support.v7.graphics.Palette
 import android.view.MenuItem
 import com.georgegarside.cryptovalise.presenter.rgbToSwatch
 import kotlinx.android.synthetic.main.activity_coin_detail.*
+import kotlinx.android.synthetic.main.activity_coin_list.view.*
 
 /**
  * An activity representing a single Coin detail screen. This activity is only used on narrow width devices.
@@ -73,10 +75,14 @@ class CoinDetailActivity : AppCompatActivity() {
 		
 		// Apply colours to app bar
 		toolbarDetail?.apply {
-			// TODO: Determine way to set colour of status bar
-			//setBackgroundColor(dominantSwatch.rgb)
-			//it.setStatusBarScrimColor(dominantSwatch.bodyTextColor)
 			navigationIcon?.setColorFilter(dominantSwatch.bodyTextColor, PorterDuff.Mode.SRC_ATOP)
+		}
+		
+		// Apply colours to status bar
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			window.statusBarColor = dominantSwatch.titleTextColor
+		} else {
+			collapsingToolbar.setStatusBarScrimColor(dominantSwatch.titleTextColor)
 		}
 	}
 }

@@ -174,7 +174,7 @@ class CoinRecyclerViewAdapter(private val context: Context,
 		/**
 		 * Calculate the dominant [Palette.Swatch] RGB from the coin's [getLogo]. Returns the swatch as RGB.
 		 */
-		private suspend fun getLogoColour(coinSymbol: String): Int? {
+		suspend fun getLogoColour(coinSymbol: String): Int? {
 			val logo = getLogo(coinSymbol) ?: return null
 			return Palette.from(logo).generate().dominantSwatch?.rgb
 		}
