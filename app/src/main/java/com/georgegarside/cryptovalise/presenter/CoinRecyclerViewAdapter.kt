@@ -1,10 +1,12 @@
 package com.georgegarside.cryptovalise.presenter
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.support.v4.app.FragmentActivity
 import android.support.v7.graphics.Palette
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -90,7 +92,9 @@ class CoinRecyclerViewAdapter(private val context: Context,
 				if (symbol == "BTC") buttonMore?.visibility = View.INVISIBLE
 				
 				// Set on click listeners
-				setOnClickListener { openInfo(symbol) }
+				setOnClickListener {
+					(this@CoinRecyclerViewAdapter.context as? CoinListActivity)?.openInfo(symbol)
+				}
 				
 				(context as? CoinListActivity)?.apply {
 					buttonMore.setOnClickListener { showCoinMenu(buttonMore, id) }
@@ -129,41 +133,6 @@ class CoinRecyclerViewAdapter(private val context: Context,
 	
 	// Documentation inherited
 	override fun getItemCount(): Int = cursorAdapter.count
-	
-	/**
-	 * Segue to the coin info. On mobile, this starts an [Intent] to the [CoinDetailActivity] containing a
-	 * [CoinDetailFragment]. On tablet, this directly replaces [R.id.coinDetail] with [CoinDetailFragment].
-	 */
-	fun openInfo(coinSymbol: String) = async {
-		// Create the bundle of data to be passed to the intent or fragment
-		val bundle = Bundle().apply {
-			// The coin's symbol is passed through for the info page to obtain the rest of the data using this key
-			putString(CoinDetailFragment.coinSymbolKey, coinSymbol)
-			
-			// Pass the logo colour to the activity so that it can style the toolbar
-			getLogoColour(coinSymbol)?.let {
-				putInt(CoinDetailActivity.coinColourKey, it)
-			}
-		}
-		
-		launch(UI) {
-			// Determine whether to use fragments directly or start an activity
-			if (isMasterDetail) {
-				// Create and set fragment for details
-				// TODO: Inflate fragment using layout
-/*
-				val fragment = CoinDetailFragment.createFragment(bundle)
-				(this@CoinRecyclerViewAdapter.context as? FragmentActivity)?.replace(R.id.coinDetail, fragment)
-*/
-			} else {
-				// Intent to detail activity
-				val intent = Intent(this@CoinRecyclerViewAdapter.context, CoinDetailActivity::class.java).apply {
-					putExtras(bundle)
-				}
-				this@CoinRecyclerViewAdapter.context.startActivity(intent)
-			}
-		}
-	}
 	
 	companion object DataBinder {
 		/**

@@ -2,6 +2,7 @@ package com.georgegarside.cryptovalise
 
 import android.annotation.SuppressLint
 import android.content.ContentValues
+import android.content.Intent
 import android.database.Cursor
 import android.os.Bundle
 import android.support.design.widget.Snackbar
@@ -146,6 +147,37 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 				// Once the first data begins to come in, hide the loading indicator
 				// Each card now has its own progress bar, so the indefinite indicator is extraneous at this point
 				coinList.isRefreshing = false
+			}
+		}
+	}
+	
+	/**
+	 * Segue to the coin info. On mobile, this starts an [Intent] to the [CoinDetailActivity] containing a
+	 * [CoinDetailFragment]. On tablet, this directly replaces [R.id.coinDetail] with [CoinDetailFragment].
+	 */
+	fun openInfo(symbol: String) = async {
+		// Create the bundle of data to be passed to the intent or fragment
+		val bundle = Bundle().apply {
+			// The coin's symbol is passed through for the info page to obtain the rest of the data using this key
+			putString(CoinDetailFragment.coinSymbolKey, symbol)
+			
+			// Pass the logo colour to the activity so that it can style the toolbar
+			CoinRecyclerViewAdapter.getLogoColour(symbol)?.let {
+				putInt(CoinDetailActivity.coinColourKey, it)
+			}
+		}
+		
+		launch(UI) {
+			// Determine whether to use fragments directly or start an activity
+			if (isMasterDetail) {
+				// Set details into fragment
+				(coinDetail as? CoinDetailFragment)?.loadData(coinDetail?.view ?: return@launch, symbol)
+			} else {
+				// Intent to detail activity
+				val intent = Intent(this@CoinListActivity, CoinDetailActivity::class.java).apply {
+					putExtras(bundle)
+				}
+				this@CoinListActivity.startActivity(intent)
 			}
 		}
 	}

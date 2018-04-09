@@ -37,7 +37,6 @@ class CoinDetailFragment : Fragment() {
 					
 					// If there is no passed coin ID to the fragment, finish the activity and return
 					if (coinSymbol.isBlank()) {
-						activity?.onBackPressed()
 						return@launch
 					}
 					
@@ -45,7 +44,7 @@ class CoinDetailFragment : Fragment() {
 				}
 			}
 	
-	private suspend fun loadData(view: View, symbol: String) {
+	suspend fun loadData(view: View, symbol: String) {
 		val coin = API.coins.await()[symbol] ?: run {
 			activity?.onBackPressed()
 			return
