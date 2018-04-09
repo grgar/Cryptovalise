@@ -2,7 +2,7 @@
 	<string name="app_name">Cryptovalise</string>
 	<string name="title_coin_detail">Coin Detail</string>
 	<string name="coin_list_icon_description">Coin logo</string>
-	<string name="coin_list_more_description">More…</string>
+	<string name="coin_list_more_description">More</string>
 	<string name="graph_title">Graph</string>
 	<string name="news_title">News</string>
 	<string name="info_title">Info</string>
@@ -24,4 +24,7 @@
 	<string name="coin_detail_dominance_title">Dominance</string>
 	<string name="coin_detail_cmc_credit">CoinMarketCap Data</string>
 	<string name="coin_menu_delete">Delete</string>
+	<string name="close">Close</string>
+	<string name="coin_detail_links_visit">Visit</string>
+	<string name="coin_detail_links_whitepaper">Read Whitepaper</string>
 </resources>
