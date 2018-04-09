@@ -38,9 +38,6 @@ dependencies {
 	// Additional Android support frameworks for backwards compatibility
 	implementation 'com.android.support:cardview-v7:27.1.1'
 
-	// Google Play Services
-	implementation "com.google.android.gms:play-services-auth:12.0.1"
-
 	// Reflection
 	implementation "org.jetbrains.kotlin:kotlin-reflect:1.2.31"
 
