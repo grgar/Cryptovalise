@@ -97,6 +97,15 @@ class CoinDetailFragment : Fragment() {
 			domDelta.text = coin.delta.dom.first.format(NumberFormat.Delta, "%")
 			domDelta.setDeltaColour()
 			rank.text = getString(R.string.coin_detail_rank, coin.delta.dom.second)
+			
+			// Coin links
+			websiteDomain.text = coin.links.website?.host
+			websiteVisit.setOnClickListener {
+				TODO("Open URL")
+			}
+			whitepaperVisit.setOnClickListener {
+				TODO("Open URL")
+			}
 		}
 	}
 	

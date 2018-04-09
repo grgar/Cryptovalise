@@ -1,6 +1,7 @@
 package com.georgegarside.cryptovalise.model
 
 import android.graphics.BitmapFactory
+import android.net.Uri
 import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.Method
 import com.github.kittinunf.fuel.gson.responseObject
@@ -40,7 +41,8 @@ object API {
 	
 	data class Coin(val id: Int = 0, val symbol: String = "", val name: String = "", val slug: String = "",
 	                val description: String?, var price: Price = Price(), var delta: Delta = Delta(),
-	                val supply: Long = 0L, val total: Long = 0L) {
+	                val supply: Long = 0L, val total: Long = 0L,
+	                val links: Links) {
 		
 		internal val logoPath = fuel.basePath + "uploads/production/coin/icon/$id/$slug.png"
 		val logo = async(start = CoroutineStart.LAZY) {
@@ -72,6 +74,11 @@ object API {
 				const val upSymbol = "▲"
 			}
 		}
+		
+		data class Links(
+				val website: Uri? = null,
+				val whitepaper: Uri? = null
+		)
 	}
 	
 	data class Currency(val code: String = "", val name: String = "", val rate: Double = 0.0)
@@ -121,7 +128,11 @@ object API {
 							dom = Pair(attributes["dominance-percent-change"] as Double, (attributes["rank"] as Double).toInt())
 					),
 					supply = (attributes["available-supply"] as Double).toLong(),
-					total = (attributes["max-supply"] as Double).toLong()
+					total = (attributes["max-supply"] as Double).toLong(),
+					links = Coin.Links(
+							website = Uri.parse(links["website"]),
+							whitepaper = Uri.parse(links["whitepaper"])
+					)
 			)
 		}?.toTypedArray() ?: arrayOf()
 	}
