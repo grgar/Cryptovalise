@@ -1,15 +1,11 @@
 package com.georgegarside.cryptovalise
 
-import android.graphics.PorterDuff
-import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.graphics.Palette
 import android.view.MenuItem
-import com.georgegarside.cryptovalise.presenter.rgbToSwatch
+import com.georgegarside.cryptovalise.presenter.setColour
 import kotlinx.android.synthetic.main.activity_coin_detail.*
-import kotlinx.android.synthetic.main.activity_coin_list.view.*
 
 /**
  * An activity representing a single Coin detail screen. This activity is only used on narrow width devices.
@@ -30,7 +26,7 @@ class CoinDetailActivity : AppCompatActivity() {
 		
 		// Set the colour as soon as possible as this defines the ‘theme’ of this activity
 		intent.getIntExtra(coinColourKey, 0).let {
-			if (it != 0) setToolbarColour(it)
+			if (it != 0) collapsingToolbar.setColour(it, window, toolbarDetail)
 		}
 	}
 	
@@ -55,34 +51,5 @@ class CoinDetailActivity : AppCompatActivity() {
 		
 		// Pass all the intent extras received by this activity onwards
 		childFragment?.arguments = intent.extras
-	}
-	
-	/**
-	 * Set the colour of the [toolbarDetail] and [collapsingToolbar] based on the given [rgb]. The given colour is only
-	 * applied literally to the background, and then derived colours are set to other elements using [Palette].
-	 */
-	private fun setToolbarColour(rgb: Int) {
-		// Convert the given RGB to a swatch for calculating associated colours based on this
-		val dominantSwatch = rgbToSwatch(rgb) ?: return
-		
-		// Apply colours to extended height toolbar containing activity title and chart
-		collapsingToolbar?.apply {
-			setBackgroundColor(dominantSwatch.rgb)
-			setContentScrimColor(dominantSwatch.rgb)
-			setExpandedTitleColor(dominantSwatch.bodyTextColor)
-			setCollapsedTitleTextColor(dominantSwatch.titleTextColor)
-		}
-		
-		// Apply colours to app bar
-		toolbarDetail?.apply {
-			navigationIcon?.setColorFilter(dominantSwatch.bodyTextColor, PorterDuff.Mode.SRC_ATOP)
-		}
-		
-		// Apply colours to status bar
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			window.statusBarColor = dominantSwatch.titleTextColor
-		} else {
-			collapsingToolbar.setStatusBarScrimColor(dominantSwatch.titleTextColor)
-		}
 	}
 }

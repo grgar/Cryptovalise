@@ -33,7 +33,7 @@
 
 		<include
 			layout="@layout/coin_list"
-			android:layout_width="420dp"
+			android:layout_width="400dp"
 			android:layout_height="match_parent"
 			android:id="@+id/coinList"/>
 
@@ -44,12 +44,25 @@
 			android:background="?android:attr/listDivider"
 			/>
 
-		<fragment
+		<LinearLayout
+			android:orientation="vertical"
 			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:name="com.georgegarside.cryptovalise.CoinDetailFragment"
-			android:id="@+id/coinDetail"
-			android:layout_weight="1"/>
+			android:layout_height="match_parent">
+
+			<fragment
+				android:layout_width="match_parent"
+				android:layout_height="0dp"
+				android:name="com.georgegarside.cryptovalise.ChartFragment"
+				android:id="@+id/chartFragment"
+				android:layout_weight="1"/>
+
+			<fragment
+				android:layout_width="match_parent"
+				android:layout_height="0dp"
+				android:name="com.georgegarside.cryptovalise.CoinDetailFragment"
+				android:id="@+id/coinDetail"
+				android:layout_weight="1"/>
+		</LinearLayout>
 
 	</LinearLayout>
 

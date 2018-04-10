@@ -59,9 +59,9 @@ class ChartFragment : Fragment() {
 				}
 			}
 	
-	private var colour: Palette.Swatch? = null
+	var colour: Palette.Swatch? = null
 	
-	private suspend fun loadChart(symbol: String, series: API.PriceSeries) {
+	suspend fun loadChart(symbol: String, series: API.PriceSeries) {
 		val slug = API.coins.await()[symbol]?.slug ?: return
 		val prices = API.getPrices(slug)
 		

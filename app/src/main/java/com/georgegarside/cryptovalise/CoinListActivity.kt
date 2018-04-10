@@ -18,8 +18,7 @@ import android.view.View
 import com.georgegarside.cryptovalise.model.API
 import com.georgegarside.cryptovalise.model.CoinContentProvider
 import com.georgegarside.cryptovalise.model.DBOpenHelper
-import com.georgegarside.cryptovalise.presenter.CoinRecyclerViewAdapter
-import com.georgegarside.cryptovalise.presenter.CustomAnimation
+import com.georgegarside.cryptovalise.presenter.*
 import kotlinx.android.synthetic.main.activity_coin_list.*
 import kotlinx.android.synthetic.main.coin_list.*
 import kotlinx.coroutines.experimental.android.UI
@@ -156,13 +155,15 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 	 * [CoinDetailFragment]. On tablet, this directly replaces [R.id.coinDetail] with [CoinDetailFragment].
 	 */
 	fun openInfo(symbol: String) = async {
+		val logoColour = CoinRecyclerViewAdapter.getLogoColour(symbol)
+		
 		// Create the bundle of data to be passed to the intent or fragment
 		val bundle = Bundle().apply {
 			// The coin's symbol is passed through for the info page to obtain the rest of the data using this key
 			putString(CoinDetailFragment.coinSymbolKey, symbol)
 			
 			// Pass the logo colour to the activity so that it can style the toolbar
-			CoinRecyclerViewAdapter.getLogoColour(symbol)?.let {
+			logoColour?.let {
 				putInt(CoinDetailActivity.coinColourKey, it)
 			}
 		}
@@ -172,6 +173,13 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 			if (isMasterDetail) {
 				// Set details into fragment
 				(coinDetail as? CoinDetailFragment)?.loadData(coinDetail?.view ?: return@launch, symbol)
+				(chartFragment as? ChartFragment)?.apply {
+					colour = logoColour?.let { rgbToSwatch(it) }?.also {
+						window.setStatusBarColour(it.rgb)
+					}
+					loadChart(symbol, API.PriceSeries.Price)
+				}
+				logoColour?.let { toolbar.setColour(it) }
 			} else {
 				// Intent to detail activity
 				val intent = Intent(this@CoinListActivity, CoinDetailActivity::class.java).apply {
