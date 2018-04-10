@@ -20,7 +20,10 @@ import android.view.View
 import com.georgegarside.cryptovalise.model.API
 import com.georgegarside.cryptovalise.model.CoinContentProvider
 import com.georgegarside.cryptovalise.model.DBOpenHelper
-import com.georgegarside.cryptovalise.presenter.*
+import com.georgegarside.cryptovalise.presenter.CoinRecyclerViewAdapter
+import com.georgegarside.cryptovalise.presenter.CustomAnimation
+import com.georgegarside.cryptovalise.presenter.setColour
+import com.georgegarside.cryptovalise.presenter.setStatusBarColour
 import kotlinx.android.synthetic.main.activity_coin_list.*
 import kotlinx.android.synthetic.main.coin_list.*
 import kotlinx.coroutines.experimental.android.UI
@@ -183,12 +186,7 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 				}
 			}
 			launch(UI) fgmt@{ (coinDetail as? CoinDetailFragment)?.loadData(coinDetail?.view ?: return@fgmt, symbol) }
-			launch(UI) {
-				(chartFragment as? ChartFragment)?.apply {
-					colour = logoColour?.let { rgbToSwatch(it) }
-					loadChart(symbol, API.PriceSeries.Price)
-				}
-			}
+			launch(UI) { (chartFragment as? ChartFragment)?.loadChart(symbol, API.PriceSeries.Price) }
 		} else {
 			// Intent to detail activity
 			val intent = Intent(this@CoinListActivity, CoinDetailActivity::class.java).apply {

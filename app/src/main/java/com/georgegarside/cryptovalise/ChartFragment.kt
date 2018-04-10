@@ -111,6 +111,9 @@ class ChartFragment : Fragment() {
 		isAutoScaleMinMaxEnabled = true
 		setVisibleXRangeMaximum(60f * 60 * 24 * 28)
 		
+		setViewPortOffsets(0f, 0f, 0f, 0f)
+		setExtraOffsets(0f, 0f, 0f, 0f)
+		
 		xAxis.apply {
 			valueFormatter = dateAxisFormatter
 			

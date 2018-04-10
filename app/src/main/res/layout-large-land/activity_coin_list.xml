@@ -54,14 +54,15 @@
 				android:layout_height="0dp"
 				android:name="com.georgegarside.cryptovalise.ChartFragment"
 				android:id="@+id/chartFragment"
-				android:layout_weight="1"/>
+				android:layout_weight="1"
+				android:layout_marginTop="@dimen/text_margin"/>
 
 			<fragment
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:name="com.georgegarside.cryptovalise.CoinDetailFragment"
 				android:id="@+id/coinDetail"
-				android:layout_weight="1"/>
+				/>
 		</LinearLayout>
 
 	</LinearLayout>
