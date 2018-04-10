@@ -56,6 +56,7 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 	 * screen at the same time, and whether to use intents to other activities or to directly replace fragments.
 	 */
 	private var isMasterDetail = false
+		get() = coinDetail != null
 	
 	/**
 	 * A reference to a [RecyclerView.Adapter] for the list of coins from the [CoinContentProvider].
@@ -70,9 +71,6 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 		setContentView(R.layout.activity_coin_list)
 		
 		setSupportActionBar(toolbar)
-		
-		// On large layout, detail is shown beside master
-		isMasterDetail = coinDetail != null
 		
 		// Bind the adapter to the recycler
 		adapter = CoinRecyclerViewAdapter(this, isMasterDetail)
@@ -185,7 +183,10 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 					window.setStatusBarColour(it)
 				}
 			}
-			launch(UI) fgmt@{ (coinDetail as? CoinDetailFragment)?.loadData(coinDetail?.view ?: return@fgmt, symbol) }
+			launch(UI) fgmt@{
+				(coinDetail as? CoinDetailFragment)?.loadData(coinDetail?.view ?: return@fgmt, symbol)
+				masterDetail?.alpha = 1f
+			}
 			launch(UI) { (chartFragment as? ChartFragment)?.loadChart(symbol, API.PriceSeries.Price) }
 		} else {
 			// Intent to detail activity

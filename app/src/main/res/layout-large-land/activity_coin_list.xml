@@ -47,7 +47,10 @@
 		<LinearLayout
 			android:orientation="vertical"
 			android:layout_width="match_parent"
-			android:layout_height="match_parent">
+			android:layout_height="match_parent"
+			android:id="@+id/masterDetail"
+			tools:alpha="1"
+			android:alpha="0">
 
 			<fragment
 				android:layout_width="match_parent"
