@@ -2,6 +2,7 @@ package com.georgegarside.cryptovalise
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import com.georgegarside.cryptovalise.presenter.setColour
@@ -33,7 +34,10 @@ class CoinDetailActivity : AppCompatActivity() {
 		
 		// Set the colour as soon as possible as this defines the ‘theme’ of this activity
 		intent.getIntExtra(coinColourKey, 0).let {
-			if (it != 0) collapsingToolbar.setColour(it, window, toolbarDetail)
+			collapsingToolbar.setColour(
+					if (it != 0) it else ContextCompat.getColor(this, R.color.colorPrimary),
+					window, toolbarDetail
+			)
 		}
 	}
 	

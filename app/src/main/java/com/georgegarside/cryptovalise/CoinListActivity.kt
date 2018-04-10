@@ -286,34 +286,32 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 				coinsMap.keys.toTypedArray()[it] + " " + coinsMap.values.toTypedArray()[it].name
 			})
 			
-			with(dialog) {
-				if (coinsArray.isEmpty()) {
-					// Show a message that there are no more coins available to be added
-					dialog.setMessage(getString(R.string.add_coin_emptymsg))
-				} else {
-					dialog.setItems(coinsArray, { dialog, which ->
-						// Get the new coin which was selected by the user
-						val coin = coinsMap[coinsArray[which].split(" ").first()] ?: return@setItems
-						
-						// Add the coin to the list of coins
-						addCoin(coin)
-						
-						// Show notification and ability to undo
-						Snackbar.make(view, resources.getString(R.string.add_coin_done, coin.name), Snackbar.LENGTH_LONG).apply {
-							setAction(resources.getString(R.string.undo), {
-								removeCoin(coin.id)
-								dismiss()
-								Snackbar.make(view, resources.getString(R.string.add_coin_undone), Snackbar.LENGTH_SHORT).show()
-							})
-							show()
-						}
-						dialog.dismiss()
-					})
-				}
-				
-				setNegativeButton("Cancel", { dialog, _ -> dialog.cancel() })
-				show()
+			if (coinsArray.isEmpty()) {
+				// Show a message that there are no more coins available to be added
+				dialog.setMessage(getString(R.string.add_coin_emptymsg))
+			} else {
+				dialog.setItems(coinsArray, { dialog, which ->
+					// Get the new coin which was selected by the user
+					val coin = coinsMap[coinsArray[which].split(" ").first()] ?: return@setItems
+					
+					// Add the coin to the list of coins
+					addCoin(coin)
+					
+					// Show notification and ability to undo
+					Snackbar.make(view, resources.getString(R.string.add_coin_done, coin.name), Snackbar.LENGTH_LONG).apply {
+						setAction(resources.getString(R.string.undo), {
+							removeCoin(coin.id)
+							dismiss()
+							Snackbar.make(view, resources.getString(R.string.add_coin_undone), Snackbar.LENGTH_SHORT).show()
+						})
+						show()
+					}
+					dialog.dismiss()
+				})
 			}
+			
+			dialog.setNegativeButton("Cancel", { dialog, _ -> dialog.cancel() })
+			dialog.show()
 		}
 	}
 	
