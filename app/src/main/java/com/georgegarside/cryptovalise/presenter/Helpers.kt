@@ -14,7 +14,7 @@ import android.view.MenuItem
 import android.view.Window
 import android.widget.TextView
 import com.georgegarside.cryptovalise.R
-import com.georgegarside.cryptovalise.model.API
+import com.georgegarside.cryptovalise.model.Coin
 import kotlinx.android.synthetic.main.activity_coin_detail.*
 
 /**
@@ -41,11 +41,11 @@ fun FragmentActivity.replace(@IdRes containerViewId: Int, fragment: Fragment) {
  * necessary since it takes no input for the text itself.
  */
 fun TextView.setDeltaColour() = when {
-	text.startsWith(API.Coin.Delta.upSymbol) ->
+	text.startsWith(Coin.Delta.upSymbol) ->
 		// Positive colour used to indicate a delta increase
 		setTextColor(ContextCompat.getColor(context, R.color.deltaUp))
 	
-	text.startsWith(API.Coin.Delta.downSymbol) ->
+	text.startsWith(Coin.Delta.downSymbol) ->
 		// Negative colour used to indicate a delta decrease
 		setTextColor(ContextCompat.getColor(context, R.color.deltaDown))
 	

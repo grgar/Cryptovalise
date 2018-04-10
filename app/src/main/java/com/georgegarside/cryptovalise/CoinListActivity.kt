@@ -18,6 +18,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.Menu
 import android.view.View
 import com.georgegarside.cryptovalise.model.API
+import com.georgegarside.cryptovalise.model.Coin
 import com.georgegarside.cryptovalise.model.CoinContentProvider
 import com.georgegarside.cryptovalise.model.DBOpenHelper
 import com.georgegarside.cryptovalise.presenter.CoinRecyclerViewAdapter
@@ -349,7 +350,7 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 	 * [CoinContentProvider], restarts the loader from [getSupportLoaderManager], informs the [adapter] that a coin has
 	 * been inserted and scrolls the [coinRecycler] to the new coin to display it to the user.
 	 */
-	private fun addCoin(coin: API.Coin) {
+	private fun addCoin(coin: Coin) {
 		// Perform database insertion of coin
 		val coinId = contentResolver.insert(CoinContentProvider.Operation.Coin.uri, ContentValues().apply {
 			put(DBOpenHelper.Coin.ID.toString(), coin.id)

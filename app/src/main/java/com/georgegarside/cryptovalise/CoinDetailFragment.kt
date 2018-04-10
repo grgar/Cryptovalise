@@ -14,6 +14,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.georgegarside.cryptovalise.model.API
+import com.georgegarside.cryptovalise.model.Coin
 import com.georgegarside.cryptovalise.model.NumberFormat
 import com.georgegarside.cryptovalise.model.format
 import com.georgegarside.cryptovalise.presenter.CoinRecyclerViewAdapter
@@ -129,14 +130,14 @@ class CoinDetailFragment : Fragment() {
 		activity?.supportStartPostponedEnterTransition()
 	}
 	
-	private fun copyLogo(coin: API.Coin): (View) -> Unit = {
+	private fun copyLogo(coin: Coin): (View) -> Unit = {
 		val clipboard = context?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
 		val clipUri = ClipData.newRawUri("Logo for ${coin.name}", Uri.parse(coin.logoPath))
 		clipboard.primaryClip = clipUri
 		Snackbar.make(it, R.string.coin_detail_copy_logo_done, Snackbar.LENGTH_SHORT).show()
 	}
 	
-	private fun showDescription(coin: API.Coin): (View) -> Unit = { view ->
+	private fun showDescription(coin: Coin): (View) -> Unit = { view ->
 		AlertDialog.Builder(view.context).apply {
 			setMessage(coin.description?.replace(". ", ".\n\n"))
 			setNeutralButton(getString(R.string.close), { dialog, _ -> dialog.dismiss() })
