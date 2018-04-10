@@ -6,6 +6,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.support.customtabs.CustomTabsIntent
+import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
@@ -132,6 +133,7 @@ class CoinDetailFragment : Fragment() {
 		val clipboard = context?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
 		val clipUri = ClipData.newRawUri("Logo for ${coin.name}", Uri.parse(coin.logoPath))
 		clipboard.primaryClip = clipUri
+		Snackbar.make(it, R.string.coin_detail_copy_logo_done, Snackbar.LENGTH_SHORT).show()
 	}
 	
 	private fun showDescription(coin: API.Coin): (View) -> Unit = { view ->

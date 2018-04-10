@@ -92,7 +92,7 @@ class CoinRecyclerViewAdapter(private val context: Context,
 				coinName.text = name
 				
 				// BTC is always visible in the list
-				if (symbol == "BTC") buttonMore?.visibility = View.INVISIBLE
+				buttonMore?.visibility = if (symbol == "BTC") View.INVISIBLE else View.VISIBLE
 				
 				// Set on click listeners
 				setOnClickListener {

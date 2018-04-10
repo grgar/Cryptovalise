@@ -299,9 +299,11 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 						addCoin(coin)
 						
 						// Show notification and ability to undo
-						Snackbar.make(view, "Added ${coin.name}", Snackbar.LENGTH_LONG).apply {
-							setAction("Undo", {
-								TODO("Perform undo")
+						Snackbar.make(view, resources.getString(R.string.add_coin_done, coin.name), Snackbar.LENGTH_LONG).apply {
+							setAction(resources.getString(R.string.undo), {
+								removeCoin(coin.id)
+								dismiss()
+								Snackbar.make(view, resources.getString(R.string.add_coin_undone), Snackbar.LENGTH_SHORT).show()
 							})
 							show()
 						}

@@ -13,8 +13,11 @@
 	<string name="add_coin_toolbar">Add coin</string>
 	<string name="add_coin_title">Choose a coin</string>
 	<string name="add_coin_emptymsg">No more coins are available</string>
+	<string name="add_coin_done">Added %1$s</string>
+	<string name="add_coin_undone">Removed %1$s</string>
 	<string name="coin_detail_missing_description">No description</string>
 	<string name="coin_detail_copy_logo">Copy</string>
+	<string name="coin_detail_copy_logo_done">Logo copied to the clipboard</string>
 	<string name="coin_detail_cap_title">Market Cap $</string>
 	<string name="coin_detail_vol_title">24h Volume $</string>
 	<string name="coin_detail_supply">Available: %1$s</string>
@@ -25,6 +28,7 @@
 	<string name="coin_detail_cmc_credit">CoinMarketCap Data</string>
 	<string name="coin_menu_delete">Delete</string>
 	<string name="close">Close</string>
+	<string name="undo">Undo</string>
 	<string name="coin_detail_links_visit">Visit</string>
 	<string name="coin_detail_links_whitepaper">Read Whitepaper</string>
 	<string name="coin_detail_links_none">None</string>

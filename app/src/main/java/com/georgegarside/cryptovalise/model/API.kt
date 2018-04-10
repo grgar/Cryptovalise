@@ -130,8 +130,8 @@ object API {
 					supply = (attributes["available-supply"] as Double).toLong(),
 					total = (attributes["max-supply"] as Double).toLong(),
 					links = Coin.Links(
-							website = Uri.parse(links["website"]),
-							whitepaper = Uri.parse(links["whitepaper"])
+							website = links["website"]?.let { if (!it.isBlank()) Uri.parse(it) else null },
+							whitepaper = links["whitepaper"]?.let { if (!it.isBlank()) Uri.parse(it) else null }
 					)
 			)
 		}?.toTypedArray() ?: arrayOf()
