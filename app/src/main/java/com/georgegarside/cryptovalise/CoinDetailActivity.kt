@@ -6,6 +6,9 @@ import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import com.georgegarside.cryptovalise.presenter.setColour
 import kotlinx.android.synthetic.main.activity_coin_detail.*
+import android.support.v4.view.ViewCompat.setAlpha
+
+
 
 /**
  * An activity representing a single Coin detail screen. This activity is only used on narrow width devices.
@@ -20,6 +23,13 @@ class CoinDetailActivity : AppCompatActivity() {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_coin_detail)
 		setSupportActionBar(toolbarDetail)
+		
+		// Wait for async before transition
+		supportPostponeEnterTransition()
+		
+		appBar.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
+			chartFragment.view?.alpha = 1 - Math.abs(verticalOffset).toFloat() / appBarLayout.totalScrollRange
+		}
 		
 		// Action bar up button to call onBackPressed
 		supportActionBar?.setDisplayHomeAsUpEnabled(true)

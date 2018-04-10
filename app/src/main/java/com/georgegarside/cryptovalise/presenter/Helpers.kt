@@ -71,16 +71,16 @@ fun CollapsingToolbarLayout.setColour(rgb: Int, window: Window, toolbar: Toolbar
 	setCollapsedTitleTextColor(dominantSwatch.titleTextColor)
 	
 	// Apply colours to app bar
-	toolbar.setColour(rgb)
+	toolbar.setColour(rgb, true)
 	
 	// Apply colours to status bar
 	if (!window.setStatusBarColour(rgb)) this.setStatusBarScrimColor(dominantSwatch.titleTextColor)
 }
 
-fun Toolbar.setColour(rgb: Int) {
+fun Toolbar.setColour(rgb: Int, isInCollapsingToolbarLayout: Boolean = false) {
 	val dominantSwatch = rgbToSwatch(rgb) ?: return
 	
-	setBackgroundColor(dominantSwatch.rgb)
+	if (!isInCollapsingToolbarLayout) setBackgroundColor(dominantSwatch.rgb)
 	setTitleTextColor(dominantSwatch.titleTextColor)
 	setSubtitleTextColor(dominantSwatch.bodyTextColor)
 	

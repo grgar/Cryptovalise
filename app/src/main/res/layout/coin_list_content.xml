@@ -65,7 +65,8 @@
 			android:layout_marginTop="16dp"
 			android:scaleType="fitXY"
 			android:contentDescription="@string/coin_list_icon_description"
-			tools:srcCompat="@drawable/ic_attach_money_black_24dp"/>
+			tools:srcCompat="@drawable/ic_attach_money_black_24dp"
+			android:transitionName="@string/transition_logo"/>
 
 		<include
 			layout="@layout/include_coin_prices"

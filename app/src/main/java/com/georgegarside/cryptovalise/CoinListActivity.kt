@@ -4,8 +4,10 @@ import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Intent
 import android.database.Cursor
+import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.Snackbar
+import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.app.LoaderManager
 import android.support.v4.content.CursorLoader
 import android.support.v4.content.Loader
@@ -24,6 +26,7 @@ import kotlinx.android.synthetic.main.coin_list.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
+import android.support.v4.util.Pair as SupportPair
 import kotlinx.android.synthetic.main.activity_coin_list.coinList as coinListActivity
 
 /**
@@ -154,7 +157,7 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 	 * Segue to the coin info. On mobile, this starts an [Intent] to the [CoinDetailActivity] containing a
 	 * [CoinDetailFragment]. On tablet, this directly replaces [R.id.coinDetail] with [CoinDetailFragment].
 	 */
-	fun openInfo(symbol: String) = async {
+	fun openInfo(symbol: String, transitionElements: Array<SupportPair<View, String>> = arrayOf()) = async {
 		val logoColour = CoinRecyclerViewAdapter.getLogoColour(symbol)
 		
 		// Create the bundle of data to be passed to the intent or fragment
@@ -185,7 +188,16 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 				val intent = Intent(this@CoinListActivity, CoinDetailActivity::class.java).apply {
 					putExtras(bundle)
 				}
-				this@CoinListActivity.startActivity(intent)
+				// Custom transitions are only supported in L and later
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+					val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+							this@CoinListActivity,
+							*transitionElements
+					)
+					this@CoinListActivity.startActivity(intent, options.toBundle())
+				} else {
+					this@CoinListActivity.startActivity(intent)
+				}
 			}
 		}
 	}

@@ -1,28 +1,31 @@
 package com.georgegarside.cryptovalise.presenter
 
-import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.database.Cursor
 import android.graphics.Bitmap
-import android.os.Bundle
-import android.support.v4.app.FragmentActivity
 import android.support.v7.graphics.Palette
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CursorAdapter
-import com.georgegarside.cryptovalise.CoinDetailActivity
-import com.georgegarside.cryptovalise.CoinDetailFragment
 import com.georgegarside.cryptovalise.CoinListActivity
 import com.georgegarside.cryptovalise.R
 import com.georgegarside.cryptovalise.model.*
 import kotlinx.android.synthetic.main.coin_list_content.view.*
 import kotlinx.android.synthetic.main.include_coin_prices.view.*
 import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
+import kotlin.Boolean
+import kotlin.Int
+import kotlin.Pair
+import kotlin.String
+import kotlin.apply
+import kotlin.arrayOf
+import kotlin.let
+import kotlin.to
+import kotlin.with
+import android.support.v4.util.Pair as SupportPair
 
 /**
  * CoinRecyclerViewAdapter is a completely custom implementation of [RecyclerView.Adapter], necessary to implement the
@@ -93,7 +96,11 @@ class CoinRecyclerViewAdapter(private val context: Context,
 				
 				// Set on click listeners
 				setOnClickListener {
-					(this@CoinRecyclerViewAdapter.context as? CoinListActivity)?.openInfo(symbol)
+					val transitionElements = arrayOf<SupportPair<View, String>>(
+							SupportPair(icon, resources.getString(R.string.transition_title)),
+							SupportPair(coinPrices, resources.getString(R.string.transition_content))
+					)
+					(this@CoinRecyclerViewAdapter.context as? CoinListActivity)?.openInfo(symbol, transitionElements)
 				}
 				
 				(context as? CoinListActivity)?.apply {

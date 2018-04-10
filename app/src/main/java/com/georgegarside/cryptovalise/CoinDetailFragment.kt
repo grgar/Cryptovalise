@@ -124,6 +124,8 @@ class CoinDetailFragment : Fragment() {
 				isClickable = false
 			}
 		}
+		
+		activity?.supportStartPostponedEnterTransition()
 	}
 	
 	private fun copyLogo(coin: API.Coin): (View) -> Unit = {

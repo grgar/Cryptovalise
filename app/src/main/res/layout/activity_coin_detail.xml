@@ -9,20 +9,23 @@
 	tools:ignore="MergeRootFrame">
 
 	<android.support.design.widget.AppBarLayout
+		android:id="@+id/appBar"
 		android:layout_width="match_parent"
 		android:layout_height="@dimen/full_collapsing_layout"
 		android:fitsSystemWindows="true"
-		android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+		android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+		android:background="@android:color/transparent"
+		tools:background="@color/colorPrimary">
 
 		<android.support.design.widget.CollapsingToolbarLayout
 			android:id="@+id/collapsingToolbar"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:fitsSystemWindows="true"
-			app:contentScrim="@color/colorPrimary"
 			app:layout_scrollFlags="scroll|exitUntilCollapsed"
 			app:toolbarId="@+id/toolbar"
-			app:statusBarScrim="@android:color/transparent">
+			app:statusBarScrim="@android:color/transparent"
+			android:transitionName="@string/transition_title">
 
 			<fragment
 				android:layout_width="match_parent"

@@ -30,4 +30,8 @@
 	<string name="coin_detail_links_none">None</string>
 	<string name="coin_detail_links_whitepaper_title">Whitepaper</string>
 	<string name="coin_detail_links_title">Website</string>
+	<string name="coin_detail_transition">transitionCoinDetail</string>
+	<string name="transition_title">transitionTitle</string>
+	<string name="transition_content">transitionContent</string>
+	<string name="transition_logo">transitionLogo</string>
 </resources>

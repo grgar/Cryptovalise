@@ -284,7 +284,8 @@
 				app:layout_constraintTop_toTopOf="parent"
 				android:layout_marginTop="16dp"
 				tools:srcCompat="@drawable/ic_attach_money_black_24dp"
-				android:contentDescription="@string/coin_list_icon_description"/>
+				android:contentDescription="@string/coin_list_icon_description"
+				android:transitionName="@string/transition_logo"/>
 
 			<Button
 				android:text="@string/coin_detail_copy_logo"
