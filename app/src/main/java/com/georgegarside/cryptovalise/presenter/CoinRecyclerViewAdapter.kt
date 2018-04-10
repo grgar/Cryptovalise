@@ -172,7 +172,9 @@ class CoinRecyclerViewAdapter(private val context: Context,
 			with(view) {
 				
 				// Price in Dollars
-				priceDollars.fadeInText(coin.price.usdPrice)
+				priceDollars?.fadeInText(coin.price.usdPrice)
+						// If there is no price dollars view, don't continue loading other prices
+						?: return@launch
 				
 				// Price deltas
 				mapOf(

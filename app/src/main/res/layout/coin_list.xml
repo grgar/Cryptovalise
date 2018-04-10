@@ -15,6 +15,6 @@
 		app:layoutManager="android.support.v7.widget.LinearLayoutManager"
 		tools:context="com.georgegarside.cryptovalise.CoinListActivity"
 		tools:listitem="@layout/coin_list_content"
-		android:paddingBottom="@dimen/item_padding_huge"
+		android:paddingBottom="96dp"
 		android:clipToPadding="false"/>
 </android.support.v4.widget.SwipeRefreshLayout>
