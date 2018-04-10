@@ -62,6 +62,8 @@ class ChartFragment : Fragment() {
 	var colour: Palette.Swatch? = null
 	
 	suspend fun loadChart(symbol: String, series: API.PriceSeries) {
+		chart now chartProgress
+		
 		val slug = API.coins.await()[symbol]?.slug ?: return
 		val prices = API.getPrices(slug)
 		

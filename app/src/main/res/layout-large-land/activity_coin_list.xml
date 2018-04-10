@@ -58,7 +58,7 @@
 
 			<fragment
 				android:layout_width="match_parent"
-				android:layout_height="0dp"
+				android:layout_height="wrap_content"
 				android:name="com.georgegarside.cryptovalise.CoinDetailFragment"
 				android:id="@+id/coinDetail"
 				android:layout_weight="1"/>

@@ -80,6 +80,8 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 		
 		// Swipe to refresh is implemented to reload the prices
 		coinList.setOnRefreshListener(refreshListener)
+		
+		supportStartPostponedEnterTransition()
 	}
 	
 	/**
@@ -157,7 +159,7 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 	 * Segue to the coin info. On mobile, this starts an [Intent] to the [CoinDetailActivity] containing a
 	 * [CoinDetailFragment]. On tablet, this directly replaces [R.id.coinDetail] with [CoinDetailFragment].
 	 */
-	fun openInfo(symbol: String, transitionElements: Array<SupportPair<View, String>> = arrayOf()) = async {
+	fun openInfo(symbol: String, transitionElements: Array<SupportPair<View, String>> = arrayOf()) = launch {
 		val logoColour = CoinRecyclerViewAdapter.getLogoColour(symbol)
 		
 		// Create the bundle of data to be passed to the intent or fragment
@@ -171,33 +173,38 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 			}
 		}
 		
-		launch(UI) {
-			// Determine whether to use fragments directly or start an activity
-			if (isMasterDetail) {
-				// Set details into fragment
-				(coinDetail as? CoinDetailFragment)?.loadData(coinDetail?.view ?: return@launch, symbol)
+		// Determine whether to use fragments directly or start an activity
+		if (isMasterDetail) {
+			// Set details into fragment
+			launch(UI) {
+				logoColour?.also {
+					toolbar.setColour(it)
+					window.setStatusBarColour(it)
+				}
+			}
+			launch(UI) fgmt@{ (coinDetail as? CoinDetailFragment)?.loadData(coinDetail?.view ?: return@fgmt, symbol) }
+			launch(UI) {
 				(chartFragment as? ChartFragment)?.apply {
-					colour = logoColour?.let { rgbToSwatch(it) }?.also {
-						window.setStatusBarColour(it.rgb)
-					}
+					colour = logoColour?.let { rgbToSwatch(it) }
 					loadChart(symbol, API.PriceSeries.Price)
 				}
-				logoColour?.let { toolbar.setColour(it) }
-			} else {
-				// Intent to detail activity
-				val intent = Intent(this@CoinListActivity, CoinDetailActivity::class.java).apply {
-					putExtras(bundle)
-				}
-				// Custom transitions are only supported in L and later
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			}
+		} else {
+			// Intent to detail activity
+			val intent = Intent(this@CoinListActivity, CoinDetailActivity::class.java).apply {
+				putExtras(bundle)
+			}
+			// Custom transitions are only supported in L and later
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+				launch(UI) {
 					val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
 							this@CoinListActivity,
 							*transitionElements
 					)
 					this@CoinListActivity.startActivity(intent, options.toBundle())
-				} else {
-					this@CoinListActivity.startActivity(intent)
 				}
+			} else {
+				launch(UI) { this@CoinListActivity.startActivity(intent) }
 			}
 		}
 	}

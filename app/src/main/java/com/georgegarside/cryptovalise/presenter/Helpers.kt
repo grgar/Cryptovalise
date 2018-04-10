@@ -88,7 +88,7 @@ fun Toolbar.setColour(rgb: Int, isInCollapsingToolbarLayout: Boolean = false) {
 	menu.iterator().forEach {
 		it.icon.apply {
 			mutate()
-			setColorFilter(dominantSwatch.titleTextColor, PorterDuff.Mode.SRC_ATOP)
+			setColorFilter(dominantSwatch.bodyTextColor, PorterDuff.Mode.SRC_ATOP)
 		}
 	}
 }

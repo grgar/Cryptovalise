@@ -6,9 +6,6 @@ import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import com.georgegarside.cryptovalise.presenter.setColour
 import kotlinx.android.synthetic.main.activity_coin_detail.*
-import android.support.v4.view.ViewCompat.setAlpha
-
-
 
 /**
  * An activity representing a single Coin detail screen. This activity is only used on narrow width devices.
@@ -46,6 +43,7 @@ class CoinDetailActivity : AppCompatActivity() {
 	override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
 		android.R.id.home -> {
 			// Up button in top-start of action bar to return to the previous activity
+			supportPostponeEnterTransition()
 			onBackPressed()
 			true
 		}
