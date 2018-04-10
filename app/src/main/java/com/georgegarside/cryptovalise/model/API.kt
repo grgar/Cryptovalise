@@ -9,6 +9,9 @@ import com.google.gson.internal.LinkedTreeMap
 import kotlinx.coroutines.experimental.CoroutineStart
 import kotlinx.coroutines.experimental.async
 
+/**
+ * API to obtain data from the server. This class provides
+ */
 object API {
 	private class Storage {
 		val coins =
@@ -17,7 +20,9 @@ object API {
 		val currencies =
 				async(start = CoroutineStart.LAZY) { getCurrencies().associate { it.code to it } }
 		
-		val prices = ArrayMap()
+		val prices: HashMap<String, Map<String, PriceSeries>> = HashMap()
+		
+		val downloads: HashMap<String, ByteArray> = HashMap()
 	}
 	
 	private var storage = Storage()
@@ -31,14 +36,6 @@ object API {
 		storage = Storage()
 	}
 	
-	private val fuel = FuelManager.instance
-	
-	init {
-		// Set up base configuration
-		fuel.basePath = "https://coin.fyi/"
-		fuel.baseHeaders = mapOf("X-Requested-With" to "XMLHttpRequest", "Accept" to "application/json, text/plain, */*")
-	}
-	
 	data class Coin(val id: Int = 0, val symbol: String = "", val name: String = "", val slug: String = "",
 	                val description: String?, var price: Price = Price(), var delta: Delta = Delta(),
 	                val supply: Long = 0L, val total: Long = 0L,
@@ -46,7 +43,7 @@ object API {
 		
 		internal val logoPath = fuel.basePath + "uploads/production/coin/icon/$id/$slug.png"
 		val logo = async(start = CoroutineStart.LAZY) {
-			val bytes = download(logoPath).component1() ?: return@async null
+			val bytes = download(logoPath) ?: return@async null
 			BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
 		}
 		
@@ -83,19 +80,30 @@ object API {
 	
 	data class Currency(val code: String = "", val name: String = "", val rate: Double = 0.0)
 	
-	private inline fun <reified T : Any> call(method: Method = Method.GET, endpoint: String,
-	                                          data: List<Pair<String, Any?>>? = null): T {
-		// Perform request
-		fuel.request(Method.GET, endpoint, data).responseObject<T>().third.fold(success = {
-			return it
-		}, failure = {
-			return mapOf<Any, Any>() as T
-		})
+	private val fuel = FuelManager.instance
+	
+	init {
+		// Set up base configuration
+		fuel.basePath = "https://coin.fyi/"
+		fuel.baseHeaders = mapOf("X-Requested-With" to "XMLHttpRequest", "Accept" to "application/json, text/plain, */*")
 	}
 	
-	private fun download(path: String) = fuel.request(Method.GET, path).response().third
+	private suspend inline fun <reified T : Any> call(method: Method = Method.GET, endpoint: String,
+	                                                  data: List<Pair<String, Any?>>? = null): T = async {
+		// Perform request
+		fuel.request(Method.GET, endpoint, data).responseObject<T>().third.fold(success = {
+			it
+		}, failure = {
+			mapOf<Any, Any>() as T
+		})
+	}.await()
 	
-	private fun getCoins(): Array<Coin> = call<MapArrayListMap>(endpoint = "coins").let {
+	private fun download(path: String) =
+			storage.downloads[path]
+					?: fuel.request(Method.GET, path).response().third.component1()
+							?.also { storage.downloads[path] = it }
+	
+	private suspend fun getCoins(): Array<Coin> = call<MapArrayListMap>(endpoint = "coins").let {
 		if (!it.containsKey("data")) return@let arrayOf()
 		it["data"]?.map {
 			// Extract further data as objects
@@ -137,17 +145,15 @@ object API {
 		}?.toTypedArray() ?: arrayOf()
 	}
 	
-	private fun getCurrencies(): Array<Currency> {
-		return call<MapArrayListMap>(endpoint = "currencies").let {
-			if (!it.containsKey("currencies")) return@let arrayOf()
-			it["currencies"]?.map {
-				Currency(
-						code = it["code"] as String,
-						name = it["full_name"] as String,
-						rate = it["exchange_rate"] as Double
-				)
-			}?.toTypedArray() ?: arrayOf()
-		}
+	private suspend fun getCurrencies() = call<MapArrayListMap>(endpoint = "currencies").let {
+		if (!it.containsKey("currencies")) return@let arrayOf<Currency>()
+		it["currencies"]?.map {
+			Currency(
+					code = it["code"] as String,
+					name = it["full_name"] as String,
+					rate = it["exchange_rate"] as Double
+			)
+		}?.toTypedArray() ?: arrayOf()
 	}
 	
 	enum class PriceSeries(val key: String) {
@@ -159,22 +165,26 @@ object API {
 	}
 	
 	suspend fun getPrices(slug: String): Map<String, PriceSeries> = async {
-		val data = call<SimpleMap>(endpoint = "coins/$slug/prices")
-		
-		arrayOf(PriceSeries.Price, PriceSeries.Bitcoin, PriceSeries.Cap).map {
+		storage.prices[slug] ?: run {
 			
-			@Suppress("UNCHECKED_CAST")
-			it.data =
-					(data[it.key] as? ArrayList<ArrayList<Double>>)
-							?.map {
-								val x = it[0].toLong()
-								val y = it[1]
-								Pair(x, y)
-							}
-							?.toTypedArray()
+			val data = call<SimpleMap>(endpoint = "coins/$slug/prices")
 			
-			it.toString() to it
-		}.toMap()
-		
+			arrayOf(PriceSeries.Price, PriceSeries.Bitcoin, PriceSeries.Cap).map {
+				
+				@Suppress("UNCHECKED_CAST")
+				it.data =
+						(data[it.key] as? ArrayList<ArrayList<Double>>)
+								?.map {
+									val x = it[0].toLong()
+									val y = it[1]
+									Pair(x, y)
+								}
+								?.toTypedArray()
+				
+				it.toString() to it
+			}.toMap().also {
+				storage.prices[slug] = it
+			}
+		}
 	}.await()
 }

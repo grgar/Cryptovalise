@@ -81,10 +81,11 @@ class ChartFragment : Fragment() {
 			setChartStyle(chart)
 			
 			invalidate()
-			moveViewToX(Float.MAX_VALUE)
 			setVisibleXRangeMaximum((visibleXRange * 12.5).toFloat())
 			
 			chartProgress now this
+			
+			moveViewToAnimated(Float.MAX_VALUE, Float.MAX_VALUE, axisLeft.axisDependency, 1000)
 		}
 	}
 	
