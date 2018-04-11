@@ -8,19 +8,43 @@ import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
 import com.georgegarside.cryptovalise.BuildConfig
 
+/**
+ * CoinContentProvider is a [ContentProvider] of [Coin]. This content provider matches for any [Operation] and performs
+ * the actions on the [db] utilising a [dbOpenHelper].
+ */
 class CoinContentProvider : ContentProvider() {
 	
 	companion object {
-		private const val authority = "com.georgegarside.cryptovalise"
-		val baseUri = Uri.parse("content://$authority")!!
+		/**
+		 * The base [Uri] on which all [Operation] paths are based on. This adds the content scheme to create a base Uri.
+		 * The authority is equal to the application package name. This constant is read from the BuildConfig to avoid the
+		 * need to pass a context into the class constructor, necessary for getPackageName. Since the package name will not
+		 * change, this is an additional performance benefit by using this build-time constant.
+		 */
+		val baseUri = Uri.parse("content://${BuildConfig.APPLICATION_ID}")!!
 	}
 	
+	/**
+	 * An instance of a [UriMatcher] for performing matching from a [Uri] to [Operation].
+	 */
 	private val uriMatcher = UriMatcher(UriMatcher.NO_MATCH)
-	private val dbOpenHelper by lazy { DBOpenHelper(context) }
+	/**
+	 * A reference to the database open helper, which provides access to the database and enums for the tables contained.
+	 */
+	private val dbOpenHelper = DBOpenHelper(context)
+	/**
+	 * A reference to the [SQLiteDatabase] which provides the storage for this content provider. The reference to the
+	 * database is instantiated lazily, so the database file is not opened for reading or writing until a database action
+	 * is requested form this content provider. This means simply instantiating this class does not create the database
+	 * yet until a [query] of the content is requested or a mutation action is performed.
+	 */
 	private val db: SQLiteDatabase by lazy { dbOpenHelper.writableDatabase }
 	
 	/**
-	 * Operation which can be performed on the database, depending on the URI
+	 * Each operation which can be performed on the database, depending on the URI which was matched with [uriMatcher].
+	 * For each operation, a [table] name is defined which may not match the name of the operation, and a [uri] which
+	 * represents this operation being performed, such that this content provider can respond at this Uri by performing
+	 * the operation.
 	 */
 	enum class Operation(val table: String, val uri: Uri) {
 		Coin("Coin", Uri.withAppendedPath(baseUri, "coin"));
@@ -28,15 +52,22 @@ class CoinContentProvider : ContentProvider() {
 	
 	init {
 		// Set up URI paths
-		uriMatcher.addURI(authority, Operation.Coin.table.toLowerCase(), Operation.Coin.ordinal)
+		uriMatcher.addURI(BuildConfig.APPLICATION_ID, Operation.Coin.table.toLowerCase(), Operation.Coin.ordinal)
 	}
 	
 	/**
-	 * Returns all the [db]'s [DBOpenHelper.TableColumn] from a [uri] using the [uriMatcher]
+	 * Returns the [DBOpenHelper.Table]
 	 */
 	private fun dbTable(uri: Uri): DBOpenHelper.Table {
+		/**
+		 * The ordinal of the matched operation from the Uri.
+		 */
 		val match = uriMatcher.match(uri)
+		/**
+		 * The operation to be performed.
+		 */
 		val op = Operation.values()[match]
+		// Returns the table.
 		return DBOpenHelper.Table.valueOf(op.table)
 	}
 	
