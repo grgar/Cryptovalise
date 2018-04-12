@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Tests" type="AndroidJUnit" factoryName="Android JUnit">
-    <extension name="coverage" enabled="false" merge="false" runner="idea">
+  <configuration default="false" name="Tests" type="AndroidJUnit" factoryName="Android JUnit" singleton="true">
+    <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="jacoco">
       <pattern>
         <option name="PATTERN" value="com.georgegarside.cryptovalise.*" />
         <option name="ENABLED" value="true" />
@@ -23,8 +23,6 @@
     </option>
     <envs />
     <patterns />
-    <method>
-      <option name="Gradle.BeforeRunTask" enabled="true" tasks="createDebugCoverageReport" externalProjectPath="" vmOptions="" scriptParameters="" />
-    </method>
+    <method />
   </configuration>
 </component>

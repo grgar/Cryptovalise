@@ -44,7 +44,6 @@ import android.support.v4.util.Pair as SupportPair
  * to ensure I did not lose the features I wished to obtain from the superior RecyclerView. You can read more about
  * my development process for this adapter in my report.
  *
- * TODO: Move to report
  * However, just because I needed to implement a custom adapter for the RecyclerView, this did not mean that I should
  * write code to handle cursors and loaders myself. Research I did into this topic lead to a number of Stack Overflow
  * answers, ranging from copy-pasting and modifying code used in the CursorAdapter and ListView adapters with extra
