@@ -39,7 +39,7 @@ data class Coin(
 		 * A description of the coin, derived from the first paragraph of the Wikipedia page for the coin if one exists,
 		 * or other canonical source such as Google Knowledge Graph.
 		 */
-		val description: String?,
+		val description: String? = null,
 		/**
 		 * A [Price] object containing the latest price information for the coin.
 		 */
@@ -72,7 +72,7 @@ data class Coin(
 	 * downloaded byte array.
 	 */
 	val logo = async(start = CoroutineStart.LAZY) {
-		val bytes = API.download(logoPath) ?: return@async null
+		val bytes = API.download(logoPath)
 		BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
 	}
 	

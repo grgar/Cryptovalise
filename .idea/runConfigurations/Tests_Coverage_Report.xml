@@ -21,6 +21,8 @@
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>
-    <method />
+    <method>
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Tests" run_configuration_type="AndroidJUnit" />
+    </method>
   </configuration>
 </component>
