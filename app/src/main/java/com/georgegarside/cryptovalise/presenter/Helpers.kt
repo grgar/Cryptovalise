@@ -96,6 +96,7 @@ fun Toolbar.setColour(rgb: Int, isInCollapsingToolbarLayout: Boolean = false) {
 fun Window.setStatusBarColour(rgb: Int): Boolean =
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			statusBarColor = rgbToSwatch(rgb)?.titleTextColor ?: statusBarColor
+			navigationBarColor = rgbToSwatch(rgb)?.rgb ?: navigationBarColor
 			true
 		} else false
 

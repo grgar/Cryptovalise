@@ -31,7 +31,7 @@ class CoinContentProvider : ContentProvider() {
 	/**
 	 * A reference to the database open helper, which provides access to the database and enums for the tables contained.
 	 */
-	private val dbOpenHelper = DBOpenHelper(context)
+	private val dbOpenHelper by lazy { DBOpenHelper(context) }
 	/**
 	 * A reference to the [SQLiteDatabase] which provides the storage for this content provider. The reference to the
 	 * database is instantiated lazily, so the database file is not opened for reading or writing until a database action
