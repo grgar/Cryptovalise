@@ -74,7 +74,7 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 		setSupportActionBar(toolbar)
 		
 		// Bind the adapter to the recycler
-		adapter = CoinRecyclerViewAdapter(this, isMasterDetail)
+		adapter = CoinRecyclerViewAdapter(this)
 		coinRecycler.adapter = adapter
 		
 		// Initialise the loader
@@ -346,7 +346,7 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 	}
 	
 	/**
-	 * Add a [coin] to the user's saved list of coins. This method inserts the [API.Coin] into the database using the
+	 * Add a [coin] to the user's saved list of coins. This method inserts the [Coin] into the database using the
 	 * [CoinContentProvider], restarts the loader from [getSupportLoaderManager], informs the [adapter] that a coin has
 	 * been inserted and scrolls the [coinRecycler] to the new coin to display it to the user.
 	 */
@@ -378,7 +378,7 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 	}
 	
 	/**
-	 * Remove a [API.Coin] from the list of coins given the [coinId] of the [API.Coin] in the database.
+	 * Remove a [Coin] from the list of coins given the [coinId] of the [Coin] in the database.
 	 */
 	private fun removeCoin(coinId: Int) {
 		/**

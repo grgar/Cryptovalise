@@ -41,8 +41,6 @@
 			android:exported="false">
 		</provider>
 
-		<activity android:name=".NewsActivity">
-		</activity>
 	</application>
 
 </manifest>

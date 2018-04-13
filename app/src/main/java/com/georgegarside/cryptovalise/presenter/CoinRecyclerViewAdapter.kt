@@ -16,7 +16,6 @@ import kotlinx.android.synthetic.main.coin_list_content.view.*
 import kotlinx.android.synthetic.main.include_coin_prices.view.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
-import kotlin.Boolean
 import kotlin.Int
 import kotlin.Pair
 import kotlin.String
@@ -55,8 +54,7 @@ import android.support.v4.util.Pair as SupportPair
  * this provides outweighs the ‘thought cost’ of such an implementation through improvements and functionality now
  * available with this.
  */
-class CoinRecyclerViewAdapter(private val context: Context,
-                              private val isMasterDetail: Boolean) :
+class CoinRecyclerViewAdapter(private val context: Context) :
 		RecyclerView.Adapter<CoinRecyclerViewAdapter.ViewHolder>() {
 	
 	/**
@@ -142,7 +140,7 @@ class CoinRecyclerViewAdapter(private val context: Context,
 	
 	companion object DataBinder {
 		/**
-		 * Get a [Bitmap] logo for the given [API.Coin] [symbol].
+		 * Get a [Bitmap] logo for the given [Coin] [symbol].
 		 */
 		private suspend fun getLogo(symbol: String): Bitmap? = API.coins.await()[symbol]?.logo?.await()
 		

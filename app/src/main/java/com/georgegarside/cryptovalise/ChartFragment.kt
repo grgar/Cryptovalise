@@ -16,7 +16,7 @@ import com.georgegarside.cryptovalise.model.NumberFormat
 import com.georgegarside.cryptovalise.model.PointArray
 import com.georgegarside.cryptovalise.model.format
 import com.georgegarside.cryptovalise.presenter.now
-import com.georgegarside.cryptovalise.presenter.rgbToSwatch
+import com.georgegarside.cryptovalise.presenter.toSwatch
 import com.github.mikephil.charting.charts.Chart
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.Description
@@ -43,7 +43,7 @@ class ChartFragment : Fragment() {
 				
 				// Set the colour palette for this fragment by creating a swatch from the passed colour
 				colour = arguments?.getInt(CoinDetailActivity.coinColourKey)?.let { rgb ->
-					if (rgb != 0) rgbToSwatch(rgb) else null
+					if (rgb != 0) rgb.toSwatch() else null
 				}
 				
 				// Load the chart content asynchronously
@@ -59,7 +59,7 @@ class ChartFragment : Fragment() {
 				}
 			}
 	
-	var colour: Palette.Swatch? = null
+	private var colour: Palette.Swatch? = null
 	
 	suspend fun loadChart(symbol: String, series: API.PriceSeries) {
 		chart now chartProgress

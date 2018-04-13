@@ -96,7 +96,7 @@ data class Coin(
 		/**
 		 * The [btc] formatted like [usdPrice].
 		 */
-		val btcPrice by lazy { "Ḇ " + btc.format() }
+		@Suppress("unused") val btcPrice by lazy { "Ḇ " + btc.format() }
 		
 		/**
 		 * The [usd] converted to GBP according to the current exchange rate obtained from the GBP [Currency].

@@ -17,19 +17,6 @@ typealias MapArrayListMap =
 						>
 				>
 
-/**
- *
- */
-typealias ArrayMap =
-		LinkedTreeMap<
-				String,
-				Array<
-						Array<
-								String
-								>
-						>
-				>
-
 typealias SimpleMap =
 		LinkedTreeMap<
 				String,
