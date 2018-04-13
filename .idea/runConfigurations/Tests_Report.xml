@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Tests Coverage Report" type="GradleRunConfiguration" factoryName="Gradle" singleton="true">
+  <configuration default="false" name="Tests Report" type="GradleRunConfiguration" factoryName="Gradle" singleton="true">
     <ExternalSystemSettings>
       <option name="executionName" />
       <option name="externalProjectPath" value="$PROJECT_DIR$/app" />
@@ -10,7 +10,7 @@
       </option>
       <option name="taskNames">
         <list>
-          <option value="jacocoTestReport" />
+          <option value="jacocoTestReportCustom" />
         </list>
       </option>
       <option name="vmOptions" value="" />
@@ -23,6 +23,10 @@
     </extension>
     <method>
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="Tests" run_configuration_type="AndroidJUnit" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Android Tests" run_configuration_type="AndroidTestRunConfigurationType" />
+      <option name="Gradle.BeforeRunTask" enabled="true" tasks="deviceCheck" externalProjectPath="$PROJECT_DIR$/app" vmOptions="" scriptParameters="" />
+      <option name="Gradle.BeforeRunTask" enabled="true" tasks="createExperimentalDebugCoverageReport" externalProjectPath="$PROJECT_DIR$/app" vmOptions="" scriptParameters="" />
+      <option name="Gradle.BeforeRunTask" enabled="true" tasks="jacocoTestReport" externalProjectPath="$PROJECT_DIR$/app" vmOptions="" scriptParameters="" />
     </method>
   </configuration>
 </component>
