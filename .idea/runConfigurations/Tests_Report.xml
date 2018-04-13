@@ -22,11 +22,14 @@
       </pattern>
     </extension>
     <method>
+      <option name="Gradle.BeforeRunTask" enabled="true" tasks="uninstallAll" externalProjectPath="$PROJECT_DIR$/app" vmOptions="" scriptParameters="" />
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="Tests" run_configuration_type="AndroidJUnit" />
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="Android Tests" run_configuration_type="AndroidTestRunConfigurationType" />
+      <option name="Gradle.BeforeRunTask" enabled="true" tasks="uninstallAll" externalProjectPath="$PROJECT_DIR$/app" vmOptions="" scriptParameters="" />
       <option name="Gradle.BeforeRunTask" enabled="true" tasks="deviceCheck" externalProjectPath="$PROJECT_DIR$/app" vmOptions="" scriptParameters="" />
       <option name="Gradle.BeforeRunTask" enabled="true" tasks="createExperimentalDebugCoverageReport" externalProjectPath="$PROJECT_DIR$/app" vmOptions="" scriptParameters="" />
       <option name="Gradle.BeforeRunTask" enabled="true" tasks="jacocoTestReport" externalProjectPath="$PROJECT_DIR$/app" vmOptions="" scriptParameters="" />
+      <option name="Gradle.BeforeRunTask" enabled="true" tasks="uninstallAll" externalProjectPath="$PROJECT_DIR$/app" vmOptions="" scriptParameters="" />
     </method>
   </configuration>
 </component>

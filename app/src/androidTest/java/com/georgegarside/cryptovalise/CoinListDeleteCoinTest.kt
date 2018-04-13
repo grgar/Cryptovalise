@@ -13,43 +13,47 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class CoinListAddCoinTest {
+class CoinListDeleteCoinTest {
 	
 	@Suppress("unused")
 	@get:Rule
 	var activityTestRule = ActivityTestRule(CoinListActivity::class.java)
 	
 	@Test
-	fun coinListAddCoinTest() {
+	fun coinListDeleteCoinTest() {
 		Thread.sleep(1200)
 		
-		onView(allOf(withId(R.id.fab), isDisplayed()))
-				.check(matches(isDisplayed()))
-				.perform(click())
-		
-		Thread.sleep(1200)
+		val symbolTextView = onView(allOf(
+				withId(R.id.symbol),
+				withText("ETH"),
+				isDisplayed()
+		))
+		symbolTextView.check(matches(withText("ETH")))
 		
 		val titleTextView = onView(allOf(
-				withId(R.id.alertTitle),
-				withText(R.string.add_coin_title),
+				withId(R.id.coinName),
+				withText("Ethereum"),
 				isDisplayed()
 		))
-		titleTextView.check(matches(withText(R.string.add_coin_title)))
+		titleTextView.check(matches(withText("Ethereum")))
 		
-		val cancelButton = onView(
-				withId(android.R.id.button2)
-		)
-		cancelButton.check(matches(isDisplayed()))
-		
-		val rowText = onView(allOf(
-				withId(android.R.id.text1),
-				withText("XRP Ripple"),
+		val moreButton = onView(allOf(
+				withId(R.id.buttonMore),
+				withContentDescription("More"),
 				isDisplayed()
 		))
-		rowText.check(matches(withText("XRP Ripple")))
+		moreButton.check(matches(isDisplayed()))
+		moreButton.perform(click())
 		
-		cancelButton.perform(click())
+		val deleteMenuItem = onView(allOf(
+				withId(R.id.title),
+				withText("Delete"),
+				isDisplayed()
+		))
+		deleteMenuItem.perform(click())
 		
+		symbolTextView.check(doesNotExist())
 		titleTextView.check(doesNotExist())
+		deleteMenuItem.check(doesNotExist())
 	}
 }
