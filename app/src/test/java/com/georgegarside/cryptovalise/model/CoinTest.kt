@@ -6,13 +6,13 @@ import org.junit.jupiter.api.Test
 internal class CoinTest {
 	
 	@Test
-	fun `logo path`() {
+	internal fun `logo path`() {
 		val coin = Coin(slug = "test")
 		assertEquals(API.basePath + "uploads/production/coin/icon/0/test.png", coin.logoPath)
 	}
 	
 	@Test
-	fun `get id`() {
+	internal fun `get id`() {
 		val coin = Coin()
 		assertEquals(0, coin.id, "default id")
 		val coin1 = Coin(1)
@@ -20,51 +20,47 @@ internal class CoinTest {
 	}
 	
 	@Test
-	fun `get symbol`() {
+	internal fun `get symbol`() {
 		val coin1 = Coin(symbol = "abc")
 		assertEquals("abc", coin1.symbol, "symbol length 3")
 		val coin2 = Coin(symbol = "abcd")
 		assertEquals("abcd", coin2.symbol, "symbol length 4")
-		val currency = Currency(code = "abc")
-		assertEquals("abc", currency.code)
 	}
 	
 	@Test
-	fun `get name`() {
+	internal fun `get name`() {
 		val coin = Coin(name = "test")
 		assertEquals("test", coin.name)
-		val currency = Currency(name = "test")
-		assertEquals("test", currency.name)
 	}
 	
 	@Test
-	fun `get slug`() {
+	internal fun `get slug`() {
 		val coin = Coin(slug = "test")
 		assertEquals("test", coin.slug)
 	}
 	
 	@Test
-	fun `get full description`() {
+	internal fun `get full description`() {
 		val string = "Lorem ipsum dolor sit amet."
 		val coin = Coin(description = string)
 		assertEquals(string, coin.description)
 	}
 	
 	@Test
-	fun `get usd price formatted`() {
+	internal fun `get usd price formatted`() {
 		val coin = Coin(price = Coin.Price(150.0, 1.0))
 		assertEquals("$ 150.00", coin.price.usdPrice)
 	}
 	
 	@Test
-	fun `set new price in usd`() {
+	internal fun `set new price in usd`() {
 		val coin = Coin(price = Coin.Price(150.0, 1.0))
 		coin.price = Coin.Price(200.0, 1.1)
 		assertEquals("$ 200.00", coin.price.usdPrice)
 	}
 	
 	@Test
-	fun `get price deltas`() {
+	internal fun `get price deltas`() {
 		val timeDelta = Pair(5.0, 10.0)
 		val valDelta = Pair(5.0, 100L)
 		val smallValDelta = Pair(5.0, 1)
@@ -81,7 +77,7 @@ internal class CoinTest {
 	}
 	
 	@Test
-	fun `set new price deltas`() {
+	internal fun `set new price deltas`() {
 		val timeDelta = Pair(5.0, 10.0)
 		val valDelta = Pair(5.0, 100L)
 		val smallValDelta = Pair(5.0, 1)
@@ -105,27 +101,21 @@ internal class CoinTest {
 	}
 	
 	@Test
-	fun `get supply`() {
+	internal fun `get supply`() {
 		val coin = Coin(supply = Long.MAX_VALUE)
 		assertEquals(Long.MAX_VALUE, coin.supply)
 		assertEquals(0L, coin.total)
 	}
 	
 	@Test
-	fun `get total`() {
+	internal fun `get total`() {
 		val coin = Coin(total = Long.MAX_VALUE)
 		assertEquals(Long.MAX_VALUE, coin.total)
 		assertEquals(0L, coin.supply)
 	}
 	
 	@Test
-	fun `get rate`() {
-		val currency = Currency(rate = 3.2)
-		assertEquals(3.2, currency.rate)
-	}
-	
-	@Test
-	fun destructuring() {
+	internal fun `destructuring of coin`() {
 		val coin = Coin(
 				id = (Math.random() * 100).toInt(),
 				symbol = "symbol",
@@ -151,7 +141,7 @@ internal class CoinTest {
 	}
 	
 	@Test
-	fun `copy, equals, hashCode, toString`() {
+	internal fun `copy, equals, hashCode, toString`() {
 		val coin = Coin(
 				id = (Math.random() * 100).toInt(),
 				symbol = "symbol",
@@ -167,19 +157,19 @@ internal class CoinTest {
 		val coinCopy = coin.copy()
 		assertTrue(coin == coinCopy, "copy & equals")
 		assertTrue(coin.toString() == coinCopy.toString(), "toString")
-		assertFalse(coin.toString() == Coin().toString(), "toString")
+		assertFalse(coin.toString() == Coin().toString(), "toString empty")
 		val coinHash = Coin(
-				id = (Math.random() * 100).toInt(),
+				id = coin.id,
 				symbol = "symbol",
 				name = "name",
 				slug = "slug",
 				description = "description",
-				price = Coin.Price(),
-				delta = Coin.Delta(),
-				supply = (Math.random() * 100).toLong(),
-				total = (Math.random() * 100).toLong(),
-				links = Coin.Links()
+				price = coin.price,
+				delta = coin.delta,
+				supply = coin.supply,
+				total = coin.total,
+				links = coin.links
 		)
-		assertFalse(coin.hashCode() == coinHash.hashCode(), "hashCode")
+		assertTrue(coin.hashCode() == coinHash.hashCode(), "hashCode")
 	}
 }
