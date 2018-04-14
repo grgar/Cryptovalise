@@ -37,6 +37,10 @@ fun TextView.setDeltaColour() = when {
 		setTextColor(ContextCompat.getColor(context, R.color.colorAccentText))
 }
 
+/**
+ * Create a [Palette] swatch from a colour's RGB [Int] value. This allows other colours to be derived from it, such as a
+ * compatible text colour to be placed on this colour's background.
+ */
 fun Int.toSwatch() = Palette.from(listOf(Palette.Swatch(this, 1))).dominantSwatch
 
 /**
@@ -60,6 +64,14 @@ fun CollapsingToolbarLayout.setColour(rgb: Int, window: Window, toolbar: Toolbar
 	if (!window.setStatusBarColour(rgb)) this.setStatusBarScrimColor(dominantSwatch.titleTextColor)
 }
 
+/**
+ * Set the background colour of the toolbar at the top of the device. This also appropriately colours the contents of
+ * the toolbar so the contents is still legible against the background colour selected. The [rgb] is applied to the
+ * background, then the title and subtitle are set to a [Palette]-derived colour to be legible. The menu icons are
+ * coloured to be legible against the background using [PorterDuff.Mode.SRC_ATOP]. If the toolbar
+ * [isInCollapsingToolbarLayout] the layout is responsible for setting the colour itself, and this function does not
+ * apply any colour changes which would affect the background scrim of that view when collapsed.
+ */
 fun Toolbar.setColour(rgb: Int, isInCollapsingToolbarLayout: Boolean = false) {
 	val dominantSwatch = rgb.toSwatch() ?: return
 	
@@ -76,6 +88,12 @@ fun Toolbar.setColour(rgb: Int, isInCollapsingToolbarLayout: Boolean = false) {
 	}
 }
 
+/**
+ * Set the background colour of the status bar. This is only available on [Build.VERSION_CODES.LOLLIPOP] or later and
+ * returns a boolean indicating whether the operation was successful. If this returns false, it is likely that the
+ * caller needs to perform additional steps to colour the status bar, such as using a support scrim on a collapsing
+ * layout, which will be under the status bar on older Android versions.
+ */
 fun Window.setStatusBarColour(rgb: Int): Boolean =
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			statusBarColor = rgb.toSwatch()?.titleTextColor ?: statusBarColor
@@ -83,6 +101,9 @@ fun Window.setStatusBarColour(rgb: Int): Boolean =
 			true
 		} else false
 
+/**
+ * Make the [Menu] conform to [Iterator], such that the items within can be iterated through with a forEach.
+ */
 fun Menu.iterator() = object : Iterator<MenuItem> {
 	var currentIndex = 0
 	override fun hasNext(): Boolean = currentIndex < size()

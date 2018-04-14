@@ -184,16 +184,19 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 					window.setStatusBarColour(it)
 				}
 			}
-			launch(UI) fgmt@{
-				(coinDetail as? CoinDetailFragment)?.loadData(coinDetail?.view ?: return@fgmt, symbol)
+			
+			launch(UI) fragment@{
+				(coinDetail as? CoinDetailFragment)?.loadData(coinDetail?.view ?: return@fragment, symbol)
 				masterDetail?.alpha = 1f
 			}
 			launch(UI) { (chartFragment as? ChartFragment)?.loadChart(symbol, API.PriceSeries.Price) }
 		} else {
+			
 			// Intent to detail activity
 			val intent = Intent(this@CoinListActivity, CoinDetailActivity::class.java).apply {
 				putExtras(bundle)
 			}
+			
 			// Custom transitions are only supported in L and later
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 				launch(UI) {
@@ -203,6 +206,7 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 					)
 					this@CoinListActivity.startActivity(intent, options.toBundle())
 				}
+				
 			} else {
 				launch(UI) { this@CoinListActivity.startActivity(intent) }
 			}

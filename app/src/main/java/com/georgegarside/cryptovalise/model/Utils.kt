@@ -17,12 +17,18 @@ typealias MapArrayListMap =
 						>
 				>
 
+/**
+ * A [LinkedTreeMap] from [String] to [Any].
+ */
 typealias SimpleMap =
 		LinkedTreeMap<
 				String,
 				Any
 				>
 
+/**
+ * An [Array] of [Pair], from [Long] to [Double].
+ */
 typealias PointArray =
 		Array<
 				Pair<

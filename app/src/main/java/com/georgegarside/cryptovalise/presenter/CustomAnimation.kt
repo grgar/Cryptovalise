@@ -86,6 +86,11 @@ fun ProgressBar.progressAnimate(delta: Int) {
 	}
 }
 
+/**
+ * Fade out the first view and [show] the second view with a fade in. Gracefully falls back to a snap out and in without
+ * fade if the fade is unavailable at the time. This infix function clearly shows the transition between the two views
+ * in the code by making it clear the operation is being applied to both inputs.
+ */
 infix fun <T : View> View.now(show: T): T {
 	apply {
 		animation = fadeOut
