@@ -1,16 +1,21 @@
 package com.georgegarside.cryptovalise
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
+import android.support.v4.view.MenuItemCompat
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.ShareActionProvider
+import android.view.Menu
 import android.view.MenuItem
 import com.georgegarside.cryptovalise.presenter.setColour
 import kotlinx.android.synthetic.main.activity_coin_detail.*
 
 /**
  * An activity representing a single Coin detail screen. This activity is only used on narrow width devices.
- * On tablet-size devices, item details are presented side-by-side with a list of items in a [CoinListActivity].
+ * On tablet-size devices, item details are presented side-by-side with a list of items in a [CoinListActivity] and this
+ * activity is unused. See the report for a diagram of how the activities and fragments are connected.
  */
 class CoinDetailActivity : AppCompatActivity() {
 	companion object {
@@ -39,6 +44,31 @@ class CoinDetailActivity : AppCompatActivity() {
 					window, toolbarDetail
 			)
 		}
+	}
+	
+	/**
+	 * The [ShareActionProvider] which provides the ability to share the [shareIntent] through the available providers.
+	 */
+	private var shareActionProvider: ShareActionProvider? = null
+		set(value) {
+			field = value?.apply { setShareIntent(shareIntent) }
+		}
+	
+	/**
+	 * The [Intent] which is to be shared using the [shareActionProvider].
+	 */
+	var shareIntent: Intent? = null
+		set(value) {
+			field = value?.also { shareActionProvider?.setShareIntent(it) }
+		}
+	
+	/**
+	 * Inflate a [menu] into the toolbar, and set click listener for menu items
+	 */
+	override fun onCreateOptionsMenu(menu: Menu): Boolean {
+		menuInflater.inflate(R.menu.coindetail, menu)
+		shareActionProvider = MenuItemCompat.getActionProvider(menu.findItem(R.id.shareMenuItem)) as ShareActionProvider
+		return true
 	}
 	
 	/**

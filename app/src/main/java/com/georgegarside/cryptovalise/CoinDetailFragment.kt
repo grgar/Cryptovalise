@@ -3,6 +3,7 @@ package com.georgegarside.cryptovalise
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.support.customtabs.CustomTabsIntent
@@ -53,6 +54,9 @@ class CoinDetailFragment : Fragment() {
 		}
 		
 		activity?.collapsingToolbar?.title = coin.name
+		
+		// Set the share intent to the URL pointing to this selected coin
+		(activity as? CoinDetailActivity)?.shareIntent = Intent.parseUri(API.basePath + "coins/${coin.slug}", 0)
 		
 		with(view) {
 			

@@ -72,7 +72,7 @@ fun ProgressBar.progressAnimate(delta: Int) {
 	val newProgress = progress + delta
 	
 	// Animate progress bar up to given progress
-	val animator = ObjectAnimator.ofInt(this, "progress", newProgress).apply {
+	ObjectAnimator.ofInt(this, "progress", newProgress).apply {
 		duration = 800
 		start()
 	}

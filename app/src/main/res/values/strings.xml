@@ -24,6 +24,7 @@
 	<string name="coin_detail_dominance_title">Dominance</string>
 	<string name="coin_detail_cmc_credit">CoinMarketCap Data</string>
 	<string name="coin_menu_delete">Delete</string>
+	<string name="coin_share_delete">Share</string>
 	<string name="close">Close</string>
 	<string name="undo">Undo</string>
 	<string name="coin_detail_links_visit">Visit</string>
