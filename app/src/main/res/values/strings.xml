@@ -35,4 +35,5 @@
 	<string name="transition_title">transitionTitle</string>
 	<string name="transition_content">transitionContent</string>
 	<string name="transition_logo">transitionLogo</string>
+	<string name="coin_menu_user_guide">User Guide</string>
 </resources>

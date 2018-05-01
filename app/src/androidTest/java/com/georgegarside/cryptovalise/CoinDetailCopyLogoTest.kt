@@ -34,24 +34,14 @@ class CoinDetailCopyLogoTest {
 		
 		Thread.sleep(1200)
 		
-		onView(withId(R.id.prices))
-				.check(matches(isDisplayed()))
-				.perform(
-						swipeUp(),
-						GeneralSwipeAction(Swipe.FAST, GeneralLocation.BOTTOM_CENTER, GeneralLocation.TOP_CENTER, Press.FINGER)
-				)
-		onView(withId(R.id.summaryCap))
-				.check(matches(isDisplayed()))
-				.perform(
-						swipeUp(),
-						GeneralSwipeAction(Swipe.FAST, GeneralLocation.BOTTOM_CENTER, GeneralLocation.TOP_CENTER, Press.FINGER)
-				)
-		onView(withId(R.id.summaryDom))
-				.check(matches(isDisplayed()))
-				.perform(
-						swipeUp(),
-						GeneralSwipeAction(Swipe.FAST, GeneralLocation.BOTTOM_CENTER, GeneralLocation.TOP_CENTER, Press.FINGER)
-				)
+		arrayOf(R.id.prices, R.id.summaryCap, R.id.summaryDom).forEach {
+			onView(withId(it))
+					.check(matches(isDisplayed()))
+					.perform(
+							swipeUp(),
+							GeneralSwipeAction(Swipe.FAST, GeneralLocation.BOTTOM_CENTER, GeneralLocation.TOP_CENTER, Press.FINGER)
+					)
+		}
 		
 		Thread.sleep(1200)
 		

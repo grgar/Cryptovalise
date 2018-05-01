@@ -19,6 +19,7 @@ import com.georgegarside.cryptovalise.model.Coin
 import com.georgegarside.cryptovalise.model.NumberFormat
 import com.georgegarside.cryptovalise.model.format
 import com.georgegarside.cryptovalise.presenter.CoinRecyclerViewAdapter
+import com.georgegarside.cryptovalise.presenter.ShareActionProviderLocation
 import com.georgegarside.cryptovalise.presenter.setDeltaColour
 import kotlinx.android.synthetic.main.activity_coin_detail.*
 import kotlinx.android.synthetic.main.fragment_coin_detail.view.*
@@ -54,9 +55,20 @@ class CoinDetailFragment : Fragment() {
 		}
 		
 		activity?.collapsingToolbar?.title = coin.name
+		activity?.toolbarDetail?.title = coin.name
 		
-		// Set the share intent to the URL pointing to this selected coin
-		(activity as? CoinDetailActivity)?.shareIntent = Intent.parseUri(API.basePath + "coins/${coin.slug}", 0)
+		// Set the share intent to current price of the coin and accompanying delta today
+		val shareIntent = Intent().apply {
+			action = Intent.ACTION_SEND
+			type = "text/plain"
+			putExtra(
+					Intent.EXTRA_TEXT,
+					"${coin.name} is at ${coin.price.usdPrice}, " +
+							"${coin.delta.day.first.format(NumberFormat.Normal, "%")} today"
+			)
+		}
+		// Can't smart cast because activity has custom getter
+		(activity as? ShareActionProviderLocation)?.defineShareIntent(shareIntent)
 		
 		with(view) {
 			

@@ -4,8 +4,10 @@ import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Intent
 import android.database.Cursor
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.support.customtabs.CustomTabsIntent
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.app.LoaderManager
@@ -15,21 +17,21 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.PopupMenu
 import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.ShareActionProvider
 import android.view.Menu
 import android.view.View
 import com.georgegarside.cryptovalise.model.API
 import com.georgegarside.cryptovalise.model.Coin
 import com.georgegarside.cryptovalise.model.CoinContentProvider
 import com.georgegarside.cryptovalise.model.DBOpenHelper
-import com.georgegarside.cryptovalise.presenter.CoinRecyclerViewAdapter
-import com.georgegarside.cryptovalise.presenter.CustomAnimation
-import com.georgegarside.cryptovalise.presenter.setColour
-import com.georgegarside.cryptovalise.presenter.setStatusBarColour
+import com.georgegarside.cryptovalise.presenter.*
 import kotlinx.android.synthetic.main.activity_coin_list.*
 import kotlinx.android.synthetic.main.coin_list.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
+import saschpe.android.customtabs.CustomTabsHelper
+import saschpe.android.customtabs.WebViewFallback
 import android.support.v4.util.Pair as SupportPair
 import kotlinx.android.synthetic.main.activity_coin_list.coinList as coinListActivity
 
@@ -49,7 +51,13 @@ import kotlinx.android.synthetic.main.activity_coin_list.coinList as coinListAct
  * extra fragment content. This is used to determine the value of [isMasterDetail], used elsewhere in this class where
  * it is necessary to determine the difference between mobile or tablet.
  */
-class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor> {
+class CoinListActivity(
+		
+		// Implements ShareActionProviderLocation custom interface
+		override var shareActionProvider: ShareActionProvider? = null,
+		override var shareIntent: Intent? = null
+
+) : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor>, ShareActionProviderLocation {
 	
 	/**
 	 * Boolean for whether the screen is showing both master and detail containers (true on tablet-scale containers).
@@ -206,7 +214,6 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 					)
 					this@CoinListActivity.startActivity(intent, options.toBundle())
 				}
-				
 			} else {
 				launch(UI) { this@CoinListActivity.startActivity(intent) }
 			}
@@ -216,27 +223,38 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 	/**
 	 * Inflate a [menu] into the toolbar, and set click listener for menu items
 	 */
-	override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-		// Determine whether a menu is appropriate, which is only the case on tablet
+	override fun onCreateOptionsMenu(menu: Menu): Boolean {
+		// Determine whether a full menu is appropriate, which is only the case on tablet
 		if (isMasterDetail) {
 			
 			// Inflate a menu defined in resources
-			menuInflater.inflate(R.menu.toolbar, menu)
+			menuInflater.inflate(R.menu.toolbarmasterdetail, menu)
 			
-			// For each item in the menu, an appropriate click listener performs the associated action
-			toolbar.setOnMenuItemClickListener {
-				when (it.itemId) {
-					R.id.menuAddCoin -> {
-						showAddCoinDialog.onClick(toolbar.rootView)
-						true
-					}
-					else -> false
-				}
-			}
+			// Set the share action provider for the intent to be defined by the detail fragment
+			defineShareActionProvider(menu)
 		} else {
-			// On mobile, the add coin button is a floating action button defined in the layout file
-			fab?.setOnClickListener(showAddCoinDialog)
+			
+			// Inflate a limited menu with just the user guide
+			menuInflater.inflate(R.menu.toolbaruserguide, menu)
 		}
+		
+		// For each item in the menu, an appropriate click listener performs the associated action
+		toolbar.setOnMenuItemClickListener {
+			when (it.itemId) {
+				R.id.menuAddCoin -> {
+					showAddCoinDialog.onClick(toolbar.rootView)
+					true
+				}
+				R.id.menuUserGuide -> {
+					showUserGuide()
+					true
+				}
+				else -> false
+			}
+		}
+		
+		// On mobile, the add coin button is a floating action button defined in the layout file
+		fab?.setOnClickListener(showAddCoinDialog)
 		
 		return super.onCreateOptionsMenu(menu)
 	}
@@ -422,5 +440,15 @@ class CoinListActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
 		}
 		
 		show()
+	}
+	
+	private fun showUserGuide() {
+		val uri = Uri.parse("https://georgegarside.com/apps/cryptovalise/user-guide/")
+		val intent = CustomTabsIntent.Builder()
+				.addDefaultShareMenuItem()
+				.setShowTitle(true)
+				.setInstantAppsEnabled(true)
+				.build()
+		CustomTabsHelper.openCustomTab(this, intent, uri, WebViewFallback())
 	}
 }

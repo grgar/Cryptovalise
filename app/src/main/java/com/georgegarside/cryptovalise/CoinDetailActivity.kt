@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.ShareActionProvider
 import android.view.Menu
 import android.view.MenuItem
+import com.georgegarside.cryptovalise.presenter.ShareActionProviderLocation
 import com.georgegarside.cryptovalise.presenter.setColour
 import kotlinx.android.synthetic.main.activity_coin_detail.*
 
@@ -17,7 +18,14 @@ import kotlinx.android.synthetic.main.activity_coin_detail.*
  * On tablet-size devices, item details are presented side-by-side with a list of items in a [CoinListActivity] and this
  * activity is unused. See the report for a diagram of how the activities and fragments are connected.
  */
-class CoinDetailActivity : AppCompatActivity() {
+class CoinDetailActivity(
+		
+		// Implements ShareActionProviderLocation custom interface
+		override var shareActionProvider: ShareActionProvider? = null,
+		override var shareIntent: Intent? = null
+
+) : AppCompatActivity(), ShareActionProviderLocation {
+	
 	companion object {
 		const val coinColourKey = "coin_colour"
 	}
@@ -47,27 +55,11 @@ class CoinDetailActivity : AppCompatActivity() {
 	}
 	
 	/**
-	 * The [ShareActionProvider] which provides the ability to share the [shareIntent] through the available providers.
-	 */
-	private var shareActionProvider: ShareActionProvider? = null
-		set(value) {
-			field = value?.apply { setShareIntent(shareIntent) }
-		}
-	
-	/**
-	 * The [Intent] which is to be shared using the [shareActionProvider].
-	 */
-	var shareIntent: Intent? = null
-		set(value) {
-			field = value?.also { shareActionProvider?.setShareIntent(it) }
-		}
-	
-	/**
 	 * Inflate a [menu] into the toolbar, and set click listener for menu items
 	 */
 	override fun onCreateOptionsMenu(menu: Menu): Boolean {
 		menuInflater.inflate(R.menu.coindetail, menu)
-		shareActionProvider = MenuItemCompat.getActionProvider(menu.findItem(R.id.shareMenuItem)) as ShareActionProvider
+		defineShareActionProvider(menu)
 		return true
 	}
 	

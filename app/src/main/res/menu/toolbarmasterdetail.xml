@@ -10,6 +10,11 @@
 		app:showAsAction="always"/>
 
 	<item
+		android:title="@string/coin_menu_user_guide"
+		app:showAsAction="ifRoom"
+		android:id="@+id/menuUserGuide"
+		android:icon="@drawable/ic_help_black_24dp"/>
+	<item
 		android:title="@string/coin_share_delete"
 		android:icon="@drawable/ic_share_black_24dp"
 		android:id="@+id/shareMenuItem"
