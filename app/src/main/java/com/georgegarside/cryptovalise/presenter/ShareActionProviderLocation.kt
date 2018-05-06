@@ -34,5 +34,7 @@ interface ShareActionProviderLocation {
 	/**
 	 * Defines an [intent] and applies it to the stored [shareActionProvider] if defined.
 	 */
-	fun defineShareIntent(intent: Intent) = shareIntent.also { shareActionProvider?.setShareIntent(intent) }
+	fun defineShareIntent(intent: Intent) {
+		shareIntent = intent.also { shareActionProvider?.setShareIntent(intent) }
+	}
 }

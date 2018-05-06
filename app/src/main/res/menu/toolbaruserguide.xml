@@ -7,5 +7,5 @@
 		android:title="@string/coin_menu_user_guide"
 		app:showAsAction="ifRoom"
 		android:id="@+id/menuUserGuide"
-		android:icon="@drawable/ic_help_black_24dp"/>
+		android:icon="@drawable/ic_help_white_24dp"/>
 </menu>

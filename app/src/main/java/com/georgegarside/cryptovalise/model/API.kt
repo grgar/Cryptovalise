@@ -163,43 +163,37 @@ object API {
 	 * [PriceSeries.toString] to the [PriceSeries] itself where the [PriceSeries.data] can be extracted. The cache is
 	 * queried first, and if missing a successful response to the [call] is stored in the cache for this coin.
 	 */
+	
 	suspend fun getPrices(slug: String): Map<String, PriceSeries> = async {
-		// Check the cache and return if a match was found
-		storage.prices[slug] ?: run {
+		/**
+		 * The data response to the network call.
+		 */
+		val data = call<SimpleMap>(endpoint = "coins/$slug/prices")
+		
+		// Save each series's data to the PriceSeries storage
+		PriceSeries.values().map {
 			
-			/**
-			 * The data response to the network call.
-			 */
-			val data = call<SimpleMap>(endpoint = "coins/$slug/prices")
+			@Suppress("UNCHECKED_CAST")
+			it.data =
+					(data[it.key] as? ArrayList<ArrayList<Double>>)
+							?.map {
+								/**
+								 * The timestamp when the value was recorded, given as [Long] GMT seconds since epoch.
+								 */
+								val x = it[0].toLong()
+								/**
+								 * The value recorded at the timestamp given as [Double].
+								 */
+								val y = it[1]
+								// Save these x and y values as a pair in the array
+								Pair(x, y)
+							}
+							// Immutable array
+							?.toTypedArray()
 			
-			// Save each series's data to the PriceSeries storage
-			arrayOf(PriceSeries.Price, PriceSeries.Bitcoin, PriceSeries.Cap).map {
-				
-				@Suppress("UNCHECKED_CAST")
-				it.data =
-						(data[it.key] as? ArrayList<ArrayList<Double>>)
-								?.map {
-									/**
-									 * The timestamp when the value was recorded, given as [Long] GMT seconds since epoch.
-									 */
-									val x = it[0].toLong()
-									/**
-									 * The value recorded at the timestamp given as [Double].
-									 */
-									val y = it[1]
-									// Save these x and y values as a pair in the array
-									Pair(x, y)
-								}
-								// Immutable array
-								?.toTypedArray()
-				
-				// Perform the mapping from the PriceSeries name to the data contents
-				it.toString() to it
-			}.toMap().also {
-				// Store the successful response in the cache
-				storage.prices[slug] = it
-			}
-		}
+			// Perform the mapping from the PriceSeries name to the data contents
+			it.toString() to it
+		}.toMap()
 	}.await()
 	
 	/**
@@ -222,11 +216,6 @@ object API {
 		 */
 		val currencies =
 				async(start = CoroutineStart.LAZY) { getCurrencies().associate { it.code to it } }
-		
-		/**
-		 * Internal historical price storage, see [API.getPrices].
-		 */
-		val prices: HashMap<String, Map<String, PriceSeries>> = HashMap()
 		
 		/**
 		 * Internal cache in raw [ByteArray] [HashMap] keyed by the download path.
