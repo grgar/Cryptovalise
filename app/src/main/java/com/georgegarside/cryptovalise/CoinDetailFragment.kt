@@ -28,6 +28,9 @@ import kotlinx.coroutines.experimental.launch
 import saschpe.android.customtabs.CustomTabsHelper
 import saschpe.android.customtabs.WebViewFallback
 
+/**
+ * Fragment containing all coin details with cards for each property of the coin.
+ */
 class CoinDetailFragment : Fragment() {
 	companion object {
 		const val coinSymbolKey = "coin_symbol"
@@ -48,6 +51,9 @@ class CoinDetailFragment : Fragment() {
 				}
 			}
 	
+	/**
+	 * Load a given [symbol]'s data into the [view].
+	 */
 	suspend fun loadData(view: View, symbol: String) {
 		val coin = API.coins.await()[symbol] ?: run {
 			activity?.onBackPressed()
@@ -146,6 +152,9 @@ class CoinDetailFragment : Fragment() {
 		activity?.supportStartPostponedEnterTransition()
 	}
 	
+	/**
+	 * Copy a [coin]'s logo on to the clipboard. Requires a [Coin.logoPath] at which the logo can be retrieved.
+	 */
 	private fun copyLogo(coin: Coin): (View) -> Unit = {
 		val clipboard = context?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
 		val clipUri = ClipData.newRawUri("Logo for ${coin.name}", Uri.parse(coin.logoPath))
@@ -153,6 +162,9 @@ class CoinDetailFragment : Fragment() {
 		Snackbar.make(it, R.string.coin_detail_copy_logo_done, Snackbar.LENGTH_SHORT).show()
 	}
 	
+	/**
+	 * Show a dialog containing the [Coin.description] of the [coin].
+	 */
 	private fun showDescription(coin: Coin): (View) -> Unit = { view ->
 		AlertDialog.Builder(view.context).apply {
 			setMessage(coin.description?.replace(". ", ".\n\n"))
@@ -161,14 +173,21 @@ class CoinDetailFragment : Fragment() {
 		}
 	}
 	
+	/**
+	 * Open a [uri] and set the toolbar [colour] of the tab on opening the page.
+	 */
 	private fun openUri(uri: Uri, colour: Int? = null) {
+		// If this fragment is no longer on screen, do not perform an action
 		if (context == null) return
+		
 		val intent = CustomTabsIntent.Builder()
 				.setToolbarColor(colour ?: ContextCompat.getColor(context!!, R.color.colorPrimaryDark))
 				.addDefaultShareMenuItem()
 				.setShowTitle(true)
 				.setInstantAppsEnabled(true)
 				.build()
+		
+		// Open tab in a custom Google Chrome tab using an intent, with a WebView within the app if Chrome is not found
 		CustomTabsHelper.openCustomTab(context!!, intent, uri, WebViewFallback())
 	}
 }
