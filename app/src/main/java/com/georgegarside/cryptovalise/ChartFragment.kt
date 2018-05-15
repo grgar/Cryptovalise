@@ -36,6 +36,10 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.*
 
+/**
+ * The fragment containing the chart view. Inflates [R.layout.fragment_chart] and loads the date with [loadChart] using
+ * the given [colour] as the theme. The [setChartStyle] will format the chart correctly to be displayed.
+ */
 class ChartFragment : Fragment() {
 	
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -59,8 +63,14 @@ class ChartFragment : Fragment() {
 				}
 			}
 	
+	/**
+	 * The colour theme of the chart fragment, used to colour the line and content to be visible against the background.
+	 */
 	private var colour: Palette.Swatch? = null
 	
+	/**
+	 * Load the given [series] of data for [symbol] into the [chart].
+	 */
 	suspend fun loadChart(symbol: String, series: API.PriceSeries) {
 		chart now chartProgress
 		
@@ -70,7 +80,8 @@ class ChartFragment : Fragment() {
 		val price = prices[series.toString()]
 				?.data
 				?.toEntryList()
-				?.toLineDataSet(series.toString())?.also {
+				?.toLineDataSet(series.toString())
+				?.also {
 					setLineStyle(it)
 				}
 				?: return
@@ -89,10 +100,19 @@ class ChartFragment : Fragment() {
 		}
 	}
 	
+	/**
+	 * Map a [PointArray] to a list of [Entry] to be displayed on the graph.
+	 */
 	private fun PointArray.toEntryList() = this.map { Entry((it.first / 1000).toFloat(), it.second.toFloat()) }
 	
+	/**
+	 * Convert a [List] of [Entry] to a [LineDataSet].
+	 */
 	private fun List<Entry>.toLineDataSet(label: String) = LineDataSet(this, label)
 	
+	/**
+	 * Set the line styles for the [lineDataSet] from the [colour] scheme of the chart.
+	 */
 	private fun setLineStyle(lineDataSet: LineDataSet) = lineDataSet.apply {
 		color = colour?.bodyTextColor
 				?: context?.let { ContextCompat.getColor(it, android.R.color.black) }
@@ -102,19 +122,28 @@ class ChartFragment : Fragment() {
 		setDrawIcons(false)
 	}
 	
+	/**
+	 * Set the style of the [chart] with formatting for X axis, left and right axis, and interactivity styling.
+	 */
 	private fun setChartStyle(chart: LineChart) = chart.apply chart@{
+		// The chart does not need borders since it is full bleed on device
 		setDrawBorders(false)
 		setDrawGridBackground(false)
 		
+		// The title of the graph is the coin title which is already displayed
 		setNoDataText("")
 		setDescription("")
 		
+		// As the graph is scrolled horizontally, keep the left axis minimum and maximum at the trough and peak of the data
+		// currently visible within the region
 		isAutoScaleMinMaxEnabled = true
 		setVisibleXRangeMaximum(60f * 60 * 24 * 28)
 		
+		// Remove margins from graph, full bleed
 		setViewPortOffsets(0f, 0f, 0f, 0f)
 		setExtraOffsets(0f, 0f, 0f, 0f)
 		
+		// Time axis
 		xAxis.apply {
 			valueFormatter = dateAxisFormatter
 			
@@ -131,6 +160,7 @@ class ChartFragment : Fragment() {
 			textSize = 12f
 		}
 		
+		// Price axis
 		axisLeft.apply {
 			setDrawAxisLine(false)
 			setDrawGridLines(false)
@@ -143,8 +173,10 @@ class ChartFragment : Fragment() {
 		
 		axisRight.isEnabled = false
 		
+		// Only one series currently shown
 		legend.isEnabled = false
 		
+		// Interactivity
 		setTouchEnabled(true)
 		isDragXEnabled = true
 		isScaleXEnabled = true
@@ -152,15 +184,19 @@ class ChartFragment : Fragment() {
 		isHighlightPerDragEnabled = false
 		isHighlightPerTapEnabled = true
 		
+		// Show data at tapped value on graph as description (small text beneath), also draw axis lines at tapped point
 		setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
 			override fun onNothingSelected() = this@chart.setDescription("")
 			
-			override fun onValueSelected(e: Entry?, h: Highlight?) = e?.let {
-				this@chart.setDescription("$${e.y} on ${dateFormat(e.x, "yyyy-MM-dd HH:mm")}")
+			override fun onValueSelected(entry: Entry?, highlight: Highlight?) = entry?.let {
+				this@chart.setDescription("$${entry.y} on ${dateFormat(entry.x, "yyyy-MM-dd HH:mm")}")
 			} ?: Unit
 		})
 	}
 	
+	/**
+	 * Set the [Chart]'s description to the given [string] with appropriate formatting (size and colour).
+	 */
 	private fun Chart<*>.setDescription(string: String) {
 		description = Description().apply {
 			text = string
@@ -169,14 +205,23 @@ class ChartFragment : Fragment() {
 		}
 	}
 	
+	/**
+	 * Convert a given [value] into a string for the price it represents.
+	 */
 	private val priceValueFormatter = IAxisValueFormatter { value, _ ->
 		"$" + value.toDouble().format(NumberFormat.Large)
 	}
 	
+	/**
+	 * Convert a given [value] into a string for the date it represents.
+	 */
 	private val dateAxisFormatter = IAxisValueFormatter { value, _ ->
 		dateFormat(value, "yyyy-MM-dd")
 	}
 	
+	/**
+	 * Format a given [value] using the [datePattern]. This chooses the best method depending on the Android version.
+	 */
 	private fun dateFormat(value: Float, datePattern: String) = when {
 		Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
 			Instant
