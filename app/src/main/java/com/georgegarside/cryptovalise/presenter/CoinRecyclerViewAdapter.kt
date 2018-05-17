@@ -93,6 +93,7 @@ class CoinRecyclerViewAdapter(private val context: Context) :
 				
 				// Set on click listeners
 				setOnClickListener {
+					if (coinPrices.priceDollars.text.isBlank()) return@setOnClickListener;
 					val transitionElements = arrayOf<SupportPair<View, String>>(
 							SupportPair(icon, resources.getString(R.string.transition_title)),
 							SupportPair(coinPrices, resources.getString(R.string.transition_content))
@@ -103,8 +104,6 @@ class CoinRecyclerViewAdapter(private val context: Context) :
 				(context as? CoinListActivity)?.apply {
 					buttonMore.setOnClickListener { showCoinMenu(buttonMore, id) }
 				}
-				
-				progressBar.progressAnimate(10)
 			}
 			
 			// These methods to load additional data are asynchronous and run simultaneously

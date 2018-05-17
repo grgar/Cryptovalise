@@ -89,7 +89,7 @@ class CoinListActivity(
 		supportLoaderManager.initLoader(0, null, this)
 		
 		// Swipe to refresh is implemented to reload the prices
-		coinList.setOnRefreshListener(refreshListener)
+		coinList.setOnRefreshListener { launch(UI) { refresh() } }
 		
 		supportStartPostponedEnterTransition()
 	}
@@ -113,11 +113,17 @@ class CoinListActivity(
 	/**
 	 * Returns a new [Loader] for the given [id]
 	 */
-	override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> = when (id) {
-		0 -> CursorLoader(this, CoinContentProvider.Operation.Coin.uri,
-				null, null, null, null)
+	override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
+		// Check for network
+		launch { checkNetwork(coinRecycler) { refresh() } }
 		
-		else -> throw Exception("Invalid loader ID")
+		// Create loader
+		return when (id) {
+			0 -> CursorLoader(this, CoinContentProvider.Operation.Coin.uri,
+					null, null, null, null)
+			
+			else -> throw Exception("Invalid loader ID")
+		}
 	}
 	
 	/**
@@ -141,7 +147,13 @@ class CoinListActivity(
 	 * This only reloads content which is relevant to the user requesting a refresh and is most likely to have changed.
 	 * For example, the coin's logo is not refreshed.
 	 */
-	private val refreshListener = {
+	private suspend fun refresh() {
+		// Preemptive check of network before clearing cache to keep cache intact in case of no network
+		if (!checkNetwork(coinRecycler) { refresh() }) {
+			coinList.isRefreshing = false
+			return
+		}
+		
 		// Invalidate all previously received prices to make sure the obtained prices are the latest ones available
 		API.invalidateCache()
 		

@@ -2,20 +2,25 @@ package com.georgegarside.cryptovalise.presenter
 
 import android.graphics.PorterDuff
 import android.os.Build
-import android.support.annotation.IdRes
 import android.support.design.widget.CollapsingToolbarLayout
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentActivity
+import android.support.design.widget.Snackbar
 import android.support.v4.content.ContextCompat
 import android.support.v7.graphics.Palette
 import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.view.Window
 import android.widget.TextView
 import com.georgegarside.cryptovalise.R
 import com.georgegarside.cryptovalise.model.Coin
 import kotlinx.android.synthetic.main.activity_coin_detail.*
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.launch
+import java.io.IOException
+import java.net.InetSocketAddress
+import java.net.Socket
 
 /**
  * Extension function to set the colour of a [TextView] containing a delta (that is, a TextView containing text with
@@ -109,3 +114,27 @@ fun Menu.iterator() = object : Iterator<MenuItem> {
 	override fun hasNext(): Boolean = currentIndex < size()
 	override fun next(): MenuItem = getItem(currentIndex++)
 }
+
+/**
+ * Check for network connectivity and show a [Snackbar] for the [view] with a refresh button to enact a [callback].
+ */
+suspend fun checkNetwork(view: View, callback: suspend () -> Unit = {}) = async {
+	try {
+		// Basic network check, DNS for CloudFlare
+		Socket().apply {
+			connect(InetSocketAddress("1.1.1.1", 53), 1500)
+			close()
+		}
+	} catch (e: IOException) {
+		// No internet connectivity
+		Snackbar.make(view, view.context.getString(R.string.error_no_network), Snackbar.LENGTH_INDEFINITE).apply {
+			setAction(view.context.getString(R.string.error_no_network_action), {
+				dismiss()
+				launch(UI) { callback() }
+			})
+			show()
+		}
+		return@async false
+	}
+	return@async true
+}.await()

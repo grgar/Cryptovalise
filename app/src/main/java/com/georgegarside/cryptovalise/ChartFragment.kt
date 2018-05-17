@@ -15,6 +15,7 @@ import com.georgegarside.cryptovalise.model.API
 import com.georgegarside.cryptovalise.model.NumberFormat
 import com.georgegarside.cryptovalise.model.PointArray
 import com.georgegarside.cryptovalise.model.format
+import com.georgegarside.cryptovalise.presenter.checkNetwork
 import com.georgegarside.cryptovalise.presenter.now
 import com.georgegarside.cryptovalise.presenter.toSwatch
 import com.github.mikephil.charting.charts.Chart
@@ -77,6 +78,14 @@ class ChartFragment : Fragment() {
 		val slug = API.coins.await()[symbol]?.slug ?: return
 		val prices = API.getPrices(slug)
 		
+		if (prices.isEmpty()) {
+			checkNetwork(chart) {
+				loadChart(symbol, series)
+			}
+			chartProgress now chart
+			return
+		}
+		
 		val price = prices[series.toString()]
 				?.data
 				?.toEntryList()
@@ -84,7 +93,13 @@ class ChartFragment : Fragment() {
 				?.also {
 					setLineStyle(it)
 				}
-				?: return
+				?: run {
+					checkNetwork(chart) {
+						loadChart(symbol, series)
+					}
+					chartProgress now chart
+					return
+				}
 		
 		chart.apply {
 			data = LineData(listOf(price))
@@ -189,8 +204,8 @@ class ChartFragment : Fragment() {
 			override fun onNothingSelected() = this@chart.setDescription("")
 			
 			override fun onValueSelected(entry: Entry?, highlight: Highlight?) = entry?.let {
-				this@chart.setDescription("$${entry.y} on ${dateFormat(entry.x, "yyyy-MM-dd HH:mm")}")
-			} ?: Unit
+				this@chart.setDescription("$${it.y} on ${dateFormat(it.x, "yyyy-MM-dd HH:mm")}")
+			} ?: onNothingSelected()
 		})
 	}
 	

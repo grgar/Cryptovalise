@@ -35,7 +35,7 @@ object API {
 			it
 		}, failure = {
 			// Fail with empty data
-			mapOf<Any, Any>() as T
+			LinkedTreeMap<Any, Any>() as T
 		})
 	}.await()
 	
