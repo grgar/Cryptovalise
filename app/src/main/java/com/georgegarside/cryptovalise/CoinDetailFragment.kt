@@ -138,6 +138,12 @@ class CoinDetailFragment : Fragment() {
 			}
 			
 			coin.links.whitepaper?.let { uri ->
+				// Resets for tablet
+				whitepaperVisit.apply {
+					text = context.getString(R.string.coin_detail_links_whitepaper)
+					setTextColor(ContextCompat.getColor(context, R.color.colorAccent))
+					isClickable = true
+				}
 				launch(UI) {
 					val colour = CoinRecyclerViewAdapter.getLogoColour(symbol)
 					whitepaperVisit.setOnClickListener { openUri(uri, colour) }

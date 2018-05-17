@@ -7,7 +7,11 @@ import android.provider.BaseColumns
 import kotlin.reflect.KClass
 
 /**
- * Open helper for the [SQLiteDatabase]. A subclass of [SQLiteOpenHelper], this class defines
+ * Open helper for the [SQLiteDatabase]. A subclass of [SQLiteOpenHelper], this class defines the database that is used
+ * in the app for storing data. Each table is an enum class, with each table implementing a custom interface for
+ * managing columns in a table: [TableColumn]. The interface provides the ability to write a column as an SQL
+ * declaration, using a custom enum class [SQL]. Each table is in the enum [Table] which allows it to be created using
+ * the overridden method [SQLiteOpenHelper.onCreate].
  */
 class DBOpenHelper(context: Context) : SQLiteOpenHelper(context, "coins.db", null, 1) {
 	

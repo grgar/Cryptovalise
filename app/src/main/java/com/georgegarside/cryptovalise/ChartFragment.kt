@@ -43,6 +43,9 @@ import java.util.*
  */
 class ChartFragment : Fragment() {
 	
+	/**
+	 * Inflate the view into [container] using [inflater]. [savedInstanceState] is ignored as this is handled by Android.
+	 */
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
 			inflater.inflate(R.layout.fragment_chart, container, false).also {
 				
