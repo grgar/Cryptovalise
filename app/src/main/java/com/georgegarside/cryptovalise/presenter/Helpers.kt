@@ -15,9 +15,9 @@ import android.widget.TextView
 import com.georgegarside.cryptovalise.R
 import com.georgegarside.cryptovalise.model.Coin
 import kotlinx.android.synthetic.main.activity_coin_detail.*
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.android.UI
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket

@@ -3,8 +3,8 @@ package com.georgegarside.cryptovalise.model
 import android.graphics.BitmapFactory
 import android.net.Uri
 import com.georgegarside.cryptovalise.model.Coin.*
-import kotlinx.coroutines.experimental.CoroutineStart
-import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.async
 
 /**
  * Data class for a single [Coin] returned from the [API] and mapped to this class with the [API.getCoins] method.

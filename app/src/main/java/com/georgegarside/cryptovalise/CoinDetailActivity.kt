@@ -2,9 +2,9 @@ package com.georgegarside.cryptovalise
 
 import android.content.Intent
 import android.os.Bundle
+import android.support.design.widget.AppBarLayout
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
-import android.support.v4.view.MenuItemCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.ShareActionProvider
 import android.view.Menu
@@ -38,9 +38,9 @@ class CoinDetailActivity(
 		// Wait for async before transition
 		supportPostponeEnterTransition()
 		
-		appBar.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
+		appBar.addOnOffsetChangedListener (AppBarLayout.OnOffsetChangedListener { appBarLayout, verticalOffset ->
 			chartFragment.view?.alpha = 1 - Math.abs(verticalOffset).toFloat() / appBarLayout.totalScrollRange
-		}
+		})
 		
 		// Action bar up button to call onBackPressed
 		supportActionBar?.setDisplayHomeAsUpEnabled(true)

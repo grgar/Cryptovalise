@@ -14,8 +14,8 @@ import com.georgegarside.cryptovalise.R
 import com.georgegarside.cryptovalise.model.*
 import kotlinx.android.synthetic.main.coin_list_content.view.*
 import kotlinx.android.synthetic.main.include_coin_prices.view.*
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.android.UI
+import kotlinx.coroutines.launch
 import kotlin.Int
 import kotlin.Pair
 import kotlin.String

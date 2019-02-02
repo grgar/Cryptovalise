@@ -23,8 +23,8 @@ import com.georgegarside.cryptovalise.presenter.ShareActionProviderLocation
 import com.georgegarside.cryptovalise.presenter.setDeltaColour
 import kotlinx.android.synthetic.main.activity_coin_detail.*
 import kotlinx.android.synthetic.main.fragment_coin_detail.view.*
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.android.UI
+import kotlinx.coroutines.launch
 import saschpe.android.customtabs.CustomTabsHelper
 import saschpe.android.customtabs.WebViewFallback
 
