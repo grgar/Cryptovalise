@@ -199,7 +199,7 @@ object API {
 	/**
 	 * The server is located at [basePath]. One can switch to the staging or alternative server by changing the path const.
 	 */
-	const val basePath = "https://coin.fyi/"
+	const val basePath = "https://coin.fyi/api/web/"
 	
 	/**
 	 * Temporary storage for this app session to hold a cache of data in memory.
